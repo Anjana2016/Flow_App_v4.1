@@ -238,7 +238,7 @@
                 <div
                     style="background: rgba(139, 92, 246, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
                     <div style="font-size: 14px; font-weight: 600; color: var(--accent-purple); margin-bottom: 8px;">
-                        🏆 Achievement Unlocked!
+                        🏆 Milestone reached!
                     </div>
                     <div style="font-size: 12px; color: var(--text-secondary);">
                         "Setup Master" - You've successfully configured your Flow system!
@@ -449,7 +449,7 @@
                                 </div>
                             </div>
                             <div class="toggle-item">
-                                <span class="toggle-label">Achievement celebrations</span>
+                                <span class="toggle-label">Milestone celebrations</span>
                                 <div class="settings-toggle active" id="toggleAchievements"
                                     onclick="toggleSetting('achievements')">
                                     <div class="settings-toggle-slider"></div>
@@ -1025,199 +1025,199 @@
         </div>
 
         <!-- TAB 3: BUILD -->
-        <div class="tab-content" id="your-journey">
-            <div class="journey-header">
-                <h1 class="journey-title">Build</h1>
-                <p class="journey-subtitle">What you're building so far 🚀</p>
-            </div>
+<!-- Tab Header -->
+    <div class="growth-tab-header">
+        <h1 class="growth-tab-title">Growth</h1>
+        <p class="growth-tab-subtitle" data-tooltip="growth-philosophy">Building wealth vs tracking spending</p>
+    </div>
 
-            <div class="profile-section">
-                <div class="profile-avatar">😊</div>
-                <div class="profile-name">Flow Master</div>
-                <div class="profile-streak">🔥 5 days of smart spending!</div>
-            </div>
-
-            <!-- ===== PHASE 2: ENHANCED GROWTH STORY HERO SECTION ===== -->
-            <div class="growth-story-hero">
-                <div class="growth-hero-content">
-                    <div class="growth-status-badge">
-                        <span class="status-icon">🏆</span>
-                        <span class="status-text" id="growthStatusText">Building Wealth Warrior</span>
-                    </div>
-                    
-                    <h2 class="growth-hero-title">Building Wealth Warrior</h2>
-                    <p class="growth-subtitle">Real progress across three areas of your money life</p>
-                    
-                    <div class="milestone-progress-hero">
-                        <div class="milestone-info">$<span id="totalBuiltAmount">347</span> built • $<span id="nextMilestoneAmount">153</span> from your next meaningful milestone</div>
-                        <div class="milestone-bar">
-                            <div class="milestone-fill" id="milestoneProgressFill" style="width: 70%"></div>
-                        </div>
-                        <div class="milestone-encouragement">You're <span id="milestoneProgressPercent">70</span>% to something that changes everything 🔥</div>
-                    </div>
+    <!-- Growth Story Hero -->
+    <div class="growth-story-hero">
+        <div class="growth-hero-content">
+            <h2 class="growth-title" data-tooltip="milestone-progress">Building Wealth Warrior</h2>
+            <p class="growth-subtitle">Real progress across three areas of your money life</p>
+            
+            <div class="milestone-progress-hero">
+                <div class="milestone-info" id="heroMilestoneInfo">
+                    $<span id="totalBuiltAmount">347</span> built • $<span id="nextMilestoneAmount">153</span> from your next meaningful milestone
                 </div>
-            </div>
-
-            <!-- ===== PHASE 2: ENHANCED MONEY TIMELINE SECTION ===== -->
-            <div class="money-timeline-section">
-                <h3 class="timeline-title">💰 Real Money Built</h3>
-                
-                <div class="money-timeline">
-                    <div class="milestone-item completed" data-amount="100">
-                        <span class="milestone-marker">✅</span>
-                        <div class="milestone-info">
-                            <div class="milestone-amount">$100 Foundation</div>
-                            <div class="milestone-progress">Built June 20th</div>
-                        </div>
-                        <div class="milestone-meaning">Started</div>
-                    </div>
-                    
-                    <div class="milestone-item completed" data-amount="250">
-                        <span class="milestone-marker">✅</span>
-                        <div class="milestone-info">
-                            <div class="milestone-amount">$250 Cushion</div>
-                            <div class="milestone-progress">Built July 10th</div>
-                        </div>
-                        <div class="milestone-meaning">Security</div>
-                    </div>
-                    
-                    <div class="milestone-item current" data-amount="500" id="currentMilestone">
-                        <span class="milestone-marker">🎯</span>
-                        <div class="milestone-info">
-                            <div class="milestone-amount">$500 Security</div>
-                            <div class="milestone-progress">$<span id="currentBuiltAmount">347</span> built so far (<span id="progressPercent">70</span>% there)</div>
-                        </div>
-                        <div class="milestone-meaning">Peace of mind</div>
-                    </div>
-                    
-                    <div class="milestone-item future" data-amount="1000">
-                        <span class="milestone-marker">🔒</span>
-                        <div class="milestone-info">
-                            <div class="milestone-amount">$1,000 Freedom</div>
-                            <div class="milestone-progress">Unlocks after $500</div>
-                        </div>
-                        <div class="milestone-meaning">Real options</div>
-                    </div>
-
-                    <div class="milestone-item future" data-amount="2500">
-                        <span class="milestone-marker">�</span>
-                        <div class="milestone-info">
-                            <div class="milestone-amount">$2,500 Growth</div>
-                            <div class="milestone-progress">Future milestone</div>
-                        </div>
-                        <div class="milestone-meaning">Momentum</div>
-                    </div>
+                <div class="milestone-bar">
+                    <div class="milestone-fill" id="milestoneProgressFill" style="width: 70%"></div>
                 </div>
-            </div>
-
-            <div class="achievements-section">
-                <h3
-                    style="font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--primary-color);">
-                    🏆 Your Progress
-                </h3>
-
-                <div class="settings-item" onclick="openAchievementsModal()"
-                    style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);">
-                    <div class="settings-icon" style="background: rgba(255, 255, 255, 0.2); font-size: 20px;">🏆</div>
-                    <div class="settings-info">
-                        <div class="settings-title" style="color: white; font-weight: 600;">View All Progress</div>
-                        <div class="settings-desc" style="color: rgba(255, 255, 255, 0.8);">Milestones, habits &
-                            growth tracking</div>
-                    </div>
-                    <div class="settings-arrow" style="color: white; font-size: 18px;">→</div>
-                </div>
-
-                <div class="achievement-quick-stats"
-                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;">
-                    <div class="quick-stat"
-                        style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 16px; text-align: center;">
-                        <div style="font-size: 24px; font-weight: 700; color: #6366f1;" id="totalXPDisplay">0 Built</div>
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Growth Momentum
-                        </div>
-                    </div>
-                    <div class="quick-stat"
-                        style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 12px; padding: 16px; text-align: center;">
-                        <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;" id="totalBadgesDisplay">0</div>
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Milestones Built</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="insights-grid">
-                <div class="insight-card" onclick="showInsightDetails('streak')">
-                    <div class="insight-emoji">🔥</div>
-                    <div class="insight-value">5 days</div>
-                    <div class="insight-label">Current streak</div>
-                </div>
-                <div class="insight-card" onclick="showInsightDetails('saved')">
-                    <div class="insight-emoji">💎</div>
-                    <div class="insight-value">$160</div>
-                    <div class="insight-label">Saved this month</div>
-                </div>
-                <div class="insight-card" onclick="showInsightDetails('progress')">
-                    <div class="insight-emoji">📈</div>
-                    <div class="insight-value">95%</div>
-                    <div class="insight-label">Budget accuracy</div>
-                </div>
-                <div class="insight-card" onclick="showInsightDetails('flow')">
-                    <div class="insight-emoji">💚</div>
-                    <div class="insight-value">$40</div>
-                    <div class="insight-label">Daily flow</div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">⚙️ Settings</h3>
-
-                <div class="settings-item" onclick="settingTapped('account')">
-                    <div class="settings-icon">👤</div>
-                    <div class="settings-info">
-                        <div class="settings-title">Account Settings</div>
-                        <div class="settings-desc">Personal info and preferences</div>
-                    </div>
-                    <div class="settings-arrow">→</div>
-                </div>
-
-                <div class="settings-item" onclick="settingTapped('budget')">
-                    <div class="settings-icon" style="background: var(--accent-green);">🎯</div>
-                    <div class="settings-info">
-                        <div class="settings-title">Flow Preferences</div>
-                        <div class="settings-desc">Customize your flow system</div>
-                    </div>
-                    <div class="settings-arrow">→</div>
-                </div>
-
-                <div class="settings-item" onclick="settingTapped('notifications')">
-                    <div class="settings-icon" style="background: var(--accent-orange);">🔔</div>
-                    <div class="settings-info">
-                        <div class="settings-title">Notifications</div>
-                        <div class="settings-desc">Reminders and alerts</div>
-                    </div>
-                    <div class="settings-arrow">→</div>
-                </div>
-
-                <div class="settings-item" onclick="settingTapped('help')">
-                    <div class="settings-icon" style="background: var(--accent-blue);">❓</div>
-                    <div class="settings-info">
-                        <div class="settings-title">Help & Support</div>
-                        <div class="settings-desc">Get help when you need it</div>
-                    </div>
-                    <div class="settings-arrow">→</div>
-                </div>
-            </div>
-
-            <div class="glass-card">
-                <h3
-                    style="font-size: 16px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    👤 Profile Management
-                </h3>
-                <div style="text-align: center; color: var(--text-muted); padding: 20px;">
-                    <div style="font-size: 24px; margin-bottom: 8px;">⚙️</div>
-                    <div style="font-size: 14px; margin-bottom: 4px;">Setting up your profile...</div>
-                    <div style="font-size: 12px;">All original profile features preserved for Phase 3+</div>
+                <div class="milestone-encouragement" id="milestoneEncouragement">
+                    You're <span id="milestoneProgressPercent">70</span>% to something that changes everything 🔥
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Growth Areas -->
+    <div class="growth-areas">
+        <!-- Smart Choices Area -->
+        <div class="growth-area smart-choices" data-tooltip="smart-choices">
+            <div class="area-header">
+                <div class="area-info">
+                    <div class="area-icon">🧠</div>
+                    <div class="area-details">
+                        <h3>Smart Choices</h3>
+                        <div class="area-summary">Building mindful spending habits</div>
+                    </div>
+                </div>
+                <div class="growth-indicator" id="smartChoicesIndicator">Building habits</div>
+            </div>
+            
+            <div class="building-moments">
+                <div class="building-moment">
+                    <div class="moment-info">
+                        <div class="moment-status">🌱</div>
+                        <div class="moment-details">
+                            <div class="moment-name">Mindful Week</div>
+                            <div class="moment-context">5/7 days • 2 more mindful days</div>
+                        </div>
+                    </div>
+                    <div class="moment-impact">Building discipline</div>
+                </div>
+                
+                <div class="building-moment">
+                    <div class="moment-info">
+                        <div class="moment-status">✅</div>
+                        <div class="moment-details">
+                            <div class="moment-name">Thoughtful Spending</div>
+                            <div class="moment-context">Built July 15th</div>
+                        </div>
+                    </div>
+                    <div class="moment-impact">Habit formed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flow Mastery Area -->
+        <div class="growth-area flow-mastery" data-tooltip="flow-mastery">
+            <div class="area-header">
+                <div class="area-info">
+                    <div class="area-icon">🎯</div>
+                    <div class="area-details">
+                        <h3>Flow Mastery</h3>
+                        <div class="area-summary">18 consecutive days in flow</div>
+                    </div>
+                </div>
+                <div class="growth-indicator" id="flowMasteryIndicator">18-day streak</div>
+            </div>
+            
+            <div class="building-moments">
+                <div class="building-moment">
+                    <div class="moment-info">
+                        <div class="moment-status">🔥</div>
+                        <div class="moment-details">
+                            <div class="moment-name">Flow Month</div>
+                            <div class="moment-context">18 days of staying in flow</div>
+                        </div>
+                    </div>
+                    <div class="moment-impact">Momentum building</div>
+                </div>
+                
+                <div class="building-moment">
+                    <div class="moment-info">
+                        <div class="moment-status">✅</div>
+                        <div class="moment-details">
+                            <div class="moment-name">Daily Rhythm</div>
+                            <div class="moment-context">Built July 8th</div>
+                        </div>
+                    </div>
+                    <div class="moment-impact">Foundation set</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real Money Built Area -->
+        <div class="growth-area real-money" data-tooltip="real-money">
+            <div class="area-header">
+                <div class="area-info">
+                    <div class="area-icon">💰</div>
+                    <div class="area-details">
+                        <h3>Real Money Built</h3>
+                        <div class="area-summary" id="realMoneyBuiltSummary">$347 built while living your life</div>
+                    </div>
+                </div>
+                <div class="growth-indicator" id="realMoneyIndicator">$347 built</div>
+            </div>
+            
+            <div class="building-moments">
+                <div class="building-moment">
+                    <div class="moment-info">
+                        <div class="moment-status">🎯</div>
+                        <div class="moment-details">
+                            <div class="moment-name">Security Milestone</div>
+                            <div class="moment-context">$153 from $500 security</div>
+                        </div>
+                    </div>
+                    <div class="moment-impact">Changes everything</div>
+                </div>
+                
+                <div class="building-moment">
+                    <div class="moment-info">
+                        <div class="moment-status">✅</div>
+                        <div class="moment-details">
+                            <div class="moment-name">Foundation Built</div>
+                            <div class="moment-context">Built June 12th</div>
+                        </div>
+                    </div>
+                    <div class="moment-impact">First step done</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Milestone Focus -->
+    <div class="next-milestone" data-tooltip="next-milestone">
+        <div class="milestone-header">
+            <h3>Next Milestone: Security</h3>
+            <div class="milestone-amount">$500</div>
+        </div>
+        <div class="milestone-description">
+            This milestone changes how you feel about money. Real security starts here.
+        </div>
+        <div class="milestone-options">
+            <div class="milestone-option" data-tooltip="quick-wins">
+                <div class="option-icon">🏃‍♂️</div>
+                <div class="option-details">
+                    <div class="option-name">Quick Wins</div>
+                    <div class="option-description">Two mindful days + $153 more</div>
+                </div>
+            </div>
+            <div class="milestone-option" data-tooltip="consistency">
+                <div class="option-icon">🎯</div>
+                <div class="option-details">
+                    <div class="option-name">Consistency</div>
+                    <div class="option-description">Flow Month builds strongest foundation</div>
+                </div>
+            </div>
+            <div class="milestone-option" data-tooltip="steady-growth">
+                <div class="option-icon">⚖️</div>
+                <div class="option-details">
+                    <div class="option-name">Steady Growth</div>
+                    <div class="option-description">Balanced progress across all areas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Future Vision -->
+    <div class="vision-section">
+        <h3 class="vision-title">Where you're headed</h3>
+        <div class="vision-projections">
+            <div class="projection-card" data-tooltip="six-month-vision">
+                <div class="projection-timeline">6 months</div>
+                <div class="projection-amount" id="sixMonthProjection">$1,847</div>
+                <div class="projection-meaning">Emergency buffer complete</div>
+            </div>
+            <div class="projection-card" data-tooltip="one-year-vision">
+                <div class="projection-timeline">1 year</div>
+                <div class="projection-amount" id="oneYearProjection">$4,200</div>
+                <div class="projection-meaning">Real options opening up</div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- DAY 17 ADDITION: Category Detail Overlay -->
@@ -1498,19 +1498,19 @@
                                 <!-- Engagement Badges Gallery -->
                                 <div class="engagement-badges glass-card">
                                     <div class="badge-category" data-category="spending-efficiency">
-                                        <h3>Spending Efficiency</h3>
+                                        <h3>Smart Choices</h3>
                                         <div class="badge-grid" id="spendingEfficiencyBadges">
                                             <!-- Frugal Week, Minimal Spender, Zero Spend Hero -->
                                         </div>
                                     </div>
                                     <div class="badge-category" data-category="budget-mastery">
-                                        <h3>Budget Mastery</h3>
+                                        <h3>Flow Mastery</h3>
                                         <div class="badge-grid" id="budgetMasteryBadges">
                                             <!-- Budget Keeper, Flow Master, Perfect Month -->
                                         </div>
                                     </div>
                                     <div class="badge-category" data-category="wealth-acceleration">
-                                        <h3>Wealth Acceleration</h3>
+                                        <h3>Real Money Built</h3>
                                         <div class="badge-grid" id="wealthAccelerationBadges">
                                             <!-- Wealth Builder, Savings Surge, Compound Champion -->
                                         </div>
