@@ -4,16 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>💚 Flow v4.1 - Your Financial Freedom</title>
+    <title>💚 Flow v4.0 - Your Financial Freedom</title>
 
     <!--
-    Flow Budgeting App - HTML
-    VERSION: v4.1.0 - Production Ready
-    DATE: July 21, 2025
-    LAST UPDATED: Allocation Sliders Fixed & Manual Drag System
-    STATUS: Production Ready - Touch-optimized Interface
+    VERSION: v4.0 BETA
+    STATUS: Phase 1- 7 of v3.0 Implementation completed
+    DATE: July 17, 2025
+    SESSION: Settings Modal Development (Partial Implementation)
     -->
-    
     <!-- Your CSS file -->
     <link rel="stylesheet" href="flow_app_v4.1.css">
 
@@ -63,16 +61,6 @@
             margin-left: -8px !important;
             border: 8px solid transparent !important;
             border-top-color: #0ea5e9 !important;
-        }
-        
-        /* EMERGENCY SLIDER FIX - Ensure sliders are interactive */
-        .custom-slider {
-            pointer-events: auto !important;
-            touch-action: none !important;
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            position: relative !important;
-            z-index: 10 !important;
         }
     </style>
 </head>
@@ -845,7 +833,7 @@
                         <div class="progress-fill" id="futureProgressFill"></div>
                     </div>
                     <div class="progress-text">
-                        <span id="futureUsedAmount">$160 building automatically</span>
+                        <span id="futureUsedAmount">$160 growing automatically</span>
                         <span id="futureAllocatedAmount">$160 allocated</span>
                     </div>
                 </div>
@@ -917,14 +905,15 @@
                     </div>
                     <div style="position: relative;">
                         <input type="range" class="custom-slider foundation" id="foundationSlider" min="30" max="80"
-                            value="55" oninput="handleSliderInput('foundation', this)"
+                            value="55"
+                            oninput="handleSliderInput('foundation', this); updateAllocationEnhanced('foundation', this.value)"
                             onmousedown="startSliderDrag('foundation', this)"
                             onmouseup="endSliderDrag('foundation', this)"
                             ontouchstart="startSliderDrag('foundation', this)"
                             ontouchend="endSliderDrag('foundation', this)">
                         <div class="slider-tooltip" id="foundationTooltip">55% • $1,760</div>
                     </div>
-                    <div class="slider-description">Security first - builds confidence</div>
+                    <div class="slider-description">Your safety net and non-negotiables</div>
                 </div>
 
                 <div class="slider-group">
@@ -934,12 +923,12 @@
                     </div>
                     <div style="position: relative;">
                         <input type="range" class="custom-slider future" id="futureSlider" min="0" max="30" value="5"
-                            oninput="handleSliderInput('future', this)" onmousedown="startSliderDrag('future', this)"
-                            onmouseup="endSliderDrag('future', this)" ontouchstart="startSliderDrag('future', this)"
-                            ontouchend="endSliderDrag('future', this)">
+                            oninput="handleSliderInput('future', this); updateAllocationEnhanced('future', this.value)"
+                            onmousedown="startSliderDrag('future', this)" onmouseup="endSliderDrag('future', this)"
+                            ontouchstart="startSliderDrag('future', this)" ontouchend="endSliderDrag('future', this)">
                         <div class="slider-tooltip" id="futureTooltip">5% • $160</div>
                     </div>
-                    <div class="slider-description">Builds automatically toward goals</div>
+                    <div class="slider-description">Growing automatically while you live</div>
                 </div>
 
                 <div class="slider-group">
@@ -949,12 +938,13 @@
                     </div>
                     <div style="position: relative;">
                         <input type="range" class="custom-slider freedom" id="freedomSlider" min="10" max="60"
-                            value="40" oninput="handleSliderInput('freedom', this)"
+                            value="40"
+                            oninput="handleSliderInput('freedom', this); updateAllocationEnhanced('freedom', this.value)"
                             onmousedown="startSliderDrag('freedom', this)" onmouseup="endSliderDrag('freedom', this)"
                             ontouchstart="startSliderDrag('freedom', this)" ontouchend="endSliderDrag('freedom', this)">
                         <div class="slider-tooltip" id="freedomTooltip">40% • $1,280</div>
                     </div>
-                    <div class="slider-description">Spend guilt-free today</div>
+                    <div class="slider-description">Today's guilt-free spending money</div>
                 </div>
 
                 <button class="reset-button" onclick="resetToProfileDefault()">
@@ -1052,321 +1042,315 @@
         </div>
 
         <!-- TAB 3: BUILD -->
-        <div class="tab-content" id="your-journey">
-            <!-- Tab Header -->
-            <div class="growth-tab-header">
-                <h1 class="growth-tab-title">Growth</h1>
-                <p class="growth-tab-subtitle" data-tooltip="growth-philosophy">Building wealth vs tracking spending</p>
-            </div>
+        <!-- Tab Header -->
+        <div class="growth-tab-header">
+            <h1 class="growth-tab-title">Growth</h1>
+            <p class="growth-tab-subtitle" data-tooltip="growth-philosophy">Building wealth vs tracking spending</p>
+        </div>
 
-            <!-- Growth Story Hero -->
-            <div class="growth-story-hero">
-                <div class="growth-hero-content">
-                    <h2 class="growth-title" data-tooltip="milestone-progress">Building Wealth Warrior</h2>
-                    <p class="growth-subtitle">Real progress across three areas of your money life</p>
+        <!-- Growth Story Hero -->
+        <div class="growth-story-hero">
+            <div class="growth-hero-content">
+                <h2 class="growth-title" data-tooltip="milestone-progress">Building Wealth Warrior</h2>
+                <p class="growth-subtitle">Real progress across three areas of your money life</p>
 
-                    <div class="milestone-progress-hero">
-                        <div class="milestone-info" id="heroMilestoneInfo">
-                            $<span id="totalBuiltAmount">347</span> built • $<span id="nextMilestoneAmount">153</span>
-                            from
-                            your next meaningful milestone
-                        </div>
-                        <div class="milestone-bar">
-                            <div class="milestone-fill" id="milestoneProgressFill" style="width: 70%"></div>
-                        </div>
-                        <div class="milestone-encouragement" id="milestoneEncouragement">
-                            You're <span id="milestoneProgressPercent">70</span>% to something that changes everything
-                            🔥
-                        </div>
+                <div class="milestone-progress-hero">
+                    <div class="milestone-info" id="heroMilestoneInfo">
+                        $<span id="totalBuiltAmount">347</span> built • $<span id="nextMilestoneAmount">153</span> from
+                        your next meaningful milestone
+                    </div>
+                    <div class="milestone-bar">
+                        <div class="milestone-fill" id="milestoneProgressFill" style="width: 70%"></div>
+                    </div>
+                    <div class="milestone-encouragement" id="milestoneEncouragement">
+                        You're <span id="milestoneProgressPercent">70</span>% to something that changes everything 🔥
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Money Timeline -->
-            <div class="money-timeline" data-tooltip="money-timeline">
-                <h3 class="timeline-title">Your Money Timeline</h3>
-                <p class="timeline-subtitle">Each milestone represents real financial security</p>
+        <!-- Money Timeline -->
+        <div class="money-timeline" data-tooltip="money-timeline">
+            <h3 class="timeline-title">Your Money Timeline</h3>
+            <p class="timeline-subtitle">Each milestone represents real financial security</p>
 
-                <div class="timeline-track">
-                    <div class="milestone-marker completed" data-tooltip="milestone-100">
-                        <div class="marker-circle">✓</div>
-                        <div class="marker-label">$100<br>Foundation</div>
-                    </div>
-                    <div class="milestone-marker completed" data-tooltip="milestone-250">
-                        <div class="marker-circle">✓</div>
-                        <div class="marker-label">$250<br>Cushion</div>
-                    </div>
-                    <div class="milestone-marker current" data-tooltip="milestone-500">
-                        <div class="marker-circle">$500</div>
-                        <div class="marker-label">$500<br>Security</div>
-                    </div>
-                    <div class="milestone-marker future" data-tooltip="milestone-1000">
-                        <div class="marker-circle">$1K</div>
-                        <div class="marker-label">$1,000<br>Freedom</div>
-                    </div>
+            <div class="timeline-track">
+                <div class="milestone-marker completed" data-tooltip="milestone-100">
+                    <div class="marker-circle">✓</div>
+                    <div class="marker-label">$100<br>Foundation</div>
+                </div>
+                <div class="milestone-marker completed" data-tooltip="milestone-250">
+                    <div class="marker-circle">✓</div>
+                    <div class="marker-label">$250<br>Cushion</div>
+                </div>
+                <div class="milestone-marker current" data-tooltip="milestone-500">
+                    <div class="marker-circle">$500</div>
+                    <div class="marker-label">$500<br>Security</div>
+                </div>
+                <div class="milestone-marker future" data-tooltip="milestone-1000">
+                    <div class="marker-circle">$1K</div>
+                    <div class="marker-label">$1,000<br>Freedom</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Growth Areas -->
-            <div class="growth-areas">
-                <!-- Smart Choices Area -->
-                <div class="growth-area smart-choices" data-tooltip="smart-choices">
-                    <div class="area-header">
-                        <div class="area-info">
-                            <div class="area-icon">🧠</div>
-                            <div class="area-details">
-                                <h3>Smart Choices</h3>
-                                <div class="area-summary">Building mindful spending habits</div>
-                            </div>
-                        </div>
-                        <div class="growth-progress-ring">
-                            <svg class="progress-circle" viewBox="0 0 42 42">
-                                <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
-                                <circle cx="21" cy="21" r="18" class="progress-fill smart-choices-progress"
-                                    style="stroke-dasharray: 113; stroke-dashoffset: 34;"></circle>
-                            </svg>
-                            <div class="progress-text">75%</div>
-                        </div>
-                        <div class="growth-indicator" id="smartChoicesIndicator">Building habits</div>
-                    </div>
-
-                    <div class="building-moments">
-                        <div class="building-moment">
-                            <div class="moment-info">
-                                <div class="moment-status">🌱</div>
-                                <div class="moment-details">
-                                    <div class="moment-name">Mindful Week</div>
-                                    <div class="moment-context">5/7 days • 2 more mindful days</div>
-                                </div>
-                            </div>
-                            <div class="moment-impact">Building discipline</div>
-                        </div>
-
-                        <div class="building-moment">
-                            <div class="moment-info">
-                                <div class="moment-status">✅</div>
-                                <div class="moment-details">
-                                    <div class="moment-name">Thoughtful Spending</div>
-                                    <div class="moment-context">Built July 15th</div>
-                                </div>
-                            </div>
-                            <div class="moment-impact">Habit formed</div>
+        <!-- Growth Areas -->
+        <div class="growth-areas">
+            <!-- Smart Choices Area -->
+            <div class="growth-area smart-choices" data-tooltip="smart-choices">
+                <div class="area-header">
+                    <div class="area-info">
+                        <div class="area-icon">🧠</div>
+                        <div class="area-details">
+                            <h3>Smart Choices</h3>
+                            <div class="area-summary">Building mindful spending habits</div>
                         </div>
                     </div>
+                    <div class="growth-progress-ring">
+                        <svg class="progress-circle" viewBox="0 0 42 42">
+                            <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
+                            <circle cx="21" cy="21" r="18" class="progress-fill smart-choices-progress"
+                                style="stroke-dasharray: 113; stroke-dashoffset: 34;"></circle>
+                        </svg>
+                        <div class="progress-text">75%</div>
+                    </div>
+                    <div class="growth-indicator" id="smartChoicesIndicator">Building habits</div>
                 </div>
 
-                <!-- Flow Mastery Area -->
-                <div class="growth-area flow-mastery" data-tooltip="flow-mastery">
-                    <div class="area-header">
-                        <div class="area-info">
-                            <div class="area-icon">🎯</div>
-                            <div class="area-details">
-                                <h3>Flow Mastery</h3>
-                                <div class="area-summary">18 consecutive days in flow</div>
+                <div class="building-moments">
+                    <div class="building-moment">
+                        <div class="moment-info">
+                            <div class="moment-status">🌱</div>
+                            <div class="moment-details">
+                                <div class="moment-name">Mindful Week</div>
+                                <div class="moment-context">5/7 days • 2 more mindful days</div>
                             </div>
                         </div>
-                        <div class="growth-progress-ring">
-                            <svg class="progress-circle" viewBox="0 0 42 42">
-                                <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
-                                <circle cx="21" cy="21" r="18" class="progress-fill flow-mastery-progress"
-                                    style="stroke-dasharray: 113; stroke-dashoffset: 45;"></circle>
-                            </svg>
-                            <div class="progress-text">60%</div>
-                        </div>
-                        <div class="growth-indicator" id="flowMasteryIndicator">18-day streak</div>
+                        <div class="moment-impact">Building discipline</div>
                     </div>
 
-                    <div class="building-moments">
-                        <div class="building-moment">
-                            <div class="moment-info">
-                                <div class="moment-status">🔥</div>
-                                <div class="moment-details">
-                                    <div class="moment-name">Flow Month</div>
-                                    <div class="moment-context">18 days of staying in flow</div>
-                                </div>
-                            </div>
-                            <div class="moment-impact">Momentum building</div>
-                        </div>
-
-                        <div class="building-moment">
-                            <div class="moment-info">
-                                <div class="moment-status">✅</div>
-                                <div class="moment-details">
-                                    <div class="moment-name">Daily Rhythm</div>
-                                    <div class="moment-context">Built July 8th</div>
-                                </div>
-                            </div>
-                            <div class="moment-impact">Foundation set</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Real Money Built Area -->
-                <div class="growth-area real-money" data-tooltip="real-money">
-                    <div class="area-header">
-                        <div class="area-info">
-                            <div class="area-icon">💰</div>
-                            <div class="area-details">
-                                <h3>Real Money Built</h3>
-                                <div class="area-summary" id="realMoneyBuiltSummary">$347 built while living your life
-                                </div>
+                    <div class="building-moment">
+                        <div class="moment-info">
+                            <div class="moment-status">✅</div>
+                            <div class="moment-details">
+                                <div class="moment-name">Thoughtful Spending</div>
+                                <div class="moment-context">Built July 15th</div>
                             </div>
                         </div>
-                        <div class="growth-progress-ring">
-                            <svg class="progress-circle" viewBox="0 0 42 42">
-                                <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
-                                <circle cx="21" cy="21" r="18" class="progress-fill real-money-progress"
-                                    style="stroke-dasharray: 113; stroke-dashoffset: 22;"></circle>
-                            </svg>
-                            <div class="progress-text">80%</div>
-                        </div>
-                        <div class="growth-indicator" id="realMoneyIndicator">$347 built</div>
-                    </div>
-
-                    <div class="building-moments">
-                        <div class="building-moment">
-                            <div class="moment-info">
-                                <div class="moment-status">🎯</div>
-                                <div class="moment-details">
-                                    <div class="moment-name">Security Milestone</div>
-                                    <div class="moment-context">$153 from $500 security</div>
-                                </div>
-                            </div>
-                            <div class="moment-impact">Changes everything</div>
-                        </div>
-
-                        <div class="building-moment">
-                            <div class="moment-info">
-                                <div class="moment-status">✅</div>
-                                <div class="moment-details">
-                                    <div class="moment-name">Foundation Built</div>
-                                    <div class="moment-context">Built June 12th</div>
-                                </div>
-                            </div>
-                            <div class="moment-impact">First step done</div>
-                        </div>
+                        <div class="moment-impact">Habit formed</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Next Milestone Focus -->
-            <div class="next-milestone" data-tooltip="next-milestone">
-                <div class="milestone-header">
-                    <h3>Next Milestone: Security</h3>
-                    <div class="milestone-amount">$500</div>
+            <!-- Flow Mastery Area -->
+            <div class="growth-area flow-mastery" data-tooltip="flow-mastery">
+                <div class="area-header">
+                    <div class="area-info">
+                        <div class="area-icon">🎯</div>
+                        <div class="area-details">
+                            <h3>Flow Mastery</h3>
+                            <div class="area-summary">18 consecutive days in flow</div>
+                        </div>
+                    </div>
+                    <div class="growth-progress-ring">
+                        <svg class="progress-circle" viewBox="0 0 42 42">
+                            <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
+                            <circle cx="21" cy="21" r="18" class="progress-fill flow-mastery-progress"
+                                style="stroke-dasharray: 113; stroke-dashoffset: 45;"></circle>
+                        </svg>
+                        <div class="progress-text">60%</div>
+                    </div>
+                    <div class="growth-indicator" id="flowMasteryIndicator">18-day streak</div>
                 </div>
-                <div class="milestone-description">
-                    This milestone changes how you feel about money. Real security starts here.
-                </div>
-                <div class="milestone-options">
-                    <div class="milestone-option" data-tooltip="quick-wins">
-                        <div class="option-icon">🏃‍♂️</div>
-                        <div class="option-details">
-                            <div class="option-name">Quick Wins</div>
-                            <div class="option-description">Two mindful days + $153 more</div>
-                        </div>
-                    </div>
-                    <div class="milestone-option" data-tooltip="consistency">
-                        <div class="option-icon">🎯</div>
-                        <div class="option-details">
-                            <div class="option-name">Consistency</div>
-                            <div class="option-description">Flow Month builds strongest foundation</div>
-                        </div>
-                    </div>
-                    <div class="milestone-option" data-tooltip="steady-growth">
-                        <div class="option-icon">⚖️</div>
-                        <div class="option-details">
-                            <div class="option-name">Steady Growth</div>
-                            <div class="option-description">Balanced progress across all areas</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-
-
-            <!-- Multiple Paths Forward -->
-            <div class="paths-forward" data-tooltip="next-milestone-paths">
-                <h3 class="paths-title">Multiple Paths to Your Next Milestone</h3>
-                <p class="paths-subtitle">Choose the strategy that fits your style and timeline</p>
-
-                <div class="strategy-cards">
-                    <div class="strategy-card quick-wins" data-tooltip="quick-wins">
-                        <div class="strategy-header">
-                            <div class="strategy-icon">⚡</div>
-                            <div class="strategy-info">
-                                <h4>Quick Wins</h4>
-                                <p class="strategy-timeline">2-3 weeks</p>
+                <div class="building-moments">
+                    <div class="building-moment">
+                        <div class="moment-info">
+                            <div class="moment-status">🔥</div>
+                            <div class="moment-details">
+                                <div class="moment-name">Flow Month</div>
+                                <div class="moment-context">18 days of staying in flow</div>
                             </div>
                         </div>
-                        <div class="strategy-content">
-                            <p class="strategy-description">Two mindful days + saving $153 more</p>
-                            <div class="strategy-actions">
-                                <span class="action-item">• Skip 3 coffee shop visits</span>
-                                <span class="action-item">• One mindful weekend</span>
-                            </div>
-                        </div>
-                        <button class="strategy-btn" onclick="selectStrategy('quick-wins')">Choose Quick Wins</button>
+                        <div class="moment-impact">Momentum building</div>
                     </div>
 
-                    <div class="strategy-card consistency" data-tooltip="consistency">
-                        <div class="strategy-header">
-                            <div class="strategy-icon">🎯</div>
-                            <div class="strategy-info">
-                                <h4>Consistency</h4>
-                                <p class="strategy-timeline">1-2 months</p>
+                    <div class="building-moment">
+                        <div class="moment-info">
+                            <div class="moment-status">✅</div>
+                            <div class="moment-details">
+                                <div class="moment-name">Daily Rhythm</div>
+                                <div class="moment-context">Built July 8th</div>
                             </div>
                         </div>
-                        <div class="strategy-content">
-                            <p class="strategy-description">Flow Month completion builds strongest habits</p>
-                            <div class="strategy-actions">
-                                <span class="action-item">• 7 more mindful days</span>
-                                <span class="action-item">• Steady flow progress</span>
-                            </div>
-                        </div>
-                        <button class="strategy-btn" onclick="selectStrategy('consistency')">Choose Consistency</button>
-                    </div>
-
-                    <div class="strategy-card steady-growth" data-tooltip="steady-growth">
-                        <div class="strategy-header">
-                            <div class="strategy-icon">📈</div>
-                            <div class="strategy-info">
-                                <h4>Steady Growth</h4>
-                                <p class="strategy-timeline">2-3 months</p>
-                            </div>
-                        </div>
-                        <div class="strategy-content">
-                            <p class="strategy-description">Balanced progress across all growth areas</p>
-                            <div class="strategy-actions">
-                                <span class="action-item">• Equal focus on all areas</span>
-                                <span class="action-item">• Sustainable pace</span>
-                            </div>
-                        </div>
-                        <button class="strategy-btn" onclick="selectStrategy('steady-growth')">Choose Steady
-                            Growth</button>
+                        <div class="moment-impact">Foundation set</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Enhanced Future Vision -->
-            <div class="future-vision">
-                <div class="vision-header">
-                    <h3 class="vision-title">Your Financial Future</h3>
-                    <p class="vision-subtitle">Based on your current building momentum</p>
+            <!-- Real Money Built Area -->
+            <div class="growth-area real-money" data-tooltip="real-money">
+                <div class="area-header">
+                    <div class="area-info">
+                        <div class="area-icon">💰</div>
+                        <div class="area-details">
+                            <h3>Real Money Built</h3>
+                            <div class="area-summary" id="realMoneyBuiltSummary">$347 built while living your life</div>
+                        </div>
+                    </div>
+                    <div class="growth-progress-ring">
+                        <svg class="progress-circle" viewBox="0 0 42 42">
+                            <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
+                            <circle cx="21" cy="21" r="18" class="progress-fill real-money-progress"
+                                style="stroke-dasharray: 113; stroke-dashoffset: 22;"></circle>
+                        </svg>
+                        <div class="progress-text">80%</div>
+                    </div>
+                    <div class="growth-indicator" id="realMoneyIndicator">$347 built</div>
                 </div>
 
-                <div class="vision-cards">
-                    <div class="vision-card six-months" data-tooltip="six-month-vision">
-                        <div class="vision-timeframe">6 Months</div>
-                        <div class="vision-amount">$<span id="sixMonthProjection">1,247</span></div>
-                        <div class="vision-description">Real emergency cushion</div>
+                <div class="building-moments">
+                    <div class="building-moment">
+                        <div class="moment-info">
+                            <div class="moment-status">🎯</div>
+                            <div class="moment-details">
+                                <div class="moment-name">Security Milestone</div>
+                                <div class="moment-context">$153 from $500 security</div>
+                            </div>
+                        </div>
+                        <div class="moment-impact">Changes everything</div>
                     </div>
 
-                    <div class="vision-card one-year" data-tooltip="one-year-vision">
-                        <div class="vision-timeframe">1 Year</div>
-                        <div class="vision-amount">$<span id="oneYearProjection">2,890</span></div>
-                        <div class="vision-description">Life options opening up</div>
+                    <div class="building-moment">
+                        <div class="moment-info">
+                            <div class="moment-status">✅</div>
+                            <div class="moment-details">
+                                <div class="moment-name">Foundation Built</div>
+                                <div class="moment-context">Built June 12th</div>
+                            </div>
+                        </div>
+                        <div class="moment-impact">First step done</div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Milestone Focus -->
+        <div class="next-milestone" data-tooltip="next-milestone">
+            <div class="milestone-header">
+                <h3>Next Milestone: Security</h3>
+                <div class="milestone-amount">$500</div>
+            </div>
+            <div class="milestone-description">
+                This milestone changes how you feel about money. Real security starts here.
+            </div>
+            <div class="milestone-options">
+                <div class="milestone-option" data-tooltip="quick-wins">
+                    <div class="option-icon">🏃‍♂️</div>
+                    <div class="option-details">
+                        <div class="option-name">Quick Wins</div>
+                        <div class="option-description">Two mindful days + $153 more</div>
+                    </div>
+                </div>
+                <div class="milestone-option" data-tooltip="consistency">
+                    <div class="option-icon">🎯</div>
+                    <div class="option-details">
+                        <div class="option-name">Consistency</div>
+                        <div class="option-description">Flow Month builds strongest foundation</div>
+                    </div>
+                </div>
+                <div class="milestone-option" data-tooltip="steady-growth">
+                    <div class="option-icon">⚖️</div>
+                    <div class="option-details">
+                        <div class="option-name">Steady Growth</div>
+                        <div class="option-description">Balanced progress across all areas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Multiple Paths Forward -->
+        <div class="paths-forward" data-tooltip="next-milestone-paths">
+            <h3 class="paths-title">Multiple Paths to Your Next Milestone</h3>
+            <p class="paths-subtitle">Choose the strategy that fits your style and timeline</p>
+
+            <div class="strategy-cards">
+                <div class="strategy-card quick-wins" data-tooltip="quick-wins">
+                    <div class="strategy-header">
+                        <div class="strategy-icon">⚡</div>
+                        <div class="strategy-info">
+                            <h4>Quick Wins</h4>
+                            <p class="strategy-timeline">2-3 weeks</p>
+                        </div>
+                    </div>
+                    <div class="strategy-content">
+                        <p class="strategy-description">Two mindful days + saving $153 more</p>
+                        <div class="strategy-actions">
+                            <span class="action-item">• Skip 3 coffee shop visits</span>
+                            <span class="action-item">• One mindful weekend</span>
+                        </div>
+                    </div>
+                    <button class="strategy-btn" onclick="selectStrategy('quick-wins')">Choose Quick Wins</button>
+                </div>
+
+                <div class="strategy-card consistency" data-tooltip="consistency">
+                    <div class="strategy-header">
+                        <div class="strategy-icon">🎯</div>
+                        <div class="strategy-info">
+                            <h4>Consistency</h4>
+                            <p class="strategy-timeline">1-2 months</p>
+                        </div>
+                    </div>
+                    <div class="strategy-content">
+                        <p class="strategy-description">Flow Month completion builds strongest habits</p>
+                        <div class="strategy-actions">
+                            <span class="action-item">• 7 more mindful days</span>
+                            <span class="action-item">• Steady flow progress</span>
+                        </div>
+                    </div>
+                    <button class="strategy-btn" onclick="selectStrategy('consistency')">Choose Consistency</button>
+                </div>
+
+                <div class="strategy-card steady-growth" data-tooltip="steady-growth">
+                    <div class="strategy-header">
+                        <div class="strategy-icon">📈</div>
+                        <div class="strategy-info">
+                            <h4>Steady Growth</h4>
+                            <p class="strategy-timeline">2-3 months</p>
+                        </div>
+                    </div>
+                    <div class="strategy-content">
+                        <p class="strategy-description">Balanced progress across all growth areas</p>
+                        <div class="strategy-actions">
+                            <span class="action-item">• Equal focus on all areas</span>
+                            <span class="action-item">• Sustainable pace</span>
+                        </div>
+                    </div>
+                    <button class="strategy-btn" onclick="selectStrategy('steady-growth')">Choose Steady Growth</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Future Vision -->
+        <div class="future-vision">
+            <div class="vision-header">
+                <h3 class="vision-title">Your Financial Future</h3>
+                <p class="vision-subtitle">Based on your current building momentum</p>
+            </div>
+
+            <div class="vision-cards">
+                <div class="vision-card six-months" data-tooltip="six-month-vision">
+                    <div class="vision-timeframe">6 Months</div>
+                    <div class="vision-amount">$<span id="sixMonthProjection">1,247</span></div>
+                    <div class="vision-description">Real emergency cushion</div>
+                </div>
+
+                <div class="vision-card one-year" data-tooltip="one-year-vision">
+                    <div class="vision-timeframe">1 Year</div>
+                    <div class="vision-amount">$<span id="oneYearProjection">2,890</span></div>
+                    <div class="vision-description">Life options opening up</div>
                 </div>
             </div>
         </div>
@@ -1445,7 +1429,7 @@
     <button class="testing-toggle" id="testingToggle" onclick="toggleTestingPanel()">
         🧪 Test Day 27
     </button>
-    </div>
+
 
     <!-- 3-TAB BOTTOM NAVIGATION -->
     <nav class="bottom-nav">
@@ -1711,244 +1695,6 @@
             </div>
 
             <script src="flow_app_v4.1.js"></script>
-            
-            <!-- SLIDER FIX: Re-bind event handlers with JavaScript -->
-            <script>
-                // Wait for DOM to load, then fix slider event handlers
-                setTimeout(() => {
-                    const foundationSlider = document.getElementById('foundationSlider');
-                    const futureSlider = document.getElementById('futureSlider');
-                    const freedomSlider = document.getElementById('freedomSlider');
-                    
-                    // Force sliders to be fully interactive
-                    [foundationSlider, futureSlider, freedomSlider].forEach(slider => {
-                        if (slider) {
-                            slider.style.pointerEvents = 'auto';
-                            slider.style.zIndex = '1000';
-                            slider.style.position = 'relative';
-                            slider.style.touchAction = 'none'; // Prevent scrolling during touch
-                            
-                            // Make Freedom slider appear read-only
-                            if (slider.id === 'freedomSlider') {
-                                slider.style.opacity = '0.7';
-                                slider.style.cursor = 'not-allowed';
-                                slider.title = 'Freedom percentage is automatically calculated from Foundation and Future';
-                            }
-                            
-                            // Add manual drag handling
-                            let isDragging = false;
-                            let startX = 0;
-                            let startValue = 0;
-                            
-                            slider.addEventListener('touchstart', function(e) {
-                                // Prevent dragging Freedom slider directly
-                                if (this.id === 'freedomSlider') {
-                                    console.log('🚫 Freedom slider is read-only - use Foundation or Future sliders to adjust');
-                                    e.preventDefault();
-                                    return;
-                                }
-                                
-                                isDragging = true;
-                                startX = e.touches[0].clientX;
-                                startValue = parseInt(this.value);
-                                e.preventDefault();
-                            });
-                            
-                            slider.addEventListener('touchmove', function(e) {
-                                if (!isDragging) return;
-                                
-                                // Prevent dragging Freedom slider directly
-                                if (this.id === 'freedomSlider') {
-                                    console.log('🚫 Freedom slider cannot be dragged directly');
-                                    e.preventDefault();
-                                    return;
-                                }
-                                
-                                const rect = this.getBoundingClientRect();
-                                const currentX = e.touches[0].clientX;
-                                const deltaX = currentX - startX;
-                                const sliderWidth = rect.width;
-                                const range = this.max - this.min;
-                                
-                                // Calculate new value based on drag distance
-                                const deltaValue = (deltaX / sliderWidth) * range;
-                                let newValue = startValue + deltaValue;
-                                
-                                // Clamp to min/max
-                                newValue = Math.max(this.min, Math.min(this.max, Math.round(newValue)));
-                                
-                                // Apply slider business rules and auto-adjust others
-                                const foundationSlider = document.getElementById('foundationSlider');
-                                const futureSlider = document.getElementById('futureSlider');
-                                const freedomSlider = document.getElementById('freedomSlider');
-                                
-                                let foundation = parseInt(foundationSlider.value);
-                                let future = parseInt(futureSlider.value);
-                                let freedom = parseInt(freedomSlider.value);
-                                
-                                // Update the slider being dragged
-                                if (this.id === 'foundationSlider') {
-                                    foundation = newValue;
-                                    // Auto-adjust freedom, keep future unchanged
-                                    freedom = 100 - foundation - future;
-                                    // Ensure freedom stays within bounds (10-60)
-                                    if (freedom < 10) {
-                                        freedom = 10;
-                                        foundation = 100 - future - freedom;
-                                    } else if (freedom > 60) {
-                                        freedom = 60;
-                                        foundation = 100 - future - freedom;
-                                    }
-                                } else if (this.id === 'futureSlider') {
-                                    future = newValue;
-                                    // Auto-adjust freedom, keep foundation unchanged
-                                    freedom = 100 - foundation - future;
-                                    // Ensure freedom stays within bounds (10-60)
-                                    if (freedom < 10) {
-                                        freedom = 10;
-                                        future = 100 - foundation - freedom;
-                                    } else if (freedom > 60) {
-                                        freedom = 60;
-                                        future = 100 - foundation - freedom;
-                                    }
-                                }
-                                
-                                // Update all slider values
-                                foundationSlider.value = foundation;
-                                foundationSlider.setAttribute('value', foundation);
-                                futureSlider.value = future;
-                                futureSlider.setAttribute('value', future);
-                                freedomSlider.value = freedom;
-                                freedomSlider.setAttribute('value', freedom);
-                                
-                                // CRITICAL: Update allocationState to match slider values
-                                if (typeof allocationState !== 'undefined') {
-                                    allocationState.foundation = foundation;
-                                    allocationState.future = future;
-                                    allocationState.freedom = freedom;
-                                }
-                                
-                                // UPDATE IMPACT PREVIEW ONLY (not category cards - they update on "Update My Flow")
-                                if (typeof updatePreview === 'function') {
-                                    updatePreview();
-                                } else {
-                                    // Fallback: Manual Impact Preview update
-                                    const previewDailyFlow = document.getElementById('previewDailyFlow');
-                                    if (previewDailyFlow) {
-                                        const income = window.appState?.monthlyIncome || 3200;
-                                        const freedomAmount = Math.round(income * freedom / 100);
-                                        const dailyFreedom = Math.round(freedomAmount / 30); // Approximate daily flow
-                                        previewDailyFlow.textContent = dailyFreedom;
-                                    }
-                                }
-                                
-                                // Trigger input event on the slider being dragged
-                                const inputEvent = new Event('input', { bubbles: true });
-                                this.dispatchEvent(inputEvent);
-                                
-                                e.preventDefault();
-                            });
-                            
-                            slider.addEventListener('touchend', function(e) {
-                                if (isDragging) {
-                                    isDragging = false;
-                                    
-                                    // Trigger change event
-                                    const changeEvent = new Event('change', { bubbles: true });
-                                    this.dispatchEvent(changeEvent);
-                                }
-                                e.preventDefault();
-                            });
-                        }
-                    });
-                    
-                    // Foundation slider
-                    if (foundationSlider && typeof handleSliderInput !== 'undefined') {
-                        foundationSlider.oninput = null;
-                        foundationSlider.onchange = null;
-                        
-                        foundationSlider.addEventListener('input', function(e) {
-                            // Force value sync before processing
-                            this.setAttribute('value', this.value);
-                            handleSliderInput('foundation', this);
-                        });
-                        foundationSlider.addEventListener('change', function(e) {
-                            this.setAttribute('value', this.value);
-                            handleSliderInput('foundation', this);
-                        });
-                        foundationSlider.addEventListener('mouseup', function(e) {
-                            this.setAttribute('value', this.value);
-                            handleSliderInput('foundation', this);
-                        });
-                        foundationSlider.addEventListener('touchend', function(e) {
-                            this.setAttribute('value', this.value);
-                            console.log('Foundation slider TOUCHEND event fired!', this.value);
-                            handleSliderInput('foundation', this);
-                        });
-                    }
-                    
-                    // Future slider
-                    if (futureSlider && typeof handleSliderInput !== 'undefined') {
-                        futureSlider.oninput = null;
-                        futureSlider.onchange = null;
-                        
-                        futureSlider.addEventListener('input', function(e) {
-                            this.setAttribute('value', this.value);
-                            console.log('Future INPUT event - value changed to:', this.value);
-                            handleSliderInput('future', this);
-                        });
-                        futureSlider.addEventListener('change', function(e) {
-                            this.setAttribute('value', this.value);
-                            console.log('Future CHANGE event - value changed to:', this.value);
-                            handleSliderInput('future', this);
-                        });
-                        futureSlider.addEventListener('mouseup', function(e) {
-                            this.setAttribute('value', this.value);
-                            console.log('Future MOUSEUP event - value changed to:', this.value);
-                            handleSliderInput('future', this);
-                        });
-                        futureSlider.addEventListener('touchend', function(e) {
-                            this.setAttribute('value', this.value);
-                            console.log('Future slider TOUCHEND event fired!', this.value);
-                            handleSliderInput('future', this);
-                        });
-                        
-                        // Track slider movement events
-                        futureSlider.addEventListener('touchmove', function(e) {
-                            // Touch move tracking for UI responsiveness
-                        });
-                        futureSlider.addEventListener('mousemove', function(e) {
-                            if (e.buttons === 1) { // Left mouse button pressed
-                                // Mouse move tracking for UI responsiveness
-                            }
-                        });
-                    }
-                    
-                    // Freedom slider
-                    if (freedomSlider && typeof handleSliderInput !== 'undefined') {
-                        freedomSlider.oninput = null;
-                        freedomSlider.onchange = null;
-                        
-                        freedomSlider.addEventListener('input', function(e) {
-                            this.setAttribute('value', this.value);
-                            handleSliderInput('freedom', this);
-                        });
-                        freedomSlider.addEventListener('change', function(e) {
-                            this.setAttribute('value', this.value);
-                            handleSliderInput('freedom', this);
-                        });
-                        freedomSlider.addEventListener('mouseup', function(e) {
-                            this.setAttribute('value', this.value);
-                            handleSliderInput('freedom', this);
-                        });
-                        freedomSlider.addEventListener('touchend', function(e) {
-                            this.setAttribute('value', this.value);
-                            console.log('Freedom slider TOUCHEND event fired!', this.value);
-                            handleSliderInput('freedom', this);
-                        });
-                    }
-                }, 1000);
-            </script>
 </body>
 
 </html>

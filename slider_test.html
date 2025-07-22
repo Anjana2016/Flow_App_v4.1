@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Slider Test</title>
+    <style>
+        body { padding: 20px; font-family: Arial; }
+        .slider-test { margin: 20px 0; }
+        .custom-slider { width: 300px; height: 8px; }
+        .value-display { font-size: 18px; font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Simple Slider Test</h1>
+    
+    <div class="slider-test">
+        <div class="value-display" id="foundationValue">Foundation: 55%</div>
+        <input type="range" 
+               class="custom-slider foundation" 
+               id="foundationSlider" 
+               min="30" 
+               max="80" 
+               value="55"
+               oninput="handleSliderInput('foundation', this)">
+    </div>
+    
+    <div class="slider-test">
+        <div class="value-display" id="futureValue">Future: 5%</div>
+        <input type="range" 
+               class="custom-slider future" 
+               id="futureSlider" 
+               min="0" 
+               max="30" 
+               value="5"
+               oninput="handleSliderInput('future', this)">
+    </div>
+    
+    <div class="slider-test">
+        <div class="value-display" id="freedomValue">Freedom: 40%</div>
+        <input type="range" 
+               class="custom-slider freedom" 
+               id="freedomSlider" 
+               min="10" 
+               max="60" 
+               value="40"
+               oninput="handleSliderInput('freedom', this)">
+    </div>
+
+    <script>
+        function handleSliderInput(category, slider) {
+            console.log('Slider moved:', category, 'to', slider.value);
+            
+            const valueElement = document.getElementById(category + 'Value');
+            if (valueElement) {
+                valueElement.textContent = `${category}: ${slider.value}%`;
+                console.log('Updated display:', valueElement.textContent);
+            }
+            
+            // Make other sliders adjust to keep total at 100%
+            updateOtherSliders(category, parseInt(slider.value));
+        }
+        
+        function updateOtherSliders(changedCategory, newValue) {
+            const sliders = {
+                foundation: document.getElementById('foundationSlider'),
+                future: document.getElementById('futureSlider'),
+                freedom: document.getElementById('freedomSlider')
+            };
+            
+            let foundation = parseInt(sliders.foundation.value);
+            let future = parseInt(sliders.future.value);
+            let freedom = parseInt(sliders.freedom.value);
+            
+            if (changedCategory === 'foundation') {
+                foundation = newValue;
+                // Adjust freedom to maintain 100%
+                freedom = 100 - foundation - future;
+                if (freedom < 10) {
+                    freedom = 10;
+                    foundation = 100 - future - freedom;
+                }
+            } else if (changedCategory === 'future') {
+                future = newValue;
+                freedom = 100 - foundation - future;
+                if (freedom < 10) {
+                    freedom = 10;
+                    future = 100 - foundation - freedom;
+                }
+            } else if (changedCategory === 'freedom') {
+                freedom = newValue;
+                foundation = 100 - future - freedom;
+                if (foundation < 30) {
+                    foundation = 30;
+                    freedom = 100 - future - foundation;
+                }
+            }
+            
+            // Update all sliders and displays
+            sliders.foundation.value = foundation;
+            sliders.future.value = future;
+            sliders.freedom.value = freedom;
+            
+            document.getElementById('foundationValue').textContent = `Foundation: ${foundation}%`;
+            document.getElementById('futureValue').textContent = `Future: ${future}%`;
+            document.getElementById('freedomValue').textContent = `Freedom: ${freedom}%`;
+            
+            console.log('Final values:', {foundation, future, freedom, total: foundation + future + freedom});
+        }
+    </script>
+</body>
+</html>

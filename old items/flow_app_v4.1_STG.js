@@ -1,75 +1,9 @@
 /*
- * ====================================================================
- * FLOW BUDGETING APP - VERSION LOG
- * ====================================================================
- * 
- * VERSION: v4.1.0
- * STATUS: Production Ready - Allocation Sliders Fixed
- * DATE: July 21, 2025
- * LAST UPDATED: July 21, 2025 - Manual Drag & Preview System
- * 
- * ====================================================================
- * RECENT CHANGES (v4.1.0):
- * ====================================================================
- * 
- * 🎯 ALLOCATION SLIDER SYSTEM FIXES:
- * - Fixed manual drag handlers for touch/mouse input
- * - Implemented two-phase UX: Preview during drag, Apply on button click
- * - Fixed "undefined%" display issue on first load
- * - Connected Impact Preview to real-time drag updates
- * - Removed debugging logs for production-ready code
- * 
- * 🔧 TECHNICAL IMPROVEMENTS:
- * - Enhanced allocation state management (allocationState vs appState)
- * - Improved initialization sequence for slider displays
- * - Added fallback values and safety checks for undefined states
- * - Cleaned up console logging for better performance
- * 
- * 📱 USER EXPERIENCE ENHANCEMENTS:
- * - Smooth slider dragging with business rule enforcement
- * - Real-time Impact Preview showing daily flow changes
- * - Category cards update only when "Update My Flow" clicked
- * - Freedom slider auto-calculated and read-only as intended
- * 
- * ====================================================================
- * PREVIOUS VERSIONS:
- * ====================================================================
- * 
- * v4.0 BETA (July 17, 2025):
- * - Settings Modal Development (Partial Implementation)
- * - Phase 1-7 of v3.0 Implementation completed
- * 
- * v3.0 (Previous):
- * - Core Flow Method implementation
- * - Three-category system (Foundation, Future, Freedom)
- * - Mathematical calculation engine
- * - Onboarding system
- * - Achievement tracking
- * - Data persistence
- * 
- * ====================================================================
- * ARCHITECTURE:
- * ====================================================================
- * 
- * 📊 CORE SYSTEMS:
- * - Flow Method Calculation Engine
- * - Allocation Management (Foundation 30-80%, Future 0-30%, Freedom auto)
- * - Real-time Preview vs Applied State Management
- * - Touch-optimized Manual Drag Handlers
- * 
- * 💾 DATA FLOW:
- * - allocationState: Temporary preview state during drag
- * - appState: Applied state after "Update My Flow"
- * - localStorage: Persistent data storage
- * 
- * 🎨 UI/UX:
- * - Glassmorphism design system
- * - Touch-first responsive interface
- * - Real-time feedback and animations
- * - Accessibility-enhanced interactions
- * 
- * ====================================================================
- */
+VERSION: v4.0 BETA
+STATUS: Phase 1- 7 of v3.0 Implementation completed
+DATE: July 17, 2025
+SESSION: Settings Modal Development (Partial Implementation)
+*/
 
 /* ===== FLOW METHOD TRANSFORMATION - PHASE 1 ===== */
 
@@ -81,15 +15,15 @@ const tooltipContent = {
     },
     'foundation-flow': {
         title: 'Foundation: Your Safety Net',
-        content: 'Security first - builds confidence. The non-negotiables: rent, food, basics. We secure this first because stability beats optimization every time.'
+        content: 'The non-negotiables. Rent, food, basics. We secure this first because stability beats optimization every time.'
     },
     'future-flow': {
         title: 'Future: Growing Automatically',
-        content: 'Builds automatically toward goals. This money grows automatically while you live your life. No decisions required, no guilt when you forget to save.'
+        content: 'This money grows automatically while you live your life. No decisions required, no guilt when you forget to save.'
     },
     'freedom-flow': {
         title: 'Freedom: Today\'s Flexibility',
-        content: 'Spend guilt-free today. This is your fun money. Entertainment, impulse buys, coffee dates. Flow it however feels right.'
+        content: 'This is your fun money. Entertainment, impulse buys, coffee dates. Flow it however feels right.'
     },
     'flow-method': {
         title: 'The Flow Method',
@@ -4431,30 +4365,30 @@ function updateAllDisplaysSynchronized() {
     if (freedomFill) freedomFill.style.width = `${freedomPercent}%`;
 
     // Update Budget Health progress bar numbers
-    const foundationUsed = document.getElementById('foundationUsedAmount');
-    const foundationAllocated = document.getElementById('foundationAllocatedAmount');
-    if (foundationUsed) foundationUsed.textContent = `$${appState.categories.foundation.used} secured`;
-    if (foundationAllocated) foundationAllocated.textContent = `$${appState.categories.foundation.allocated} foundation`;
+    const secureUsed = document.getElementById('secureUsedAmount');
+    const secureAllocated = document.getElementById('secureAllocatedAmount');
+    if (secureUsed) secureUsed.textContent = `$${appState.categories.foundation.used} used`;
+    if (secureAllocated) secureAllocated.textContent = `$${appState.categories.foundation.allocated} allocated`;
 
-    const futureUsed = document.getElementById('futureUsedAmount');
-    const futureAllocated = document.getElementById('futureAllocatedAmount');
-    if (futureUsed) futureUsed.textContent = `$${appState.categories.future.used} building automatically`;
-    if (futureAllocated) futureAllocated.textContent = `$${appState.categories.future.allocated} allocated`;
+    const saveUsed = document.getElementById('saveUsedAmount');
+    const saveAllocated = document.getElementById('saveAllocatedAmount');
+    if (saveUsed) saveUsed.textContent = `locked`;
+    if (saveAllocated) saveAllocated.textContent = `$${appState.categories.future.allocated} allocated`;
 
-    const freedomUsed = document.getElementById('freedomUsedAmount');
-    const freedomAllocated = document.getElementById('freedomAllocatedAmount');
-    if (freedomUsed) freedomUsed.textContent = `$${appState.categories.freedom.used} flows freely today`;
-    if (freedomAllocated) freedomAllocated.textContent = `$${appState.categories.freedom.allocated} allocated`;
+    const spendUsed = document.getElementById('spendUsedAmount');
+    const spendAllocated = document.getElementById('spendAllocatedAmount');
+    if (spendUsed) spendUsed.textContent = `$${appState.categories.freedom.used} used`;
+    if (spendAllocated) spendAllocated.textContent = `$${appState.categories.freedom.allocated} allocated`;
 
     // Update category percentages on Budget Health cards
-    const foundationPercentEl = document.getElementById('foundationPercentage');
-    if (foundationPercentEl) foundationPercentEl.textContent = `${appState.categories.foundation.percentage}%`;
+    const securePercentEl = document.getElementById('securePercentage');
+    if (securePercentEl) securePercentEl.textContent = `${appState.categories.foundation.percentage}%`;
 
-    const futurePercentEl = document.getElementById('futurePercentage');
-    if (futurePercentEl) futurePercentEl.textContent = `${appState.categories.future.percentage}%`;
+    const savePercentEl = document.getElementById('savePercentage');
+    if (savePercentEl) savePercentEl.textContent = `${appState.categories.future.percentage}%`;
 
-    const freedomPercentEl = document.getElementById('freedomPercentage');
-    if (freedomPercentEl) freedomPercentEl.textContent = `${appState.categories.freedom.percentage}%`;
+    const spendPercentEl = document.getElementById('spendPercentage');
+    if (spendPercentEl) spendPercentEl.textContent = `${appState.categories.freedom.percentage}%`;
 
     // Update allocation sliders
     updateAllocationSlidersDisplay();
@@ -7940,141 +7874,58 @@ function updateAllocation(category, newValue) {
 
 
 // DAY 19 ADDITION: Enhanced slider interaction handlers
-// SIMPLIFIED VERSION FOR DEBUGGING
+// DAY 38 ENHANCEMENT: Added wealth-building micro-interactions
 function handleSliderInput(category, slider) {
-    console.log('=== SLIDER INPUT ===');
-    console.log('Category:', category);
-    console.log('New value:', slider.value);
-    console.log('Slider element:', slider);
-    
+    updateSliderVisuals(category, slider);
+    updateAllocation(category, slider.value);
+    updateTooltipPosition(category, slider);
+
+    // ===== DAY 38: ENHANCED WEALTH-BUILDING MICRO-FEEDBACK =====
+    // Enhanced feedback for wealth-building actions (future/foundation increases)
     try {
-        const newValue = parseInt(slider.value);
-        console.log('Parsed value:', newValue);
-        
-        // Ensure appState exists
-        if (!window.appState) {
-            console.log('Creating appState...');
-            window.appState = {
-                monthlyIncome: 3200,
-                categories: {
-                    foundation: { percentage: 55, allocated: 1760 },
-                    future: { percentage: 5, allocated: 160 },
-                    freedom: { percentage: 40, allocated: 1280 }
-                }
-            };
-        }
-        
-        // Get all sliders
-        const foundationSlider = document.getElementById('foundationSlider');
-        const futureSlider = document.getElementById('futureSlider');
-        const freedomSlider = document.getElementById('freedomSlider');
-        
-        console.log('Sliders found:', {
-            foundation: !!foundationSlider,
-            future: !!futureSlider,
-            freedom: !!freedomSlider
-        });
-        
-        if (!foundationSlider || !futureSlider || !freedomSlider) {
-            console.error('Some sliders not found in DOM!');
-            return;
-        }
-        
-        // Get current values
-        let foundation = parseInt(foundationSlider.value);
-        let future = parseInt(futureSlider.value);
-        let freedom = parseInt(freedomSlider.value);
-        
-        console.log('Current values:', { foundation, future, freedom });
-        
-        // Update the changed category
-        if (category === 'foundation') {
-            foundation = newValue;
-            freedom = 100 - foundation - future;
-            if (freedom < 10) { freedom = 10; foundation = 100 - future - freedom; }
-        } else if (category === 'future') {
-            future = newValue;
-            freedom = 100 - foundation - future;
-            if (freedom < 10) { freedom = 10; future = 100 - foundation - freedom; }
-        } else if (category === 'freedom') {
-            freedom = newValue;
-            foundation = 100 - future - freedom;
-            if (foundation < 30) { foundation = 30; freedom = 100 - future - foundation; }
-        }
-        
-        console.log('Adjusted values:', { foundation, future, freedom, total: foundation + future + freedom });
-        
-        // Update sliders
-        foundationSlider.value = foundation;
-        futureSlider.value = future;
-        freedomSlider.value = freedom;
-        
-        // Force visual update of slider positions
-        foundationSlider.setAttribute('value', foundation);
-        futureSlider.setAttribute('value', future);
-        freedomSlider.setAttribute('value', freedom);
-        
-        // Force browser reflow to ensure visual update
-        foundationSlider.style.display = 'none';
-        foundationSlider.offsetHeight; // Trigger reflow
-        foundationSlider.style.display = '';
-        
-        futureSlider.style.display = 'none';
-        futureSlider.offsetHeight; // Trigger reflow
-        futureSlider.style.display = '';
-        
-        freedomSlider.style.display = 'none';
-        freedomSlider.offsetHeight; // Trigger reflow
-        freedomSlider.style.display = '';
-        
-        console.log('🔄 Forced visual slider update:', { foundation, future, freedom });
-        
-        // Update displays
-        const income = appState.monthlyIncome;
-        ['foundation', 'future', 'freedom'].forEach(cat => {
-            const percentage = cat === 'foundation' ? foundation : cat === 'future' ? future : freedom;
-            const amount = Math.round((percentage / 100) * income);
-            
-            // Update value display
-            const valueElement = document.getElementById(cat + 'Value');
-            if (valueElement) {
-                valueElement.textContent = `${percentage}% • $${amount}`;
-                console.log(`Updated ${cat} display:`, valueElement.textContent);
+        if ((category === 'future' || category === 'foundation') && slider.value > appState.categories[category].percentage) {
+            // Increasing savings/security - trigger wealth-building celebration
+            triggerWealthHaptic('savingsGain');
+
+            // Add wealth action pulse animation
+            slider.classList.add('wealth-action-pulse');
+            setTimeout(() => slider.classList.remove('wealth-action-pulse'), 600);
+
+            // Enhanced tooltip glow for wealth actions
+            const tooltip = document.getElementById(category + 'Tooltip');
+            if (tooltip) {
+                tooltip.style.boxShadow = '0 0 15px rgba(16, 185, 129, 0.4)';
+                setTimeout(() => tooltip.style.boxShadow = '', 1000);
             }
-            
-            // Update app state
-            appState.categories[cat].percentage = percentage;
-            appState.categories[cat].allocated = amount;
-        });
-        
-        console.log('=== SLIDER UPDATE COMPLETE ===');
-        
+        }
     } catch (error) {
-        console.error('ERROR in handleSliderInput:', error);
-        console.error('Stack:', error.stack);
+        // FlowAppLogger: Non-critical feature error
+        FlowAppLogger.debug('Wealth micro-feedback feature error', {
+            error: error.message,
+            feature: 'wealth_micro_feedback',
+            impact: 'non_critical'
+        });
+        // Continue execution - this is a non-critical enhancement
     }
 }
 
 function startSliderDrag(category, slider) {
-    console.log('Slider drag started:', category);
-    try {
-        slider.classList.add('dragging');
-        showSliderTooltip(category);
-        // simulateHaptic('light'); // Comment out to avoid errors
-    } catch (error) {
-        console.error('Error in startSliderDrag:', error);
-    }
+    slider.classList.add('dragging');
+    showSliderTooltip(category);
+    simulateHaptic('light');
+
+    // Update fill percentage for visual feedback
+    const percentage = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+    slider.style.setProperty('--fill-percentage', percentage + '%');
 }
 
 function endSliderDrag(category, slider) {
-    console.log('Slider drag ended:', category);
-    try {
-        slider.classList.remove('dragging');
-        hideSliderTooltip(category);
-        // simulateHaptic('medium'); // Comment out to avoid errors
-    } catch (error) {
-        console.error('Error in endSliderDrag:', error);
-    }
+    slider.classList.remove('dragging');
+    hideSliderTooltip(category);
+    simulateHaptic('medium');
+
+    // Clear visual feedback
+    slider.style.removeProperty('--fill-percentage');
 }
 
 function updateSliderVisuals(category, slider) {
@@ -8456,9 +8307,6 @@ function initializeAllocationInterface() {
     // Store original values for reset
     allocationState.originalAllocations = { ...allocationState };
 
-    // Update allocation display labels (foundation%, future%, freedom%)
-    updateAllocationDisplayOnly();
-
     // Update preview only if DOM elements exist (avoid errors in tests)
     if (typeof document !== 'undefined' && document.getElementById('previewDailyFlow')) {
         updatePreview();
@@ -8508,9 +8356,7 @@ function updatePreview() {
 
 // Apply allocation changes
 function applyAllocationChanges() {
-    console.log('📊 Applying allocation changes from allocationState:', allocationState);
-    
-    // Update main app state from allocationState (which is now updated by manual drag)
+    // Update main app state
     appState.categories.foundation.percentage = allocationState.foundation;
     appState.categories.future.percentage = allocationState.future;
     appState.categories.freedom.percentage = allocationState.freedom;
@@ -8521,12 +8367,6 @@ function applyAllocationChanges() {
     appState.categories.future.allocated = Math.round(income * allocationState.future / 100);
     appState.categories.freedom.allocated = Math.round(income * allocationState.freedom / 100);
 
-    console.log('💰 New allocated amounts:', {
-        foundation: appState.categories.foundation.allocated,
-        future: appState.categories.future.allocated,
-        freedom: appState.categories.freedom.allocated
-    });
-
     // Update daily flow
     calculateDailyFlow();
 
@@ -8534,11 +8374,7 @@ function applyAllocationChanges() {
     updateAllDisplaysSynchronized();
 
     // Store new values as original for next time
-    allocationState.originalAllocations = { 
-        foundation: allocationState.foundation,
-        future: allocationState.future,
-        freedom: allocationState.freedom
-    };
+    allocationState.originalAllocations = { ...allocationState };
 
     // Save to localStorage
     saveToLocalStorage();
@@ -8617,36 +8453,20 @@ function updateAllocationEnhanced(category, newValue) {
 
 // Update allocation display without changing app state
 function updateAllocationDisplayOnly() {
-    const income = appState.monthlyIncome || 3200; // Fallback if income not set
-    
-    // Ensure allocationState values are defined with fallbacks
-    const foundation = allocationState.foundation ?? 55;
-    const future = allocationState.future ?? 5; 
-    const freedom = allocationState.freedom ?? 40;
+    const income = appState.monthlyIncome;
 
     // Update slider values
-    const foundationSlider = document.getElementById('foundationSlider');
-    const futureSlider = document.getElementById('futureSlider');
-    const freedomSlider = document.getElementById('freedomSlider');
-    
-    if (foundationSlider) foundationSlider.value = foundation;
-    if (futureSlider) futureSlider.value = future;
-    if (freedomSlider) freedomSlider.value = freedom;
+    document.getElementById('foundationSlider').value = allocationState.foundation;
+    document.getElementById('futureSlider').value = allocationState.future;
+    document.getElementById('freedomSlider').value = allocationState.freedom;
 
     // Update display labels
-    const foundationValue = document.getElementById('foundationValue');
-    const futureValue = document.getElementById('futureValue');
-    const freedomValue = document.getElementById('freedomValue');
-    
-    if (foundationValue) {
-        foundationValue.textContent = `${foundation}% • $${Math.round(income * foundation / 100)}`;
-    }
-    if (futureValue) {
-        futureValue.textContent = `${future}% • $${Math.round(income * future / 100)}`;
-    }
-    if (freedomValue) {
-        freedomValue.textContent = `${freedom}% • $${Math.round(income * freedom / 100)}`;
-    }
+    document.getElementById('foundationValue').textContent =
+        `${allocationState.foundation}% • $${Math.round(income * allocationState.foundation / 100)}`;
+    document.getElementById('futureValue').textContent =
+        `${allocationState.future}% • $${Math.round(income * allocationState.future / 100)}`;
+    document.getElementById('freedomValue').textContent =
+        `${allocationState.freedom}% • $${Math.round(income * allocationState.freedom / 100)}`;
 }
 
 // Add tooltip for allocation interface
@@ -15318,13 +15138,13 @@ function updateAchievementProgressHint() {
 function updateCategoryAchievementIndicators() {
     // Example: Show/hide or color indicators based on badge unlocks
     const badgeList = appState.achievements.badges || [];
-    const foundation = document.getElementById('foundationAchievementIndicator');
-    const future = document.getElementById('futureAchievementIndicator');
-    const freedom = document.getElementById('freedomAchievementIndicator');
+    const secure = document.getElementById('secureAchievementIndicator');
+    const save = document.getElementById('saveAchievementIndicator');
+    const spend = document.getElementById('spendAchievementIndicator');
     // Example badge names (replace with your actual badge names)
-    if (foundation) foundation.style.opacity = badgeList.includes('budget-keeper') ? '1' : '0.3';
-    if (future) future.style.opacity = badgeList.includes('savings-surge') ? '1' : '0.3';
-    if (freedom) freedom.style.opacity = badgeList.includes('frugal-week') ? '1' : '0.3';
+    if (secure) secure.style.opacity = badgeList.includes('budget-keeper') ? '1' : '0.3';
+    if (save) save.style.opacity = badgeList.includes('savings-surge') ? '1' : '0.3';
+    if (spend) spend.style.opacity = badgeList.includes('frugal-week') ? '1' : '0.3';
 }
 
 // Touch optimization: add tap feedback for achievement elements

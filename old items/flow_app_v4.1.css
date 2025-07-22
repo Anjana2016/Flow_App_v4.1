@@ -1,9 +1,8 @@
 /*
-Flow Budgeting App - Styles
-VERSION: v4.1.0 - Production Ready
-DATE: July 21, 2025  
-LAST UPDATED: Allocation Sliders Fixed & Touch-optimized UI
-STATUS: Production Ready - Glassmorphism Design System
+VERSION: v4.0 BETA
+STATUS: Phase 1- 7 of v3.0 Implementation completed
+DATE: July 17, 2025
+SESSION: Settings Modal Development (Partial Implementation)
 */
 /* ===== ACHIEVEMENT MODAL SYSTEM - ENHANCED UX GUIDELINES ===== */
 
@@ -2734,19 +2733,10 @@ STATUS: Production Ready - Glassmorphism Design System
     --gradient-freedom: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
     --gradient-goal: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 
-    /* Flow Method Category Gradients */
-    --foundation-color: #64748b;
-    --future-color: #059669;
-    --freedom-color: #0EA5E9;
-    
-    --gradient-foundation: linear-gradient(135deg, var(--foundation-color) 0%, #64748b 100%);
-    --gradient-future: linear-gradient(135deg, var(--future-color) 0%, #10b981 100%);
-    --gradient-freedom: linear-gradient(135deg, var(--freedom-color) 0%, #38bdf8 100%);
-    
-    /* Legacy 3 S's Category Gradients (for backward compatibility) */
-    --secure-gradient: linear-gradient(135deg, #64748b 0%, #64748b 100%);
-    --save-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
-    --spend-gradient: linear-gradient(135deg, #0EA5E9 0%, #38bdf8 100%);
+    /* 3 S's Category Gradients */
+    --secure-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --save-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    --spend-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
     --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
 
     /* Category Colors */
@@ -4285,15 +4275,15 @@ body {
 }
 
 .foundation .progress-fill {
-    background: var(--gradient-foundation);
+    background: var(--secure-gradient);
 }
 
 .future .progress-fill {
-    background: var(--gradient-future);
+    background: var(--save-gradient);
 }
 
 .freedom .progress-fill {
-    background: var(--gradient-freedom);
+    background: var(--spend-gradient);
 }
 
 .progress-text {
@@ -4511,17 +4501,17 @@ body {
 
 .flow-slider.foundation::-webkit-slider-thumb,
 .custom-slider.foundation::-webkit-slider-thumb {
-    background: var(--gradient-foundation);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
 }
 
 .flow-slider.future::-webkit-slider-thumb,
 .custom-slider.future::-webkit-slider-thumb {
-    background: var(--gradient-future);
+    background: linear-gradient(135deg, #10b981, #059669);
 }
 
 .flow-slider.freedom::-webkit-slider-thumb,
 .custom-slider.freedom::-webkit-slider-thumb {
-    background: var(--gradient-freedom);
+    background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
 /* ===== ALLOCATION PREVIEW ===== */
@@ -4647,15 +4637,15 @@ body {
 }
 
 .custom-slider.foundation::-webkit-slider-thumb {
-    background: var(--gradient-foundation);
+    background: var(--secure-gradient);
 }
 
 .custom-slider.future::-webkit-slider-thumb {
-    background: var(--gradient-future);
+    background: var(--save-gradient);
 }
 
 .custom-slider.freedom::-webkit-slider-thumb {
-    background: var(--gradient-freedom);
+    background: var(--spend-gradient);
 }
 
 .reset-button {
@@ -11544,481 +11534,5 @@ body {
     .vision-projections {
         flex-direction: column;
         gap: 12px;
-    }
-}
-
-/* ===== STREAM 8 PHASE 2: GROWTH STORY HERO ===== */
-.growth-story-hero {
-    background: var(--gradient-future);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 24px;
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.growth-title {
-    font-size: 24px;
-    font-weight: 800;
-    margin-bottom: 8px;
-    color: white;
-}
-
-.growth-subtitle {
-    font-size: 14px;
-    opacity: 0.9;
-    margin-bottom: 20px;
-}
-
-.milestone-progress-hero {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    padding: 20px;
-}
-
-.milestone-info {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 12px;
-}
-
-.milestone-bar {
-    height: 10px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.milestone-fill {
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.milestone-encouragement {
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 0.9;
-}
-
-/* ===== STREAM 8 PHASE 2: MONEY TIMELINE ===== */
-.money-timeline {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 24px;
-}
-
-.timeline-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-}
-
-.timeline-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-}
-
-.timeline-track {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    padding: 20px 0;
-}
-
-.timeline-track::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 15%;
-    right: 15%;
-    height: 3px;
-    background: linear-gradient(90deg, #22c55e 0%, #22c55e 50%, rgba(255,255,255,0.2) 70%, rgba(255,255,255,0.2) 100%);
-    transform: translateY(-50%);
-    border-radius: 3px;
-}
-
-.milestone-marker {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-}
-
-.marker-circle {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 14px;
-    margin-bottom: 8px;
-    transition: all 0.3s ease;
-}
-
-.milestone-marker.completed .marker-circle {
-    background: #22c55e;
-    color: white;
-}
-
-.milestone-marker.current .marker-circle {
-    background: var(--gradient-growth);
-    color: white;
-    transform: scale(1.1);
-    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
-}
-
-.milestone-marker.future .marker-circle {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-muted);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-.marker-label {
-    font-size: 11px;
-    text-align: center;
-    color: var(--text-muted);
-    font-weight: 600;
-    line-height: 1.2;
-}
-
-.milestone-marker.current .marker-label {
-    color: var(--text-primary);
-}
-
-/* Mobile Optimization for New Components */
-@media (max-width: 480px) {
-    .growth-story-hero {
-        padding: 20px;
-    }
-    
-    .growth-title {
-        font-size: 20px;
-    }
-    
-    .milestone-progress-hero {
-        padding: 16px;
-    }
-    
-    .money-timeline {
-        padding: 20px;
-    }
-    
-    .timeline-track {
-        padding: 16px 0;
-    }
-    
-    .marker-circle {
-        width: 40px;
-        height: 40px;
-        font-size: 12px;
-    }
-    
-    .marker-label {
-        font-size: 10px;
-    }
-}
-
-/* ===== STREAM 8 PHASE 3: MULTIPLE PATHS FORWARD ===== */
-.paths-forward {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 24px;
-}
-
-.paths-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-}
-
-.paths-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-}
-
-.strategy-cards {
-    display: grid;
-    gap: 16px;
-}
-
-.strategy-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.strategy-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.strategy-card::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    transition: all 0.3s ease;
-}
-
-.strategy-card.quick-wins::before {
-    background: linear-gradient(180deg, #fbbf24, #f59e0b);
-}
-
-.strategy-card.consistency::before {
-    background: linear-gradient(180deg, #22c55e, #16a34a);
-}
-
-.strategy-card.steady-growth::before {
-    background: linear-gradient(180deg, #8b5cf6, #7c3aed);
-}
-
-.strategy-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.strategy-icon {
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.strategy-info h4 {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 2px;
-}
-
-.strategy-timeline {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.strategy-description {
-    font-size: 14px;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-    line-height: 1.4;
-}
-
-.strategy-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 16px;
-}
-
-.action-item {
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.strategy-btn {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.strategy-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-}
-
-.strategy-card.selected {
-    border-color: var(--primary-color);
-    background: rgba(124, 58, 237, 0.1);
-}
-
-.strategy-card.selected .strategy-btn {
-    background: var(--gradient-growth);
-    color: white;
-    border-color: transparent;
-}
-
-/* ===== PROGRESS RINGS FOR GROWTH AREAS ===== */
-.growth-progress-ring {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-}
-
-.progress-circle {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-}
-
-.progress-bg {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.1);
-    stroke-width: 3;
-}
-
-.progress-fill {
-    fill: none;
-    stroke-width: 3;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.smart-choices-progress {
-    stroke: #22c55e;
-}
-
-.flow-mastery-progress {
-    stroke: #8b5cf6;
-}
-
-.real-money-progress {
-    stroke: #f59e0b;
-}
-
-.progress-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-/* ===== ENHANCED FUTURE VISION ===== */
-.future-vision {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(14, 116, 114, 0.1));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 32px;
-}
-
-.vision-header {
-    margin-bottom: 20px;
-}
-
-.vision-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-}
-
-.vision-subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-.vision-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.vision-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.3s ease;
-}
-
-.vision-card:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.vision-timeframe {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-
-.vision-amount {
-    font-size: 24px;
-    font-weight: 800;
-    background: var(--gradient-growth);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 4px;
-}
-
-.vision-description {
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-/* ===== MOBILE OPTIMIZATIONS ===== */
-@media (max-width: 768px) {
-    .strategy-cards {
-        grid-template-columns: 1fr;
-    }
-    
-    .vision-cards {
-        grid-template-columns: 1fr;
-    }
-    
-    .growth-progress-ring {
-        width: 40px;
-        height: 40px;
-        top: 16px;
-        right: 16px;
-    }
-    
-    .progress-text {
-        font-size: 10px;
-    }
-    
-    .paths-forward {
-        padding: 20px;
-    }
-    
-    .future-vision {
-        padding: 20px;
     }
 }
