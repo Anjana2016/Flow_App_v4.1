@@ -19591,3 +19591,133 @@ if (document.readyState === 'loading') {
 } else {
     initializeGrowthEnhancements();
 }
+
+// ===== PHASE 2B: STRATEGIC MINIMAL HELP ICON SYSTEM =====
+
+// Educational content database - Strategic concepts only
+const educationalContent = {
+    'flow-method-philosophy': {
+        title: 'Flow Method Philosophy',
+        content: 'The Flow Method divides your income into three purposeful categories that work together: Foundation (30-80%) builds your security base and confidence. Future (0-30%) builds automatically toward your goals without stress. Freedom (auto-calculated) is your guilt-free spending amount. This system creates psychological freedom by handling security and growth systematically, so you can spend your Freedom amount without worry or guilt.'
+    },
+    'growth-story-philosophy': {
+        title: 'Your Growth Story',
+        content: 'Your Growth Story tracks real wealth-building progress across three areas: Smart Choices (mindful spending habits), Flow Mastery (allocation management), and Real Money Built (actual dollars toward financial freedom). Unlike arbitrary points or levels, these milestones represent genuine progress toward financial confidence and freedom. Each achievement unlocks real life options and reduces financial stress.'
+    }
+};
+
+// Show educational modal function
+function showEducationModal(contentKey) {
+    console.log('🎓 Opening strategic educational modal for:', contentKey);
+    
+    const content = educationalContent[contentKey];
+    if (!content) {
+        console.log('❌ No educational content found for:', contentKey);
+        return;
+    }
+    
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('education-modal');
+    if (!modal) {
+        modal = createEducationModal();
+    }
+    
+    // Set content
+    modal.querySelector('.education-modal-title').textContent = content.title;
+    modal.querySelector('.education-modal-content-text').textContent = content.content;
+    
+    // Show modal
+    modal.classList.add('show');
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+// Hide educational modal function
+function hideEducationModal() {
+    const modal = document.getElementById('education-modal');
+    if (modal) {
+        modal.classList.remove('show');
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+}
+
+// Create educational modal element
+function createEducationModal() {
+    const modalHTML = `
+        <div class="education-modal" id="education-modal">
+            <div class="education-modal-content">
+                <div class="education-modal-header">
+                    <h2 class="education-modal-title"></h2>
+                    <button class="education-modal-close" onclick="hideEducationModal()">&times;</button>
+                </div>
+                <div class="education-modal-body">
+                    <p class="education-modal-content-text"></p>
+                </div>
+                <div class="education-modal-footer">
+                    <button class="btn-education-secondary" onclick="hideEducationModal()">Got it</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    const modal = document.getElementById('education-modal');
+    
+    // Close on background click
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            hideEducationModal();
+        }
+    });
+    
+    // Close on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+            hideEducationModal();
+        }
+    });
+    
+    return modal;
+}
+
+// Initialize strategic education system
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎓 Flow: Strategic minimal help icon system initialized!');
+    
+    // Debug: Check if help icons exist
+    const helpIcons = document.querySelectorAll('.help-icon');
+    console.log('🔍 Help icons found:', helpIcons.length);
+    helpIcons.forEach((icon, index) => {
+        console.log(`Help icon ${index + 1}:`, icon);
+        console.log('- Visible:', icon.offsetWidth > 0 && icon.offsetHeight > 0);
+        console.log('- Text content:', icon.textContent);
+        console.log('- onclick attribute:', icon.getAttribute('onclick'));
+    });
+});
+
+// Debug function to test help icons manually
+function testHelpIcons() {
+    console.log('🧪 Testing help icons...');
+    const helpIcons = document.querySelectorAll('.help-icon');
+    console.log('Found help icons:', helpIcons.length);
+    
+    if (helpIcons.length === 0) {
+        console.log('❌ No help icons found in DOM');
+        return;
+    }
+    
+    helpIcons.forEach((icon, index) => {
+        console.log(`Help icon ${index + 1}:`);
+        console.log('- Element:', icon);
+        console.log('- Display style:', getComputedStyle(icon).display);
+        console.log('- Opacity:', getComputedStyle(icon).opacity);
+        console.log('- Visibility:', getComputedStyle(icon).visibility);
+        console.log('- Position:', icon.getBoundingClientRect());
+    });
+}
+
+// Make test function available globally
+window.testHelpIcons = testHelpIcons;

@@ -12133,3 +12133,217 @@ body {
         padding: 20px;
     }
 }
+
+/* ===== PHASE 2B: STRATEGIC MINIMAL HELP ICON SYSTEM ===== */
+
+.help-icon {
+    /* Core Design - Clean corner placement */
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(124, 58, 237, 0.1);
+    color: #7C3AED;
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    font-size: 12px;
+    font-weight: 600;
+    
+    /* Layout */
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    vertical-align: middle;
+    opacity: 0.8;
+    
+    /* Interaction */
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Mobile Touch Target - Critical */
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+    
+    /* Accessibility */
+    outline: none;
+    z-index: 10;
+}
+
+.help-icon:hover {
+    opacity: 1;
+    background: rgba(124, 58, 237, 0.05);
+    border-color: #7C3AED;
+    transform: scale(1.1);
+}
+
+.help-icon:focus {
+    outline: 2px solid #7C3AED;
+    outline-offset: 2px;
+    opacity: 1;
+}
+
+.help-icon:active {
+    transform: scale(0.9);
+}
+
+/* Educational Modal Foundation - Matches Flow's Glassmorphism Design */
+.education-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.education-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.education-modal-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0;
+    max-width: 400px;
+    width: 90%;
+    max-height: 70vh;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideInUp 0.3s ease;
+}
+
+.education-modal.show .education-modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.education-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.education-modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.education-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.3s ease;
+}
+
+.education-modal-close:hover {
+    color: var(--text-primary);
+}
+
+.education-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(70vh - 140px);
+}
+
+.education-modal-content-text {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.education-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.btn-education-secondary {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.btn-education-secondary:hover {
+    background: var(--glass-hover);
+    transform: translateY(-1px);
+}
+
+.btn-education-primary {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.btn-education-primary:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+}
+
+/* Mobile Responsive - Flow Consistent */
+@media (max-width: 768px) {
+    .help-icon {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 15px;
+    }
+    
+    .education-modal-content {
+        width: 95%;
+        max-height: 80vh;
+    }
+    
+    .education-modal-header {
+        padding: 16px 20px 12px;
+    }
+    
+    .education-modal-body {
+        padding: 20px;
+        max-height: calc(80vh - 120px);
+    }
+    
+    .education-modal-footer {
+        padding: 16px 20px;
+        flex-direction: column;
+    }
+    
+    .btn-education-secondary,
+    .btn-education-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}

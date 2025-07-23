@@ -543,7 +543,9 @@
         <!-- TAB 1: SPEND -->
         <div class="tab-content active" id="daily-flow">
             <div class="tab-header-container" style="position: relative;">
-                <h1 class="tab-main-title">Spend</h1>
+                <h1 class="tab-main-title">
+                    Spend
+                </h1>
                 <p class="tab-subtitle">Spend guilt-free today ✨</p>
 
                 <!-- Education Icon (Week 3 Implementation) -->
@@ -574,10 +576,8 @@
                     <!-- ADD: Descriptive subtitle -->
                     <div class="descriptive-subtitle">Updates live with each purchase</div>
                     
-                    <div
-                        style="position: absolute; top: 16px; right: 16px; font-size: 12px; color: var(--accent-green); background: rgba(16, 185, 129, 0.1); padding: 4px 8px; border-radius: 8px; font-weight: 500;">
-                        <span id="syncIndicator">● LIVE</span>
-                    </div>
+                    <!-- Help icon in top-right corner -->
+                    <button class="help-icon" onclick="showEducationModal('flow-method-philosophy')" aria-label="Learn about Flow Method" style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
                 </div>
             </div>
 
@@ -699,6 +699,9 @@
                     <div class="descriptive-subtitle">Everything flows from here</div>
                 </div>
                 <div class="income-period">Click to adjust your base ✨</div>
+                
+                <!-- Help icon in top-right corner -->
+                <button class="help-icon" onclick="showEducationModal('flow-method-philosophy')" aria-label="Learn about Flow Method" style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
 
                 <!-- Income Edit Modal (Hidden by default) -->
                 <div class="income-edit-overlay" id="incomeEditOverlay" style="display: none;">
@@ -990,7 +993,13 @@
             <!-- Growth Story Hero -->
             <div class="growth-story-hero">
                 <div class="growth-hero-content">
-                    <h2 class="growth-title">Building Wealth Warrior</h2>
+                    <h2 class="growth-title" style="position: relative;">
+                        <div style="text-align: center;">Build Wealth</div>
+                        <div style="text-align: center;">Warrior</div>
+                        
+                        <!-- Help icon aligned with "Build Wealth" line -->
+                        <button class="help-icon" onclick="showEducationModal('growth-story-philosophy')" aria-label="Learn about Growth Story" style="position: absolute; top: 0; right: 0; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
+                    </h2>
                     <p class="growth-subtitle">Real progress across three areas of your money life</p>
 
                     <div class="milestone-progress-hero">
