@@ -5,6 +5,29 @@ DATE: July 21, 2025
 LAST UPDATED: Allocation Sliders Fixed & Touch-optimized UI
 STATUS: Production Ready - Glassmorphism Design System
 */
+
+/* EMERGENCY MOBILE TOOLTIP DISABLE - CRITICAL FIRST STEP */
+@media (max-width: 768px) {
+    .tooltip, 
+    [data-tooltip]:after, 
+    [data-tooltip]:before,
+    #tooltip {
+        display: none !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+    }
+    
+    /* Ensure all primary interactions work on mobile */
+    .quick-add-btn, 
+    .allocation-slider, 
+    .nav-item,
+    .custom-slider,
+    .daily-flow-display,
+    .category-card {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+}
 /* ===== ACHIEVEMENT MODAL SYSTEM - ENHANCED UX GUIDELINES ===== */
 
 /* Base Achievement Modal Styles - Gen Z Standards */
@@ -2815,6 +2838,30 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* ===== SLES LAYER 1 - DESCRIPTIVE SUBTITLE DESIGN SYSTEM ===== */
+.descriptive-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.3;
+    font-weight: 400;
+}
+
+.section-subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.flow-subtitle {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 2px;
+    font-style: italic;
+}
+
 /* ===== ANIMATED BACKGROUND (PERFORMANCE OPTIMIZED) ===== */
 .bg-animation {
     position: fixed;
@@ -4244,7 +4291,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .category-title-group {
@@ -4260,40 +4307,58 @@ body {
 .category-title {
     font-size: 16px;
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .category-percentage {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-green);
+}
+
+/* Clean category content structure */
+.category-content {
+    margin-bottom: 16px;
+}
+
+.category-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.category-subtitle {
     font-size: 12px;
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.05);
-    padding: 4px 8px;
-    border-radius: 8px;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.3;
 }
 
 .progress-container {
-    height: 8px;
+    height: 6px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    border-radius: 3px;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin-top: auto;
 }
 
 .progress-fill {
     height: 100%;
-    border-radius: 20px;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 3px;
+    transition: width 0.3s ease;
 }
 
-.foundation .progress-fill {
-    background: var(--gradient-foundation);
+.progress-fill.foundation {
+    background: var(--gradient-foundation, linear-gradient(135deg, #64748b 0%, #64748b 100%));
 }
 
-.future .progress-fill {
-    background: var(--gradient-future);
+.progress-fill.future {
+    background: var(--gradient-future, linear-gradient(135deg, #059669 0%, #10b981 100%));
 }
 
-.freedom .progress-fill {
-    background: var(--gradient-freedom);
+.progress-fill.freedom {
+    background: var(--gradient-freedom, linear-gradient(135deg, #0EA5E9 0%, #38bdf8 100%));
 }
 
 .progress-text {

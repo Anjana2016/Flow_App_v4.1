@@ -4430,20 +4430,14 @@ function updateAllDisplaysSynchronized() {
     if (futureFill) futureFill.style.width = `${futurePercent}%`;
     if (freedomFill) freedomFill.style.width = `${freedomPercent}%`;
 
-    // Update Budget Health progress bar numbers
-    const foundationUsed = document.getElementById('foundationUsedAmount');
+    // Update Budget Health allocation amounts for clean card structure
     const foundationAllocated = document.getElementById('foundationAllocatedAmount');
-    if (foundationUsed) foundationUsed.textContent = `$${appState.categories.foundation.used} secured`;
-    if (foundationAllocated) foundationAllocated.textContent = `$${appState.categories.foundation.allocated} foundation`;
+    if (foundationAllocated) foundationAllocated.textContent = `$${appState.categories.foundation.allocated} allocated`;
 
-    const futureUsed = document.getElementById('futureUsedAmount');
     const futureAllocated = document.getElementById('futureAllocatedAmount');
-    if (futureUsed) futureUsed.textContent = `$${appState.categories.future.used} building automatically`;
     if (futureAllocated) futureAllocated.textContent = `$${appState.categories.future.allocated} allocated`;
 
-    const freedomUsed = document.getElementById('freedomUsedAmount');
     const freedomAllocated = document.getElementById('freedomAllocatedAmount');
-    if (freedomUsed) freedomUsed.textContent = `$${appState.categories.freedom.used} flows freely today`;
     if (freedomAllocated) freedomAllocated.textContent = `$${appState.categories.freedom.allocated} allocated`;
 
     // Update category percentages on Budget Health cards
@@ -4692,6 +4686,13 @@ function switchTab(tabName) {
     // Update achievement stats when switching to journey tab
     if (tabName === 'your-journey') {
         updateAchievementStats();
+    }
+    
+    // Update category cards when switching to Flow tab
+    if (tabName === 'budget-health') {
+        setTimeout(() => {
+            updateAllDisplaysSynchronized();
+        }, 100);
     }
 }
 
