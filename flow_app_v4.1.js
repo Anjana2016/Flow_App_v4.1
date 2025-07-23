@@ -73,109 +73,6 @@
 
 /* ===== FLOW METHOD TRANSFORMATION - PHASE 1 ===== */
 
-// ===== TOOLTIP CONTENT SYSTEM =====
-const tooltipContent = {
-    'income-amount': {
-        title: 'Your Income Base',
-        content: 'This is what we work with each month. Tap to adjust when your income changes. Everything flows from here.'
-    },
-    'foundation-flow': {
-        title: 'Foundation: Your Safety Net',
-        content: 'Security first - builds confidence. The non-negotiables: rent, food, basics. We secure this first because stability beats optimization every time.'
-    },
-    'future-flow': {
-        title: 'Future: Growing Automatically',
-        content: 'Builds automatically toward goals. This money grows automatically while you live your life. No decisions required, no guilt when you forget to save.'
-    },
-    'freedom-flow': {
-        title: 'Freedom: Today\'s Flexibility',
-        content: 'Spend guilt-free today. This is your fun money. Entertainment, impulse buys, coffee dates. Flow it however feels right.'
-    },
-    'flow-method': {
-        title: 'The Flow Method',
-        content: 'Foundation → Future → Freedom: This order isn\'t random. Secure your base, grow automatically, then spend freely. It\'s how wealth actually builds.'
-    },
-
-    // Achievement Tooltips (Flow Philosophy) - VOICE TRANSFORMATION
-    'mindful-week': {
-        title: 'Mindful Week Built',
-        content: '✅ Mindful Week built! Feel how that discipline is becoming natural?'
-    },
-    'flow-month': {
-        title: 'Flow Momentum',
-        content: 'Days flowing mindfully this month. That\'s momentum becoming habit—exactly what builds wealth.'
-    },
-    'efficiency': {
-        title: 'Smart Building',
-        content: 'Smart choices build wealth automatically. Every mindful decision compounds into real progress.'
-    },
-    'budget-keeper': {
-        title: 'Foundation Strength',
-        content: 'Your foundation is solid. This stability changes everything—feel how that shifts your relationship with money.'
-    },
-    'flow-master': {
-        title: 'Flow Mastery',
-        content: 'You\'ve internalized something most people never learn. Money flows naturally when you understand the rhythm.'
-    },
-    'wealth-builder': {
-        title: 'Real Wealth Building',
-        content: 'Building wealth while living your life. That\'s what automatic progress looks like in practice.'
-    },
-
-    // Core System Tooltips (Educational Philosophy) - VOICE TRANSFORMATION
-    'daily-flow-amount': {
-        title: 'Your Daily Flow',
-        content: 'This is your guilt-free money for today. We took your income, set aside what you need for security and future-you, and this is what\'s left to flow freely. No math required.'
-    },
-    'income-calculation': {
-        title: 'What Flows In Monthly',
-        content: 'Don\'t worry about being exact—we can adjust this as life happens. The goal is clarity, not perfection.'
-    },
-    'allocation-percentages': {
-        title: 'Money Flow Percentages',
-        content: 'These percentages split your income automatically. Foundation first, then future, then freedom. Simple math, powerful results.'
-    },
-    'transaction-history': {
-        title: 'What\'s Flowed',
-        content: 'Your spending story, not your spending judgment. Every transaction teaches you something about your money patterns.'
-    },
-    'monthly-progress': {
-        title: 'This Month\'s Flow',
-        content: 'How your money moved this month. Patterns matter more than perfection—look for what\'s working.'
-    },
-
-    // Quick Add Tooltips - VOICE TRANSFORMATION  
-    'quick-add-system': {
-        title: 'One-Click Flow',
-        content: 'Common spending made simple. Tap once, money flows, life continues. No friction, just clarity.'
-    },
-    'oops-button': {
-        title: 'Forgot Something?',
-        content: 'No judgment here. Life happens, transactions get missed. Let\'s get your flow back on track.'
-    },
-    'location-features': {
-        title: 'Smart Suggestions',
-        content: 'Coming soon: suggestions based on where you are. Your regular spots, pre-filled amounts, one-tap convenience.'
-    },
-
-    // STREAM 6: Goal Planning Tooltips
-    'goal-planning-feature': {
-        title: 'Goal Planning Preview',
-        content: 'Full goal creation comes in v5.0! This shows how you\'ll plan major purchases, trips, and financial milestones with smart allocation suggestions.'
-    },
-    'active-goal-example': {
-        title: 'Europe Trip Goal',
-        content: 'Example goal showing how Flow will help you reach financial targets. Smart suggestions optimize your timeline vs daily freedom trade-offs.'
-    },
-    'impact-preview': {
-        title: 'Smart Allocation Suggestions',
-        content: 'Flow analyzes your goal timeline and suggests allocation changes. You choose what works for your lifestyle - we just show the math.'
-    }
-};
-
-// Make tooltipContent globally accessible
-window.tooltipContent = tooltipContent;
-
 // ===== STREAM 6: GOAL PLANNING MOCKUPS =====
 
 // Goal Choice Handler
@@ -8212,7 +8109,6 @@ function startSliderDrag(category, slider) {
     console.log('Slider drag started:', category);
     try {
         slider.classList.add('dragging');
-        showSliderTooltip(category);
         // simulateHaptic('light'); // Comment out to avoid errors
     } catch (error) {
         console.error('Error in startSliderDrag:', error);
@@ -8223,7 +8119,6 @@ function endSliderDrag(category, slider) {
     console.log('Slider drag ended:', category);
     try {
         slider.classList.remove('dragging');
-        hideSliderTooltip(category);
         // simulateHaptic('medium'); // Comment out to avoid errors
     } catch (error) {
         console.error('Error in endSliderDrag:', error);
@@ -8233,26 +8128,6 @@ function endSliderDrag(category, slider) {
 function updateSliderVisuals(category, slider) {
     const percentage = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
     slider.style.setProperty('--fill-percentage', percentage + '%');
-}
-
-function showSliderTooltip(category) {
-    const tooltip = document.getElementById(category + 'Tooltip');
-    tooltip.classList.add('visible');
-}
-
-function hideSliderTooltip(category) {
-    const tooltip = document.getElementById(category + 'Tooltip');
-    tooltip.classList.remove('visible');
-}
-
-function updateTooltipPosition(category, slider) {
-    const tooltip = document.getElementById(category + 'Tooltip');
-    const percentage = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
-    tooltip.style.setProperty('--tooltip-position', percentage + '%');
-
-    const value = parseInt(slider.value);
-    const amount = Math.round((value / 100) * appState.monthlyIncome); // STREAM 3: $1 precision throughout
-    tooltip.textContent = `${value}% • $${amount.toLocaleString()}`;
 }
 
 // Enhanced haptic feedback with user gesture validation
@@ -8887,17 +8762,6 @@ function updateAllocationDisplayOnly() {
         freedomValue.textContent = `${freedom}% • $${Math.round(income * freedom / 100)}`;
     }
 }
-
-// Add tooltip for allocation interface
-const allocationTooltips = {
-    'adjust-flow': {
-        title: 'Fine-Tune Your Flow',
-        content: 'See exactly how changes affect your daily freedom and goal timeline. Drag sliders to find your sweet spot.'
-    }
-};
-
-// Merge with existing tooltip content
-Object.assign(tooltipContent, allocationTooltips);
 
 function showTemporaryMessage(message, type) {
     // Simple success message - reuse existing celebration system
@@ -10800,23 +10664,6 @@ function updateCategoryDisplays() {
             }
         }
     });
-}
-
-// Add new tooltips
-const enhancementTooltips = {
-    'income-adjust': {
-        title: 'Adjust Your Income',
-        content: 'Update your monthly income and see how it affects your Flow allocations. All categories adjust automatically.'
-    },
-    'flow-profiles': {
-        title: 'Quick Flow Profiles',
-        content: 'Three proven allocation strategies. Foundation Flow for stability, Growth Flow for building wealth, Freedom Flow for flexibility.'
-    }
-};
-
-// Merge with existing tooltips
-if (typeof tooltipContent !== 'undefined') {
-    Object.assign(tooltipContent, enhancementTooltips);
 }
 
 function displayIntegrationSummary(results) {
@@ -19045,116 +18892,8 @@ if (typeof FlowAppLogger !== 'undefined') {
     });
 }
 
-// ===== TOOLTIP SYSTEM FOR ACHIEVEMENT ICONS =====
-
-function showTooltip(element, key) {
-    console.log('🔍 showTooltip called with key:', key);
-    const tooltip = document.getElementById('tooltip');
-    const content = tooltipContent[key];
-
-    if (!content) {
-        console.log('❌ No content found for key:', key);
-        return;
-    }
-
-    console.log('✅ Content found:', content);
-
-    tooltip.querySelector('.tooltip-title').textContent = content.title;
-    tooltip.querySelector('.tooltip-content').textContent = content.content;
-
-    const rect = element.getBoundingClientRect();
-    console.log('📍 Element position:', rect);
-
-    // Center the tooltip properly
-    const tooltipWidth = 300; // max-width from CSS
-    const tooltipLeft = rect.left + (rect.width / 2) - (tooltipWidth / 2);
-
-    tooltip.style.left = `${Math.max(10, tooltipLeft)}px`; // Ensure it doesn't go off-screen
-    tooltip.style.top = `${rect.bottom + 15}px`;
-
-    console.log('📍 Tooltip positioned at:', tooltip.style.left, tooltip.style.top);
-
-    setTimeout(() => {
-        tooltip.classList.add('show');
-        console.log('👁️ Tooltip should now be visible');
-    }, 100);
-
-    setTimeout(hideTooltip, 4000);
-}
-
-function hideTooltip() {
-    const tooltip = document.getElementById('tooltip');
-    tooltip.classList.remove('show');
-}
-
-// Initialize tooltip listeners
+// Initialize core functionality
 document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('[data-tooltip]').forEach(element => {
-        let tooltipTimeout;
-
-        element.addEventListener('mouseenter', () => {
-            tooltipTimeout = setTimeout(() => {
-                showTooltip(element, element.dataset.tooltip);
-            }, 600);
-        });
-
-        element.addEventListener('mouseleave', () => {
-            clearTimeout(tooltipTimeout);
-            hideTooltip();
-        });
-
-        element.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            showTooltip(element, element.dataset.tooltip);
-        });
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('[data-tooltip]') && !e.target.closest('.tooltip')) {
-            hideTooltip();
-        }
-    });
-
-    console.log('🎯 Flow: Achievement tooltips initialized!');
-    console.log('🔍 Tooltip Debug: Found', document.querySelectorAll('[data-tooltip]').length, 'elements with data-tooltip');
-    console.log('🔍 Tooltip Debug: Tooltip container exists:', !!document.getElementById('tooltip'));
-    console.log('🔍 Tooltip Debug: Tooltip content object:', Object.keys(tooltipContent));
-
-    // Debug function for console testing
-    window.testCategoryDetails = function (category) {
-        console.log('🧪 Testing category details for:', category);
-        showCategoryDetails(category);
-    };
-
-    window.testTooltip = function (key) {
-        console.log('🧪 Testing tooltip for key:', key);
-        const element = document.querySelector(`[data-tooltip="${key}"]`);
-        if (element) {
-            showTooltip(element, key);
-        } else {
-            console.log('❌ No element found with data-tooltip:', key);
-        }
-    };
-
-    // Test Growth tab tooltips specifically
-    window.testGrowthTooltips = function () {
-        const growthTooltipKeys = [
-            'smart-choices', 'flow-mastery', 'real-money',
-            'next-milestone-paths', 'quick-wins', 'consistency', 'steady-growth',
-            'milestone-100', 'milestone-250', 'milestone-500', 'milestone-1000',
-            'six-month-vision', 'one-year-vision', 'money-timeline'
-        ];
-        
-        console.log('🧪 Testing Growth tab tooltips...');
-        growthTooltipKeys.forEach(key => {
-            const hasContent = !!tooltipContent[key];
-            const hasElement = !!document.querySelector(`[data-tooltip="${key}"]`);
-            console.log(`${key}: Content=${hasContent ? '✅' : '❌'}, Element=${hasElement ? '✅' : '❌'}`);
-        });
-        
-        console.log('Total tooltip content keys:', Object.keys(tooltipContent).length);
-    };
-
     // STREAM 6: Initialize Goal Planning
     initializeGoalPlanning();
     console.log('🎯 Goal Planning initialized!');
@@ -19543,12 +19282,9 @@ function addGrowthTabTooltips() {
         }
     };
 
-    // Integrate with existing tooltip system
-    Object.assign(tooltipContent, growthTooltips);
-    
-    FlowAppLogger.debug('Growth tooltips integrated', { 
+    FlowAppLogger.debug('Growth system initialized', { 
         tooltipKeys: Object.keys(growthTooltips),
-        totalTooltips: Object.keys(tooltipContent).length 
+        growthTabReady: true
     });
 }
 
@@ -19854,10 +19590,4 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeGrowthEnhancements);
 } else {
     initializeGrowthEnhancements();
-}
-
-// Add enhanced tooltips to existing tooltip system
-if (typeof enhancedTooltips !== 'undefined') {
-    Object.assign(tooltipContent, enhancedTooltips);
-    FlowAppLogger.debug('Enhanced tooltips added to main tooltip system');
 }

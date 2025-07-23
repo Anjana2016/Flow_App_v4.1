@@ -16,65 +16,6 @@
     
     <!-- Your CSS file -->
     <link rel="stylesheet" href="flow_app_v4.1.css">
-
-    <!-- Final Tooltip Styling -->
-    <style>
-        #tooltip {
-            position: fixed !important;
-            background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%) !important;
-            color: white !important;
-            padding: 20px 24px !important;
-            border-radius: 16px !important;
-            font-size: 14px !important;
-            line-height: 1.5 !important;
-            box-shadow: 0 20px 60px rgba(14, 165, 233, 0.3) !important;
-            z-index: 999999 !important;
-            opacity: 0 !important;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            pointer-events: none !important;
-            max-width: 300px !important;
-            backdrop-filter: blur(20px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        }
-
-        #tooltip.show {
-            opacity: 1 !important;
-            pointer-events: auto !important;
-        }
-
-        #tooltip .tooltip-title {
-            font-size: 14px !important;
-            font-weight: 600 !important;
-            color: #ffffff !important;
-            margin-bottom: 8px !important;
-        }
-
-        #tooltip .tooltip-content {
-            font-size: 13px !important;
-            color: rgba(255, 255, 255, 0.9) !important;
-            line-height: 1.4 !important;
-        }
-
-        #tooltip::after {
-            content: '' !important;
-            position: absolute !important;
-            top: 100% !important;
-            left: 50% !important;
-            margin-left: -8px !important;
-            border: 8px solid transparent !important;
-            border-top-color: #0ea5e9 !important;
-        }
-        
-        /* EMERGENCY SLIDER FIX - Ensure sliders are interactive */
-        .custom-slider {
-            pointer-events: auto !important;
-            touch-action: none !important;
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            position: relative !important;
-            z-index: 10 !important;
-        }
-    </style>
 </head>
 
 <body>
@@ -613,19 +554,19 @@
             </div>
             <!-- Achievement Icons -->
             <div class="achievement-icons">
-                <div class="achievement-icon mindful" data-tooltip="mindful-week">
+                <div class="achievement-icon mindful">
                     <span>⚡</span>
                 </div>
-                <div class="achievement-icon flow-month" data-tooltip="flow-month">
+                <div class="achievement-icon flow-month">
                     <span>🔥</span>
                 </div>
-                <div class="achievement-icon efficiency" data-tooltip="efficiency">
+                <div class="achievement-icon efficiency">
                     <span>💰</span>
                 </div>
             </div>
 
             <div class="hero-section">
-                <div class="daily-flow-display" onclick="celebrateFlow()" data-tooltip="daily-flow-amount">
+                <div class="daily-flow-display" onclick="celebrateFlow()">
                     <div class="daily-flow-label">Your Daily Flow</div>
                     <div class="daily-flow-amount" id="dailyFlowAmount">$40</div>
                     <div class="daily-flow-description">Spend guilt-free today ✨</div>
@@ -643,10 +584,9 @@
             <!-- Enhanced Quick Add System -->
             <div class="quick-add-section">
                 <div class="quick-add-header">
-                    <div class="quick-add-title" data-tooltip="quick-add-system">⚡ Quick Add</div>
+                    <div class="quick-add-title">⚡ Quick Add</div>
                     
-                    <button class="location-toggle" onclick="toggleLocationSuggestions()"
-                        data-tooltip="location-features">📍 Near You</button>
+                    <button class="location-toggle" onclick="toggleLocationSuggestions()">📍 Near You</button>
                 </div>
 
                 <!-- Location Suggestions (Initially Hidden) -->
@@ -703,7 +643,7 @@
                         <div class="quick-add-price">~$20</div>
                     </div>
 
-                    <div class="quick-add-btn oops" onclick="showOopsModal()" data-tooltip="oops-button">
+                    <div class="quick-add-btn oops" onclick="showOopsModal()">
                         <div class="quick-add-icon">💳</div>
                         <div class="quick-add-label">Oops</div>
                         <div class="quick-add-price">Add missed</div>
@@ -737,13 +677,13 @@
 
             <!-- Mastery Badges -->
             <div class="mastery-badges">
-                <div class="mastery-badge budget-keeper" data-tooltip="budget-keeper">
+                <div class="mastery-badge budget-keeper">
                     <span>🎯</span>
                 </div>
-                <div class="mastery-badge flow-master" data-tooltip="flow-master">
+                <div class="mastery-badge flow-master">
                     <span>🌊</span>
                 </div>
-                <div class="mastery-badge wealth-builder" data-tooltip="wealth-builder">
+                <div class="mastery-badge wealth-builder">
                     <span>💎</span>
                 </div>
             </div>
@@ -752,7 +692,7 @@
             <div class="income-overview">
                 <div class="income-label">Your Money Coming In</div>
                 <div class="income-display-container">
-                    <div class="income-amount" id="incomeAmount" data-tooltip="income-amount">
+                    <div class="income-amount" id="incomeAmount">
                         $3,200
                     </div>
                     <!-- ADD: Income subtitle -->
@@ -795,7 +735,7 @@
                     </div>
                 </div>
 
-                <button class="income-adjust-btn" onclick="startIncomeEdit()" data-tooltip="income-adjust">
+                <button class="income-adjust-btn" onclick="startIncomeEdit()">
                     <span class="adjust-icon">✏️</span>
                     <span class="adjust-text">Tap to adjust</span>
                 </button>
@@ -803,7 +743,7 @@
 
 
 
-            <div class="categories-grid" data-tooltip="flow-method">
+            <div class="categories-grid">
                 <div class="category-card foundation" onclick="showCategoryDetails('foundation')">
                     <div class="category-header">
                         <div class="category-title-group">
@@ -863,7 +803,7 @@
             </div>
 
             <!-- Flow Profile Selector - Horizontal Layout -->
-            <div class="flow-profiles" data-tooltip="flow-profiles">
+            <div class="flow-profiles">
                 <div class="profiles-header">
                     <h4>Quick Flow Profiles</h4>
                     <p>Choose a preset or customize below</p>
@@ -890,7 +830,7 @@
             </div>
 
             <!-- Enhanced Flow Customization Section -->
-            <div class="allocation-customizer" id="allocationCustomizer" data-tooltip="adjust-flow">
+            <div class="allocation-customizer" id="allocationCustomizer">
                 <div class="customization-header">
                     <h3 class="customization-title">🎛️ Customize Your Allocations</h3>
                     <!-- ADD: Customizer subtitle -->
@@ -968,11 +908,11 @@
             <div class="goal-planning" id="goalPlanningSection">
                 <div class="goal-header">
                     <div class="goal-title">Goal Planning</div>
-                    <button class="add-goal-btn" data-tooltip="goal-planning-feature">+ Add Goal</button>
+                    <button class="add-goal-btn">+ Add Goal</button>
                 </div>
 
                 <!-- Active Goal Example -->
-                <div class="active-goal" data-tooltip="active-goal-example">
+                <div class="active-goal">
                     <div class="goal-info">
                         <div class="goal-details">
                             <h3>Europe Trip</h3>
@@ -989,7 +929,7 @@
                     </div>
 
                     <!-- Impact Preview -->
-                    <div class="goal-impact" data-tooltip="impact-preview">
+                    <div class="goal-impact">
                         <div class="impact-title">💡 Smart Suggestion</div>
                         <div class="impact-suggestion">
                             Boost Future to 15% → daily freedom drops $45 → $35, but you'll reach your goal 2 months
@@ -1042,7 +982,7 @@
             <!-- Tab Header -->
             <div class="growth-tab-header">
                 <h1 class="growth-tab-title">Build</h1>
-                <p class="growth-tab-subtitle" data-tooltip="growth-philosophy">What you're building so far 🚀</p>
+                <p class="growth-tab-subtitle">What you're building so far 🚀</p>
                 <!-- ADD: Build subtitle -->
                 <div class="section-subtitle">Real progress across three areas</div>
             </div>
@@ -1050,7 +990,7 @@
             <!-- Growth Story Hero -->
             <div class="growth-story-hero">
                 <div class="growth-hero-content">
-                    <h2 class="growth-title" data-tooltip="milestone-progress">Building Wealth Warrior</h2>
+                    <h2 class="growth-title">Building Wealth Warrior</h2>
                     <p class="growth-subtitle">Real progress across three areas of your money life</p>
 
                     <div class="milestone-progress-hero">
@@ -1071,24 +1011,24 @@
             </div>
 
             <!-- Money Timeline -->
-            <div class="money-timeline" data-tooltip="money-timeline">
+            <div class="money-timeline">
                 <h3 class="timeline-title">Your Money Timeline</h3>
                 <p class="timeline-subtitle">Each milestone represents real financial security</p>
 
                 <div class="timeline-track">
-                    <div class="milestone-marker completed" data-tooltip="milestone-100">
+                    <div class="milestone-marker completed">
                         <div class="marker-circle">✓</div>
                         <div class="marker-label">$100<br>Foundation</div>
                     </div>
-                    <div class="milestone-marker completed" data-tooltip="milestone-250">
+                    <div class="milestone-marker completed">
                         <div class="marker-circle">✓</div>
                         <div class="marker-label">$250<br>Cushion</div>
                     </div>
-                    <div class="milestone-marker current" data-tooltip="milestone-500">
+                    <div class="milestone-marker current">
                         <div class="marker-circle">$500</div>
                         <div class="marker-label">$500<br>Security</div>
                     </div>
-                    <div class="milestone-marker future" data-tooltip="milestone-1000">
+                    <div class="milestone-marker future">
                         <div class="marker-circle">$1K</div>
                         <div class="marker-label">$1,000<br>Freedom</div>
                     </div>
@@ -1105,7 +1045,7 @@
             <!-- Growth Areas -->
             <div class="growth-areas">
                 <!-- Smart Choices Area -->
-                <div class="growth-area smart-choices" data-tooltip="smart-choices">
+                <div class="growth-area smart-choices">
                     <div class="area-header">
                         <div class="area-info">
                             <div class="area-icon">🧠</div>
@@ -1151,7 +1091,7 @@
                 </div>
 
                 <!-- Flow Mastery Area -->
-                <div class="growth-area flow-mastery" data-tooltip="flow-mastery">
+                <div class="growth-area flow-mastery">
                     <div class="area-header">
                         <div class="area-info">
                             <div class="area-icon">🎯</div>
@@ -1197,7 +1137,7 @@
                 </div>
 
                 <!-- Real Money Built Area -->
-                <div class="growth-area real-money" data-tooltip="real-money">
+                <div class="growth-area real-money">
                     <div class="area-header">
                         <div class="area-info">
                             <div class="area-icon">💰</div>
@@ -1245,7 +1185,7 @@
             </div>
 
             <!-- Next Milestone Focus -->
-            <div class="next-milestone" data-tooltip="next-milestone">
+            <div class="next-milestone">
                 <div class="milestone-header">
                     <h3>Next Milestone: Security</h3>
                     <div class="milestone-amount">$500</div>
@@ -1254,21 +1194,21 @@
                     This milestone changes how you feel about money. Real security starts here.
                 </div>
                 <div class="milestone-options">
-                    <div class="milestone-option" data-tooltip="quick-wins">
+                    <div class="milestone-option">
                         <div class="option-icon">🏃‍♂️</div>
                         <div class="option-details">
                             <div class="option-name">Quick Wins</div>
                             <div class="option-description">Two mindful days + $153 more</div>
                         </div>
                     </div>
-                    <div class="milestone-option" data-tooltip="consistency">
+                    <div class="milestone-option">
                         <div class="option-icon">🎯</div>
                         <div class="option-details">
                             <div class="option-name">Consistency</div>
                             <div class="option-description">Flow Month builds strongest foundation</div>
                         </div>
                     </div>
-                    <div class="milestone-option" data-tooltip="steady-growth">
+                    <div class="milestone-option">
                         <div class="option-icon">⚖️</div>
                         <div class="option-details">
                             <div class="option-name">Steady Growth</div>
@@ -1281,12 +1221,12 @@
 
 
             <!-- Multiple Paths Forward -->
-            <div class="paths-forward" data-tooltip="next-milestone-paths">
+            <div class="paths-forward">
                 <h3 class="paths-title">Multiple Paths to Your Next Milestone</h3>
                 <p class="paths-subtitle">Choose the strategy that fits your style and timeline</p>
 
                 <div class="strategy-cards">
-                    <div class="strategy-card quick-wins" data-tooltip="quick-wins">
+                    <div class="strategy-card quick-wins">
                         <div class="strategy-header">
                             <div class="strategy-icon">⚡</div>
                             <div class="strategy-info">
@@ -1304,7 +1244,7 @@
                         <button class="strategy-btn" onclick="selectStrategy('quick-wins')">Choose Quick Wins</button>
                     </div>
 
-                    <div class="strategy-card consistency" data-tooltip="consistency">
+                    <div class="strategy-card consistency">
                         <div class="strategy-header">
                             <div class="strategy-icon">🎯</div>
                             <div class="strategy-info">
@@ -1322,7 +1262,7 @@
                         <button class="strategy-btn" onclick="selectStrategy('consistency')">Choose Consistency</button>
                     </div>
 
-                    <div class="strategy-card steady-growth" data-tooltip="steady-growth">
+                    <div class="strategy-card steady-growth">
                         <div class="strategy-header">
                             <div class="strategy-icon">📈</div>
                             <div class="strategy-info">
@@ -1351,13 +1291,13 @@
                 </div>
 
                 <div class="vision-cards">
-                    <div class="vision-card six-months" data-tooltip="six-month-vision">
+                    <div class="vision-card six-months">
                         <div class="vision-timeframe">6 Months</div>
                         <div class="vision-amount">$<span id="sixMonthProjection">1,247</span></div>
                         <div class="vision-description">Real emergency cushion</div>
                     </div>
 
-                    <div class="vision-card one-year" data-tooltip="one-year-vision">
+                    <div class="vision-card one-year">
                         <div class="vision-timeframe">1 Year</div>
                         <div class="vision-amount">$<span id="oneYearProjection">2,890</span></div>
                         <div class="vision-description">Life options opening up</div>

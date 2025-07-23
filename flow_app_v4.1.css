@@ -6,26 +6,72 @@ LAST UPDATED: Allocation Sliders Fixed & Touch-optimized UI
 STATUS: Production Ready - Glassmorphism Design System
 */
 
-/* EMERGENCY MOBILE TOOLTIP DISABLE - CRITICAL FIRST STEP */
+/* ===== COMPLETE TOOLTIP ELIMINATION - CRITICAL FIX ===== */
+
+/* Disable ALL tooltip systems across all devices */
+.tooltip, 
+[data-tooltip]:after, 
+[data-tooltip]:before,
+#tooltip,
+.tooltip-container,
+.tooltip-content {
+    display: none !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    z-index: -1 !important;
+}
+
+/* Remove all tooltip-related pseudo-elements */
+*[data-tooltip]:hover:after,
+*[data-tooltip]:hover:before,
+*[data-tooltip]:focus:after,
+*[data-tooltip]:focus:before {
+    display: none !important;
+    content: none !important;
+}
+
+/* Ensure all interactive elements work properly */
+[data-tooltip] {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* Critical: Restore modal and button functionality */
+.quick-add-btn, 
+.income-amount,
+.settings-icon-btn,
+.daily-flow-display,
+.achievement-icon,
+.mastery-badge,
+.location-toggle,
+.category-card,
+.allocation-slider,
+.nav-item {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+    cursor: pointer !important;
+}
+
+/* Mobile-specific fixes */
 @media (max-width: 768px) {
-    .tooltip, 
-    [data-tooltip]:after, 
-    [data-tooltip]:before,
-    #tooltip {
-        display: none !important;
-        pointer-events: none !important;
-        opacity: 0 !important;
+    /* Force disable any remaining tooltip systems */
+    * {
+        -webkit-touch-callout: none !important;
+        -webkit-user-select: none !important;
+        -khtml-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
     }
     
-    /* Ensure all primary interactions work on mobile */
-    .quick-add-btn, 
-    .allocation-slider, 
-    .nav-item,
-    .custom-slider,
-    .daily-flow-display,
-    .category-card {
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
+    /* But allow selection for input fields */
+    input, textarea {
+        -webkit-user-select: text !important;
+        -moz-user-select: text !important;
+        -ms-user-select: text !important;
+        user-select: text !important;
     }
 }
 /* ===== ACHIEVEMENT MODAL SYSTEM - ENHANCED UX GUIDELINES ===== */
