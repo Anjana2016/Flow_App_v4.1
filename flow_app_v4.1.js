@@ -4691,6 +4691,8 @@ function switchTab(tabName) {
     // Update category cards when switching to Flow tab
     if (tabName === 'budget-health') {
         setTimeout(() => {
+            // **CRITICAL: Sync sliders when Flow tab becomes active**
+            initializeSliderPositions();
             updateAllDisplaysSynchronized();
         }, 100);
     }
@@ -6501,6 +6503,18 @@ function initializeWithPersistentData() {
                             percentage: cats.freedom.percentage || 40
                         }
                     };
+                    
+                    // Update allocation state to match
+                    allocationState = {
+                        foundation: appState.categories.foundation.percentage,
+                        future: appState.categories.future.percentage,
+                        freedom: appState.categories.freedom.percentage,
+                        originalAllocations: {
+                            foundation: appState.categories.foundation.percentage,
+                            future: appState.categories.future.percentage,
+                            freedom: appState.categories.freedom.percentage
+                        }
+                    };
                 } else if (cats.secure && cats.save && cats.spend) {
                     // Legacy support: convert old names to new names
                     appState.categories = {
@@ -6518,6 +6532,18 @@ function initializeWithPersistentData() {
                             allocated: cats.spend.allocated || 0,
                             used: cats.spend.used || 0,
                             percentage: cats.spend.percentage || 40
+                        }
+                    };
+                    
+                    // Update allocation state to match (legacy conversion)
+                    allocationState = {
+                        foundation: appState.categories.foundation.percentage,
+                        future: appState.categories.future.percentage,
+                        freedom: appState.categories.freedom.percentage,
+                        originalAllocations: {
+                            foundation: appState.categories.foundation.percentage,
+                            future: appState.categories.future.percentage,
+                            freedom: appState.categories.freedom.percentage
                         }
                     };
                 }
@@ -7940,120 +7966,246 @@ function updateAllocation(category, newValue) {
 }
 
 
-// DAY 19 ADDITION: Enhanced slider interaction handlers
-// SIMPLIFIED VERSION FOR DEBUGGING
+// Enhanced Flow Method Slider Input Handler with Position Sync
 function handleSliderInput(category, slider) {
-    console.log('=== SLIDER INPUT ===');
-    console.log('Category:', category);
-    console.log('New value:', slider.value);
-    console.log('Slider element:', slider);
-    
     try {
-        const newValue = parseInt(slider.value);
-        console.log('Parsed value:', newValue);
+        const value = parseInt(slider.value);
         
-        // Ensure appState exists
-        if (!window.appState) {
-            console.log('Creating appState...');
-            window.appState = {
-                monthlyIncome: 3200,
-                categories: {
-                    foundation: { percentage: 55, allocated: 1760 },
-                    future: { percentage: 5, allocated: 160 },
-                    freedom: { percentage: 40, allocated: 1280 }
-                }
-            };
-        }
-        
-        // Get all sliders
-        const foundationSlider = document.getElementById('foundationSlider');
-        const futureSlider = document.getElementById('futureSlider');
-        const freedomSlider = document.getElementById('freedomSlider');
-        
-        console.log('Sliders found:', {
-            foundation: !!foundationSlider,
-            future: !!futureSlider,
-            freedom: !!freedomSlider
-        });
-        
-        if (!foundationSlider || !futureSlider || !freedomSlider) {
-            console.error('Some sliders not found in DOM!');
-            return;
-        }
-        
-        // Get current values
-        let foundation = parseInt(foundationSlider.value);
-        let future = parseInt(futureSlider.value);
-        let freedom = parseInt(freedomSlider.value);
-        
-        console.log('Current values:', { foundation, future, freedom });
-        
-        // Update the changed category
+        // Update allocation state for Flow Method
         if (category === 'foundation') {
-            foundation = newValue;
-            freedom = 100 - foundation - future;
-            if (freedom < 10) { freedom = 10; foundation = 100 - future - freedom; }
+            allocationState.foundation = value;
+            // Ensure Future doesn't exceed limits when Foundation changes
+            const maxFuture = Math.min(30, 100 - value);
+            if (allocationState.future > maxFuture) {
+                allocationState.future = maxFuture;
+                // **CRITICAL: Update the actual slider DOM element**
+                const futureSlider = document.getElementById('futureSlider');
+                if (futureSlider) {
+                    futureSlider.value = maxFuture;
+                }
+            }
         } else if (category === 'future') {
-            future = newValue;
-            freedom = 100 - foundation - future;
-            if (freedom < 10) { freedom = 10; future = 100 - foundation - freedom; }
-        } else if (category === 'freedom') {
-            freedom = newValue;
-            foundation = 100 - future - freedom;
-            if (foundation < 30) { foundation = 30; freedom = 100 - future - foundation; }
+            allocationState.future = value;
+            // Ensure Foundation + Future <= 100
+            const maxFoundation = Math.min(80, 100 - value);
+            if (allocationState.foundation > maxFoundation) {
+                allocationState.foundation = maxFoundation;
+                // **CRITICAL: Update the actual slider DOM element**
+                const foundationSlider = document.getElementById('foundationSlider');
+                if (foundationSlider) {
+                    foundationSlider.value = maxFoundation;
+                }
+            }
         }
         
-        console.log('Adjusted values:', { foundation, future, freedom, total: foundation + future + freedom });
+        // Auto-calculate Freedom (always)
+        allocationState.freedom = 100 - allocationState.foundation - allocationState.future;
         
-        // Update sliders
-        foundationSlider.value = foundation;
-        futureSlider.value = future;
-        freedomSlider.value = freedom;
+        // **CRITICAL: Update Freedom slider DOM element**
+        const freedomSlider = document.getElementById('freedomSlider');
+        if (freedomSlider) {
+            freedomSlider.value = allocationState.freedom;
+        }
         
-        // Force visual update of slider positions
-        foundationSlider.setAttribute('value', foundation);
-        futureSlider.setAttribute('value', future);
-        freedomSlider.setAttribute('value', freedom);
-        
-        // Force browser reflow to ensure visual update
-        foundationSlider.style.display = 'none';
-        foundationSlider.offsetHeight; // Trigger reflow
-        foundationSlider.style.display = '';
-        
-        futureSlider.style.display = 'none';
-        futureSlider.offsetHeight; // Trigger reflow
-        futureSlider.style.display = '';
-        
-        freedomSlider.style.display = 'none';
-        freedomSlider.offsetHeight; // Trigger reflow
-        freedomSlider.style.display = '';
-        
-        console.log('🔄 Forced visual slider update:', { foundation, future, freedom });
-        
-        // Update displays
-        const income = appState.monthlyIncome;
-        ['foundation', 'future', 'freedom'].forEach(cat => {
-            const percentage = cat === 'foundation' ? foundation : cat === 'future' ? future : freedom;
-            const amount = Math.round((percentage / 100) * income);
-            
-            // Update value display
-            const valueElement = document.getElementById(cat + 'Value');
-            if (valueElement) {
-                valueElement.textContent = `${percentage}% • $${amount}`;
-                console.log(`Updated ${cat} display:`, valueElement.textContent);
-            }
-            
-            // Update app state
-            appState.categories[cat].percentage = percentage;
-            appState.categories[cat].allocated = amount;
-        });
-        
-        console.log('=== SLIDER UPDATE COMPLETE ===');
+        // Update all displays
+        updateSliderDisplays();
+        updateImpactPreview();
         
     } catch (error) {
         console.error('ERROR in handleSliderInput:', error);
         console.error('Stack:', error.stack);
     }
+}
+
+// Update Slider Display Values with Perfect Position Sync
+function updateSliderDisplays() {
+    // Get income with fallback
+    const incomeText = document.getElementById('incomeAmount')?.textContent || '$3200';
+    const income = parseInt(incomeText.replace('$', '').replace(',', '')) || 3200;
+    
+    // Ensure allocation state exists
+    if (!allocationState || !allocationState.foundation) {
+        allocationState = { ...DEFAULT_ALLOCATION };
+    }
+    
+    // Get validated values
+    const foundation = parseInt(allocationState.foundation) || DEFAULT_ALLOCATION.foundation;
+    const future = parseInt(allocationState.future) || DEFAULT_ALLOCATION.future;
+    const freedom = parseInt(allocationState.freedom) || DEFAULT_ALLOCATION.freedom;
+    
+    // Update slider DOM values
+    const foundationSlider = document.getElementById('foundationSlider');
+    const futureSlider = document.getElementById('futureSlider');
+    const freedomSlider = document.getElementById('freedomSlider');
+    
+    if (foundationSlider) foundationSlider.value = foundation;
+    if (futureSlider) futureSlider.value = future;
+    if (freedomSlider) freedomSlider.value = freedom;
+    
+    // Calculate amounts
+    const foundationAmount = Math.round((foundation / 100) * income);
+    const futureAmount = Math.round((future / 100) * income);
+    const freedomAmount = Math.round((freedom / 100) * income);
+    
+    // Update display elements with null checks
+    const foundationValueEl = document.getElementById('foundationValue');
+    if (foundationValueEl) {
+        foundationValueEl.textContent = `${foundation}% • $${foundationAmount.toLocaleString()}`;
+    }
+    
+    const futureValueEl = document.getElementById('futureValue');
+    if (futureValueEl) {
+        futureValueEl.textContent = `${future}% • $${futureAmount.toLocaleString()}`;
+    }
+    
+    const freedomValueEl = document.getElementById('freedomValue');
+    if (freedomValueEl) {
+        freedomValueEl.textContent = `${freedom}% • $${freedomAmount.toLocaleString()}`;
+    }
+    
+    // Update category cards
+    updateCategoryCards();
+}
+
+// Update Category Card Values with Position Sync
+function updateCategoryCards() {
+    // Get income with fallback
+    const incomeText = document.getElementById('incomeAmount')?.textContent || '$3200';
+    const income = parseInt(incomeText.replace('$', '').replace(',', '')) || 3200;
+    
+    // Ensure allocation state exists
+    if (!allocationState || !allocationState.foundation) {
+        allocationState = { ...DEFAULT_ALLOCATION };
+    }
+    
+    const currentAllocation = allocationState || appState.allocation || DEFAULT_ALLOCATION;
+    
+    // Get validated values
+    const foundation = parseInt(currentAllocation.foundation) || DEFAULT_ALLOCATION.foundation;
+    const future = parseInt(currentAllocation.future) || DEFAULT_ALLOCATION.future;
+    const freedom = parseInt(currentAllocation.freedom) || DEFAULT_ALLOCATION.freedom;
+    
+    // Calculate amounts
+    const foundationAmount = Math.round((foundation / 100) * income);
+    const futureAmount = Math.round((future / 100) * income);
+    const freedomAmount = Math.round((freedom / 100) * income);
+    
+    // Update Foundation category with null checks
+    const foundationPercentageEl = document.getElementById('foundationPercentage');
+    const foundationAmountEl = document.getElementById('foundationAllocatedAmount');
+    
+    if (foundationPercentageEl) {
+        foundationPercentageEl.textContent = `${foundation}%`;
+    }
+    if (foundationAmountEl) {
+        foundationAmountEl.textContent = `$${foundationAmount.toLocaleString()} allocated`;
+    }
+    
+    // Update Future category with null checks
+    const futurePercentageEl = document.getElementById('futurePercentage');
+    const futureAmountEl = document.getElementById('futureAllocatedAmount');
+    
+    if (futurePercentageEl) {
+        futurePercentageEl.textContent = `${future}%`;
+    }
+    if (futureAmountEl) {
+        futureAmountEl.textContent = `$${futureAmount.toLocaleString()} allocated`;
+    }
+    
+    // Update Freedom category with null checks
+    const freedomPercentageEl = document.getElementById('freedomPercentage');
+    const freedomAmountEl = document.getElementById('freedomAllocatedAmount');
+    
+    if (freedomPercentageEl) {
+        freedomPercentageEl.textContent = `${freedom}%`;
+    }
+    if (freedomAmountEl) {
+        freedomAmountEl.textContent = `$${freedomAmount.toLocaleString()} allocated`;
+    }
+    
+    // Update daily flow in Spend tab
+    const dailyFlow = Math.round(freedomAmount / 30);
+    const dailyFlowEl = document.getElementById('dailyFlowAmount');
+    if (dailyFlowEl) {
+        dailyFlowEl.textContent = `$${dailyFlow}`;
+    }
+}
+
+// Update Impact Preview System
+function updateImpactPreview() {
+    const income = parseInt(document.getElementById('incomeAmount').textContent.replace('$', '').replace(',', ''));
+    const currentDailyFlow = Math.round((allocationState.freedom / 100 * income) / 30);
+    
+    // Show impact preview
+    const impactPreview = document.getElementById('allocationPreview');
+    if (impactPreview) {
+        const foundationAmount = Math.round((allocationState.foundation / 100) * income);
+        const futureAmount = Math.round((allocationState.future / 100) * income);
+        const freedomAmount = Math.round((allocationState.freedom / 100) * income);
+        
+        // Update preview message
+        const previewMessage = document.getElementById('previewMessage');
+        if (previewMessage) {
+            previewMessage.innerHTML = `
+                Foundation: $${foundationAmount.toLocaleString()} (${allocationState.foundation}%) • 
+                Future: $${futureAmount.toLocaleString()} (${allocationState.future}%) • 
+                Freedom: $${freedomAmount.toLocaleString()} (${allocationState.freedom}%)
+            `;
+        }
+        
+        // Update daily flow preview
+        const previewDailyFlow = document.getElementById('previewDailyFlow');
+        if (previewDailyFlow) {
+            previewDailyFlow.textContent = currentDailyFlow;
+        }
+    }
+}
+
+// Initialize Slider Positions for Perfect Sync
+function initializeSliderPositions() {
+    // Ensure allocation state exists with fallbacks
+    if (!allocationState || !allocationState.foundation) {
+        allocationState = { ...DEFAULT_ALLOCATION };
+    }
+    
+    const currentAllocation = allocationState || appState.allocation || DEFAULT_ALLOCATION;
+    
+    // Double-check values are valid numbers
+    const foundation = parseInt(currentAllocation.foundation) || DEFAULT_ALLOCATION.foundation;
+    const future = parseInt(currentAllocation.future) || DEFAULT_ALLOCATION.future;
+    const freedom = parseInt(currentAllocation.freedom) || DEFAULT_ALLOCATION.freedom;
+    
+    // Update allocation state with validated values
+    allocationState = { 
+        foundation, 
+        future, 
+        freedom,
+        originalAllocations: allocationState.originalAllocations || { foundation, future, freedom }
+    };
+    
+    // Set slider DOM values
+    const foundationSlider = document.getElementById('foundationSlider');
+    const futureSlider = document.getElementById('futureSlider');
+    const freedomSlider = document.getElementById('freedomSlider');
+    
+    if (foundationSlider) {
+        foundationSlider.value = foundation;
+        foundationSlider.setAttribute('value', foundation);
+    }
+    
+    if (futureSlider) {
+        futureSlider.value = future;
+        futureSlider.setAttribute('value', future);
+    }
+    
+    if (freedomSlider) {
+        freedomSlider.value = freedom;
+        freedomSlider.setAttribute('value', freedom);
+        freedomSlider.disabled = true;
+    }
+    
+    // Update displays immediately
+    updateSliderDisplays();
 }
 
 function startSliderDrag(category, slider) {
@@ -8287,11 +8439,41 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateAllDisplaysSynchronized();
 
+        // **CRITICAL: Initialize allocation state and slider positions**
+        setTimeout(() => {
+            // Step 1: Validate allocation state
+            validateAllocationState();
+            // Step 2: Initialize slider positions
+            initializeSliderPositions();
+            // Step 3: Update all displays
+            updateCategoryCards();
+            updateSliderDisplays();
+        }, 100);
+
         // ===== DAY 41: INITIALIZE SPENDING EFFICIENCY SYSTEM =====
         initializeSpendingEfficiencySystem();
     } else {
         // New user or data restore failed, show onboarding
         console.log('ℹ️ New user or incomplete data, showing onboarding');
+        
+        // Initialize with defaults for new users
+        allocationState = { ...DEFAULT_ALLOCATION };
+        if (!appState.categories) {
+            appState.categories = {
+                foundation: { allocated: 1760, used: 0, percentage: 55 },
+                future: { allocated: 160, used: 0, percentage: 5 },
+                freedom: { allocated: 1280, used: 0, percentage: 40 }
+            };
+        }
+        
+        // Initialize sliders even for new users
+        setTimeout(() => {
+            validateAllocationState();
+            initializeSliderPositions();
+            updateCategoryCards();
+            updateSliderDisplays();
+        }, 200);
+        
         const overlay = document.getElementById('onboardingOverlay');
         if (overlay) {
             overlay.style.display = 'flex';
@@ -8419,7 +8601,14 @@ function resetToProfileDefault() {
     }, 800);
 }
 
-// ===== PHASE 2 ALLOCATION INTERFACE ENHANCEMENTS =====
+// ===== STATE INITIALIZATION WITH PROPER DEFAULTS =====
+
+// Default allocation values (Foundation Flow profile)
+const DEFAULT_ALLOCATION = {
+    foundation: 55,
+    future: 5,
+    freedom: 40
+};
 
 // Allocation state management for real-time preview
 let allocationState = {
@@ -8433,6 +8622,40 @@ let allocationState = {
     }
 };
 
+// Validate and fix allocation state
+function validateAllocationState() {
+    // Ensure all required properties exist and are valid numbers
+    if (!allocationState.foundation || isNaN(allocationState.foundation)) {
+        allocationState.foundation = DEFAULT_ALLOCATION.foundation;
+    }
+    if (!allocationState.future || isNaN(allocationState.future)) {
+        allocationState.future = DEFAULT_ALLOCATION.future;
+    }
+    if (!allocationState.freedom || isNaN(allocationState.freedom)) {
+        allocationState.freedom = DEFAULT_ALLOCATION.freedom;
+    }
+    
+    // Ensure Foundation is within valid range (30-80%)
+    allocationState.foundation = Math.max(30, Math.min(80, allocationState.foundation));
+    
+    // Ensure Future is within valid range (0-30%)
+    allocationState.future = Math.max(0, Math.min(30, allocationState.future));
+    
+    // Recalculate Freedom to ensure 100% total
+    allocationState.freedom = 100 - allocationState.foundation - allocationState.future;
+    
+    // Update appState to match if it exists
+    if (appState && appState.categories) {
+        appState.categories.foundation = appState.categories.foundation || {};
+        appState.categories.future = appState.categories.future || {};
+        appState.categories.freedom = appState.categories.freedom || {};
+        
+        appState.categories.foundation.percentage = allocationState.foundation;
+        appState.categories.future.percentage = allocationState.future;
+        appState.categories.freedom.percentage = allocationState.freedom;
+    }
+}
+
 // Initialize allocation interface
 function initializeAllocationInterface() {
     // Safety check: Don't run during tests or if DOM not ready
@@ -8440,22 +8663,37 @@ function initializeAllocationInterface() {
         return;
     }
 
-    // Set initial slider values from current app state with backward compatibility
+    // Set initial slider values from current app state with proper fallbacks
+    
+    // Ensure allocation state exists with fallbacks
+    if (!allocationState || !allocationState.foundation) {
+        allocationState = { ...DEFAULT_ALLOCATION };
+    }
 
-    // Handle foundation/secure category
+    // Handle foundation/secure category with fallbacks
     allocationState.foundation = appState.categories?.foundation?.percentage ||
-        appState.categories?.secure?.percentage || 55;
+        appState.categories?.secure?.percentage || DEFAULT_ALLOCATION.foundation;
 
-    // Handle future/save category  
+    // Handle future/save category with fallbacks
     allocationState.future = appState.categories?.future?.percentage ||
-        appState.categories?.save?.percentage || 5;
+        appState.categories?.save?.percentage || DEFAULT_ALLOCATION.future;
 
-    // Handle freedom/spend category
+    // Handle freedom/spend category with fallbacks
     allocationState.freedom = appState.categories?.freedom?.percentage ||
-        appState.categories?.spend?.percentage || 40;
+        appState.categories?.spend?.percentage || DEFAULT_ALLOCATION.freedom;
+
+    // Validate the loaded values
+    validateAllocationState();
 
     // Store original values for reset
-    allocationState.originalAllocations = { ...allocationState };
+    allocationState.originalAllocations = { 
+        foundation: allocationState.foundation,
+        future: allocationState.future,
+        freedom: allocationState.freedom 
+    };
+
+    // **CRITICAL: Initialize slider positions after state is loaded**
+    initializeSliderPositions();
 
     // Update allocation display labels (foundation%, future%, freedom%)
     updateAllocationDisplayOnly();

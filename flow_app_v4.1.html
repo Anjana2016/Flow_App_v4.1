@@ -615,16 +615,12 @@
             <div class="achievement-icons">
                 <div class="achievement-icon mindful" data-tooltip="mindful-week">
                     <span>⚡</span>
-                    <!-- ADD: Achievement subtitle -->
-                    <div class="flow-subtitle">Mindful Week</div>
                 </div>
                 <div class="achievement-icon flow-month" data-tooltip="flow-month">
                     <span>🔥</span>
-                    <div class="flow-subtitle">Flow Month</div>
                 </div>
                 <div class="achievement-icon efficiency" data-tooltip="efficiency">
                     <span>💰</span>
-                    <div class="flow-subtitle">Smart Choices</div>
                 </div>
             </div>
 
@@ -648,13 +644,9 @@
             <div class="quick-add-section">
                 <div class="quick-add-header">
                     <div class="quick-add-title" data-tooltip="quick-add-system">⚡ Quick Add</div>
-                    <!-- ADD: Section subtitle -->
-                    <div class="section-subtitle">Most common purchases</div>
                     
                     <button class="location-toggle" onclick="toggleLocationSuggestions()"
                         data-tooltip="location-features">📍 Near You</button>
-                    <!-- ADD: Location subtitle -->
-                    <div class="flow-subtitle">Based on your location</div>
                 </div>
 
                 <!-- Location Suggestions (Initially Hidden) -->
@@ -912,7 +904,7 @@
                     </div>
                     <div style="position: relative;">
                         <input type="range" class="custom-slider foundation" id="foundationSlider" min="30" max="80"
-                            value="55" oninput="handleSliderInput('foundation', this)"
+                            value="55" step="1" oninput="handleSliderInput('foundation', this)"
                             onmousedown="startSliderDrag('foundation', this)"
                             onmouseup="endSliderDrag('foundation', this)"
                             ontouchstart="startSliderDrag('foundation', this)"
@@ -929,7 +921,7 @@
                     </div>
                     <div style="position: relative;">
                         <input type="range" class="custom-slider future" id="futureSlider" min="0" max="30" value="5"
-                            oninput="handleSliderInput('future', this)" onmousedown="startSliderDrag('future', this)"
+                            step="1" oninput="handleSliderInput('future', this)" onmousedown="startSliderDrag('future', this)"
                             onmouseup="endSliderDrag('future', this)" ontouchstart="startSliderDrag('future', this)"
                             ontouchend="endSliderDrag('future', this)">
                         <div class="slider-tooltip" id="futureTooltip">5% • $160</div>
@@ -943,10 +935,9 @@
                         <span class="slider-value" id="freedomValue">40% • $1,280</span>
                     </div>
                     <div style="position: relative;">
-                        <input type="range" class="custom-slider freedom" id="freedomSlider" min="10" max="60"
-                            value="40" oninput="handleSliderInput('freedom', this)"
-                            onmousedown="startSliderDrag('freedom', this)" onmouseup="endSliderDrag('freedom', this)"
-                            ontouchstart="startSliderDrag('freedom', this)" ontouchend="endSliderDrag('freedom', this)">
+                        <input type="range" class="custom-slider freedom" id="freedomSlider" min="0" max="100"
+                            value="40" step="1" disabled
+                            title="Freedom percentage is automatically calculated">
                         <div class="slider-tooltip" id="freedomTooltip">40% • $1,280</div>
                     </div>
                     <div class="slider-description">Spend guilt-free today</div>
