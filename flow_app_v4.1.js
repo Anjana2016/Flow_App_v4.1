@@ -1281,6 +1281,72 @@ function testSystemValidation() {
 // Make debug function globally available
 window.testSystemValidation = testSystemValidation;
 
+// ===== GROWTH STORY DISPLAY ENHANCEMENTS ===== 
+
+/**
+ * Display name mapping for achievement categories
+ * Preserves all existing data structures while updating display only
+ */
+const achievementDisplayNames = {
+    "spendingEfficiency": "Smart Choices",
+    "budgetMastery": "Flow Mastery", 
+    "wealthAcceleration": "Real Money Built"
+};
+
+/**
+ * Format text with growth language for display only
+ * Converts gaming language to growth language without changing underlying data
+ */
+function formatGrowthProgress(text) {
+    if (!text || typeof text !== 'string') return text;
+    
+    return text
+        .replace(/XP earned/g, "progress built")
+        .replace(/XP/g, "progress")
+        .replace(/Level \d+/g, "Building Wealth Warrior")
+        .replace(/Outstanding progress!/g, "Feel that momentum building")
+        .replace(/Earned/g, "Built")
+        .replace(/Achievement unlocked/g, "Milestone reached")
+        .replace(/Badge earned/g, "Foundation built")
+        .replace(/Progress points/g, "Building consistency")
+        .replace(/Keep earning XP!/g, "Keep building momentum!")
+        .replace(/Unlock the next level/g, "Reach your next milestone")
+        .replace(/Achievement progress/g, "Growth progress")
+        .replace(/Points toward/g, "Building toward")
+        .replace(/Congratulations! You earned/g, "Look at that progress! You built")
+        .replace(/(\d+)% to Level \d+!/g, "$1% way to something meaningful 🔥");
+}
+
+/**
+ * Update achievement display with growth language
+ * Preserves all calculation logic, only changes display text
+ */
+function updateAchievementDisplayWithGrowthLanguage(category, progress) {
+    try {
+        const displayName = achievementDisplayNames[category] || category;
+        const formattedProgress = formatGrowthProgress(progress.toString());
+        
+        // Update display elements without changing underlying data
+        const categoryElements = document.querySelectorAll(`[data-category="${category}"]`);
+        categoryElements.forEach(element => {
+            const nameElement = element.querySelector('.category-name, .area-title, h3');
+            if (nameElement) {
+                nameElement.textContent = displayName;
+            }
+            
+            const progressElement = element.querySelector('.progress-text, .area-summary');
+            if (progressElement) {
+                progressElement.innerHTML = formattedProgress;
+            }
+        });
+        
+        return { displayName, formattedProgress };
+    } catch (error) {
+        console.error('Error updating achievement display:', error);
+        return { displayName: category, formattedProgress: progress };
+    }
+}
+
 // ===== DAY 45: BADGE CELEBRATION INTEGRATION FUNCTIONS =====
 
 /**
@@ -19939,7 +20005,7 @@ function createCoachingToast({ icon, message, insight, triggerType }) {
         hideCoachingToast(existingToast);
     }
     
-    // Create toast HTML
+    // Create toast HTML with enhanced UX
     const toastHTML = `
         <div class="coaching-toast" id="coaching-toast">
             <div class="coaching-toast-content">
