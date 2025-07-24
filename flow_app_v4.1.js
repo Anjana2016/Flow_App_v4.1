@@ -162,6 +162,9 @@ function quickCategorySpend(amount, category) {
         // Voice Transformation: From institutional to wise friend
         const remainingFlow = calculateDailyFlowUnified();
         showToast(`✅ ${category} flowed! $${remainingFlow} moves freely today • Building that mindful habit!`);
+        
+        // Coaching trigger for first quick add usage
+        triggerCoachingMoment('firstQuickAdd');
     } else {
         showToast(result.error, 'warning');
     }
@@ -1471,6 +1474,27 @@ function processTransaction(amount, description, category = 'freedom') {
     });
 
     updateAllDisplaysSynchronized();
+    
+    // Coaching triggers for spending behavior
+    if (category === 'freedom') {
+        const dailyFlow = calculateDailyFlowUnified();
+        const totalSpent = appState.categories.freedom.used;
+        const dailyFlowAmount = appState.categories.freedom.allocated / 30; // Approximate daily amount
+        const percentUsed = totalSpent / appState.categories.freedom.allocated;
+        
+        // Check for daily flow midpoint coaching
+        if (percentUsed >= 0.4 && percentUsed <= 0.6) {
+            triggerCoachingMoment('dailyFlowMidpoint');
+        }
+        
+        // Check for staying within daily flow
+        if (percentUsed <= 1.0) {
+            triggerCoachingMoment('withinDailyFlow');
+        }
+        
+        // Freedom spending coaching
+        triggerCoachingMoment('freedomSpending', { amount: amount, description: description });
+    }
 
     // ===== DAY 41: UPDATE SPENDING EFFICIENCY TRACKING =====
     // Update badge tracking for spend transactions
@@ -8624,6 +8648,9 @@ function updatePreview() {
 function applyAllocationChanges() {
     console.log('📊 Applying allocation changes from allocationState:', allocationState);
     
+    // Store previous values for coaching comparison
+    const previousFoundation = appState.categories.foundation.percentage;
+    
     // Update main app state from allocationState (which is now updated by manual drag)
     appState.categories.foundation.percentage = allocationState.foundation;
     appState.categories.future.percentage = allocationState.future;
@@ -8643,6 +8670,18 @@ function applyAllocationChanges() {
 
     // Update daily flow
     calculateDailyFlow();
+    
+    // Coaching triggers for allocation changes
+    triggerCoachingMoment('allocationAdjustment', { 
+        foundation: allocationState.foundation,
+        future: allocationState.future,
+        freedom: allocationState.freedom
+    });
+    
+    // Special coaching for foundation increases
+    if (allocationState.foundation > previousFoundation) {
+        triggerCoachingMoment('foundationIncrease');
+    }
 
     // Update all displays
     updateAllDisplaysSynchronized();
@@ -19594,21 +19633,28 @@ if (document.readyState === 'loading') {
 
 // ===== PHASE 2B: STRATEGIC MINIMAL HELP ICON SYSTEM =====
 
-// Educational content database - Strategic concepts only
+// Educational content database - Strategic concepts with authentic Flow voice
 const educationalContent = {
+    'daily-flow-philosophy': {
+        title: 'Daily Flow Philosophy',
+        content: 'Most budget apps make you calculate what you can spend every single day. Math, stress, guilt when you get it wrong. Your Daily Flow is different. We take your income, automatically set aside what you need for Foundation and Future, then divide what\'s left by the days in the month. That\'s your guilt-free amount for today. No mental math. No spending anxiety. Just one number that updates live as you spend. This is what financial clarity actually feels like.'
+    },
     'flow-method-philosophy': {
         title: 'Flow Method Philosophy',
-        content: 'The Flow Method divides your income into three purposeful categories that work together: Foundation (30-80%) builds your security base and confidence. Future (0-30%) builds automatically toward your goals without stress. Freedom (auto-calculated) is your guilt-free spending amount. This system creates psychological freedom by handling security and growth systematically, so you can spend your Freedom amount without worry or guilt.'
+        content: 'Most money apps want you to track every penny and stress about 20+ categories. What if you only needed three? Foundation handles the scary stuff - bills, emergencies, peace of mind. Future builds automatically toward your goals without you thinking about it. Freedom is everything left over - spend it guilt-free. It\'s the difference between hoping you\'ll be okay financially and knowing you will be. Three buckets. Zero stress.'
     },
     'growth-story-philosophy': {
         title: 'Your Growth Story',
-        content: 'Your Growth Story tracks real wealth-building progress across three areas: Smart Choices (mindful spending habits), Flow Mastery (allocation management), and Real Money Built (actual dollars toward financial freedom). Unlike arbitrary points or levels, these milestones represent genuine progress toward financial confidence and freedom. Each achievement unlocks real life options and reduces financial stress.'
+        content: 'Other apps celebrate hitting arbitrary milestones and earning fake points. But real wealth building isn\'t a game. Your Growth Story tracks what actually matters: Smart Choices (building habits that stick), Flow Mastery (getting your allocation dialed in), and Real Money Built (actual dollars toward freedom). Each milestone is something you can feel in your life - more confidence, less stress, genuine financial options. That\'s the difference between playing and building.'
     }
 };
 
 // Show educational modal function
 function showEducationModal(contentKey) {
     console.log('🎓 Opening strategic educational modal for:', contentKey);
+    
+    // Coaching trigger for first help icon usage
+    triggerCoachingMoment('firstHelpIcon', { modalType: contentKey });
     
     const content = educationalContent[contentKey];
     if (!content) {
@@ -19721,3 +19767,314 @@ function testHelpIcons() {
 
 // Make test function available globally
 window.testHelpIcons = testHelpIcons;
+
+// ===== PHASE 2E: LAYER 3 COACHING MOMENTS SYSTEM =====
+
+// Coaching moment content database with authentic Flow voice
+const coachingMoments = {
+    // Discovery coaching - when users explore features
+    firstQuickAdd: {
+        trigger: "first_quick_add_used",
+        icon: "💡",
+        message: "See how simple that was? Most apps make spending stressful.",
+        insight: "This is what money clarity feels like.",
+        frequency: "once"
+    },
+    
+    firstHelpIcon: {
+        trigger: "first_help_icon_clicked",
+        icon: "🎓",
+        message: "Curiosity is good. Most people never learn the 'why' behind their money decisions.",
+        insight: "Knowledge builds confidence.",
+        frequency: "once"
+    },
+    
+    // Behavior coaching - when users develop good habits
+    dailyFlowMidpoint: {
+        trigger: "daily_flow_50_percent_used",
+        icon: "⚡",
+        message: "Halfway through your daily flow. Notice how you're not stressing about every purchase?",
+        insight: "That's the psychology of freedom.",
+        frequency: "weekly"
+    },
+    
+    withinDailyFlow: {
+        trigger: "spending_within_daily_flow",
+        icon: "🌟",
+        message: "Another day within your flow. Your future self is definitely feeling this.",
+        insight: "Small consistent choices build lasting wealth.",
+        frequency: "weekly"
+    },
+    
+    quickAddStreak: {
+        trigger: "quick_add_streak_5",
+        icon: "🔥",
+        message: "Five days of mindful tracking. Notice how it's becoming automatic?",
+        insight: "Habits that stick beat streaks that break.",
+        frequency: "milestone"
+    },
+    
+    // Flow Method coaching - when users engage with allocation
+    allocationAdjustment: {
+        trigger: "allocation_slider_changed",
+        icon: "⚖️",
+        message: "Feel that control? You're designing your financial life instead of just hoping it works out.",
+        insight: "This is how wealth builders think.",
+        frequency: "occasional"
+    },
+    
+    foundationIncrease: {
+        trigger: "foundation_allocation_increased",
+        icon: "🛡️",
+        message: "More security means more freedom to take smart risks.",
+        insight: "Foundation creates opportunity.",
+        frequency: "occasional"
+    },
+    
+    // Milestone coaching - when users hit achievements
+    foundationMilestone: {
+        trigger: "foundation_milestone_reached",
+        icon: "🌱",
+        message: "Look at that foundation growing. This is what financial confidence feels like building.",
+        insight: "Every dollar here creates real options.",
+        frequency: "milestone"
+    },
+    
+    realMoneyBuilt: {
+        trigger: "money_milestone_100",
+        icon: "💰",
+        message: "Real money built: $100. That's not just a number - it's peace of mind taking shape.",
+        insight: "You can feel the difference, can't you?",
+        frequency: "milestone"
+    },
+    
+    // Educational moments - connecting actions to bigger picture
+    freedomSpending: {
+        trigger: "freedom_category_spend",
+        icon: "💚",
+        message: "Spending your Freedom allocation guilt-free. Foundation and Future are handled systematically.",
+        insight: "This is what financial clarity enables.",
+        frequency: "occasional"
+    }
+};
+
+// Coaching moment state management
+let coachingState = {
+    lastShown: {},
+    userPreferences: {
+        coachingEnabled: true,
+        frequency: 'normal' // 'minimal', 'normal', 'frequent'
+    },
+    sessionCount: {}
+};
+
+// Show coaching moment function
+function showCoachingMoment(triggerType, contextData = {}) {
+    // Check if coaching is enabled
+    if (!coachingState.userPreferences.coachingEnabled) {
+        return;
+    }
+    
+    const coaching = coachingMoments[triggerType];
+    if (!coaching) {
+        console.log('🎓 No coaching moment found for:', triggerType);
+        return;
+    }
+    
+    // Check frequency limits
+    if (!shouldShowCoaching(triggerType, coaching.frequency)) {
+        return;
+    }
+    
+    console.log('🎓 Showing coaching moment:', triggerType);
+    
+    // Update state
+    coachingState.lastShown[triggerType] = Date.now();
+    coachingState.sessionCount[triggerType] = (coachingState.sessionCount[triggerType] || 0) + 1;
+    
+    // Create and show toast
+    createCoachingToast({
+        icon: coaching.icon,
+        message: coaching.message,
+        insight: coaching.insight,
+        triggerType: triggerType
+    });
+    
+    // Track engagement for analytics
+    trackCoachingEngagement(triggerType, contextData);
+}
+
+// Check if coaching should be shown based on frequency rules
+function shouldShowCoaching(triggerType, frequency) {
+    const now = Date.now();
+    const lastShown = coachingState.lastShown[triggerType] || 0;
+    const timeSinceLastShown = now - lastShown;
+    
+    // Frequency rules based on user preference
+    const frequencyMultiplier = {
+        'minimal': 3,
+        'normal': 1,
+        'frequent': 0.5
+    }[coachingState.userPreferences.frequency] || 1;
+    
+    switch (frequency) {
+        case 'once':
+            return !lastShown; // Show only once ever
+        case 'milestone':
+            return timeSinceLastShown > (24 * 60 * 60 * 1000 * frequencyMultiplier); // Once per day adjusted by preference
+        case 'weekly':
+            return timeSinceLastShown > (7 * 24 * 60 * 60 * 1000 * frequencyMultiplier); // Once per week adjusted
+        case 'occasional':
+            return timeSinceLastShown > (3 * 24 * 60 * 60 * 1000 * frequencyMultiplier); // Every few days adjusted
+        default:
+            return true;
+    }
+}
+
+// Create and display coaching toast
+function createCoachingToast({ icon, message, insight, triggerType }) {
+    // Remove any existing coaching toast
+    const existingToast = document.getElementById('coaching-toast');
+    if (existingToast) {
+        hideCoachingToast(existingToast);
+    }
+    
+    // Create toast HTML
+    const toastHTML = `
+        <div class="coaching-toast" id="coaching-toast">
+            <div class="coaching-toast-content">
+                <div class="coaching-toast-icon">${icon}</div>
+                <div class="coaching-toast-text">
+                    <div class="coaching-toast-message">${message}</div>
+                    <div class="coaching-toast-insight">${insight}</div>
+                </div>
+                <button class="coaching-toast-dismiss" onclick="hideCoachingToast()" aria-label="Dismiss coaching">&times;</button>
+            </div>
+        </div>
+    `;
+    
+    // Add to page
+    document.body.insertAdjacentHTML('beforeend', toastHTML);
+    
+    const toast = document.getElementById('coaching-toast');
+    
+    // Show with animation
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 50);
+    
+    // Auto-hide after 6 seconds (longer than help modals for reading)
+    setTimeout(() => {
+        if (toast && toast.classList.contains('show')) {
+            hideCoachingToast(toast);
+        }
+    }, 6000);
+    
+    // Track that coaching was displayed
+    trackCoachingDisplay(triggerType);
+}
+
+// Hide coaching toast
+function hideCoachingToast(toastElement = null) {
+    const toast = toastElement || document.getElementById('coaching-toast');
+    if (!toast) return;
+    
+    toast.classList.remove('show');
+    toast.classList.add('exiting');
+    
+    setTimeout(() => {
+        if (toast && toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 300);
+}
+
+// Analytics integration for coaching moments
+function trackCoachingEngagement(triggerType, contextData) {
+    // Integration point for analytics tracking
+    console.log('📊 Coaching engagement:', {
+        trigger: triggerType,
+        timestamp: Date.now(),
+        context: contextData,
+        userPreference: coachingState.userPreferences.frequency
+    });
+    
+    // Add analytics service integration here if available
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'coaching_moment_shown', {
+            'coaching_trigger': triggerType,
+            'coaching_frequency': coachingState.userPreferences.frequency
+        });
+    }
+}
+
+function trackCoachingDisplay(triggerType) {
+    console.log('📊 Coaching displayed:', triggerType);
+    // Add display tracking here
+}
+
+// Coaching moment triggers - integrate with existing app functions
+function triggerCoachingMoment(triggerType, contextData = {}) {
+    // Add small delay to feel natural, not immediate
+    setTimeout(() => {
+        showCoachingMoment(triggerType, contextData);
+    }, 800);
+}
+
+// Integration hooks for existing app functionality
+// Add these calls to existing functions to trigger coaching moments
+
+// Initialize coaching system
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎓 Flow: Layer 3 Coaching Moments system initialized!');
+    
+    // Load coaching preferences from localStorage if available
+    try {
+        const savedPreferences = localStorage.getItem('flowCoachingPreferences');
+        if (savedPreferences) {
+            coachingState.userPreferences = { ...coachingState.userPreferences, ...JSON.parse(savedPreferences) };
+        }
+    } catch (e) {
+        console.log('No saved coaching preferences found, using defaults');
+    }
+});
+
+// Save coaching preferences
+function saveCoachingPreferences() {
+    try {
+        localStorage.setItem('flowCoachingPreferences', JSON.stringify(coachingState.userPreferences));
+    } catch (e) {
+        console.log('Could not save coaching preferences');
+    }
+}
+
+// Public function to disable coaching (for user preference)
+function toggleCoaching(enabled = null) {
+    if (enabled === null) {
+        coachingState.userPreferences.coachingEnabled = !coachingState.userPreferences.coachingEnabled;
+    } else {
+        coachingState.userPreferences.coachingEnabled = enabled;
+    }
+    saveCoachingPreferences();
+    console.log('🎓 Coaching moments', coachingState.userPreferences.coachingEnabled ? 'enabled' : 'disabled');
+}
+
+// Test coaching system function
+function testCoachingSystem() {
+    console.log('🧪 Testing coaching system...');
+    
+    // Test different coaching moments
+    const testMoments = ['firstQuickAdd', 'firstHelpIcon', 'allocationAdjustment', 'foundationIncrease'];
+    
+    testMoments.forEach((moment, index) => {
+        setTimeout(() => {
+            console.log(`Testing coaching moment: ${moment}`);
+            triggerCoachingMoment(moment, { test: true });
+        }, index * 2000); // 2 second intervals
+    });
+}
+
+// Make coaching functions available globally for testing
+window.testCoachingSystem = testCoachingSystem;
+window.triggerCoachingMoment = triggerCoachingMoment;
+window.toggleCoaching = toggleCoaching;
