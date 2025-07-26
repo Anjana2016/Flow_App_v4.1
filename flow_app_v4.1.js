@@ -162,7 +162,7 @@ function quickCategorySpend(amount, category) {
         // Voice Transformation: From institutional to wise friend
         const remainingFlow = calculateDailyFlowUnified();
         showToast(`✅ ${category} flowed! $${remainingFlow} moves freely today • Building that mindful habit!`);
-        
+
         // Coaching trigger for first quick add usage
         triggerCoachingMoment('firstQuickAdd');
     } else {
@@ -264,30 +264,67 @@ function showOopsModal() {
 
     const modalHTML = `
         <div class="modal-overlay" id="oopsModal" onclick="closeOopsModal(event)">
-            <div class="modal-content oops-modal">
+            <div class="modal-content" style="max-width: 360px;">
                 <div class="modal-header">
-                    <h3>💳 What did you forget to log?</h3>
+                    <h3>💳 Catching Up Your Flow</h3>
                     <button class="modal-close" onclick="closeOopsModal()">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <p class="oops-message">No judgment here! Let's get your flow back on track.</p>
-                    <div class="amount-input-group">
-                        <span class="currency-symbol">$</span>
-                        <input type="number" id="oopsAmount" placeholder="0" min="0.01" step="1" autofocus>
+                
+                <div class="modal-body" style="padding: 24px;">
+                    <!-- Transaction Icon -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 8px;">💳</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">No judgment here - let's get this flowing ✨</div>
                     </div>
-                    <div class="oops-description">
-                        <input type="text" id="oopsDescription" placeholder="What was this spending for?">
+                    
+                    <!-- Amount Input -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">How much flowed out?</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="oopsAmount" placeholder="0" min="0.01" step="1" autofocus 
+                                   style="font-size: 18px; font-weight: 600;">
+                        </div>
                     </div>
-                    <div class="oops-category">
-                        <select id="oopsCategory">
-                            <option value="freedom">Freedom Spending</option>
-                            <option value="foundation">Foundation (bills/necessities)</option>
-                        </select>
+                    
+                    <!-- Description Input -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">What was this for?</label>
+                        <input type="text" id="oopsDescription" placeholder="Coffee, lunch, transport..." 
+                               style="width: 100%; padding: 12px; border: 1px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-primary); font-size: 14px;">
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeOopsModal()">Never Mind</button>
-                    <button class="btn-primary" onclick="confirmOopsTransaction()">Add it back</button>
+                    
+                    <!-- Category Selection -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Which flow?</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="category-btn" data-category="foundation" onclick="selectOopsCategory('foundation')" 
+                                    style="flex: 1; padding: 12px 8px; border: 1px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-primary); font-size: 12px; cursor: pointer; transition: all 0.3s ease;">
+                                Foundation
+                            </button>
+                            <button type="button" class="category-btn" data-category="future" onclick="selectOopsCategory('future')" 
+                                    style="flex: 1; padding: 12px 8px; border: 1px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-primary); font-size: 12px; cursor: pointer; transition: all 0.3s ease;">
+                                Future
+                            </button>
+                            <button type="button" class="category-btn active" data-category="freedom" onclick="selectOopsCategory('freedom')" 
+                                    style="flex: 1; padding: 12px 8px; border: 1px solid var(--accent-green); border-radius: 8px; background: rgba(16, 185, 129, 0.1); color: var(--accent-green); font-size: 12px; cursor: pointer; transition: all 0.3s ease;">
+                                Freedom
+                            </button>
+                        </div>
+                        <input type="hidden" id="oopsCategory" value="freedom">
+                    </div>
+                    
+                    <!-- Action Buttons (Flow voice) -->
+                    <div style="display: flex; gap: 12px;">
+                        <button type="button" onclick="closeOopsModal()" 
+                                style="flex: 1; padding: 12px; border: 1px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-secondary); font-size: 14px; cursor: pointer;">
+                            Never Mind
+                        </button>
+                        <button type="button" onclick="submitOopsTransaction()" 
+                                style="flex: 1; padding: 12px; border: none; border-radius: 8px; background: var(--accent-green); color: white; font-size: 14px; font-weight: 600; cursor: pointer;">
+                            Update My Flow
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -295,10 +332,53 @@ function showOopsModal() {
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-    // Focus amount input
-    setTimeout(() => {
+    // Animate in
+    requestAnimationFrame(() => {
+        const modal = document.getElementById('oopsModal');
+        modal.style.opacity = '1';
+        modal.querySelector('.modal-content').style.transform = 'translateY(0) scale(1)';
+        
+        // Focus amount input
         document.getElementById('oopsAmount').focus();
-    }, 100);
+    });
+}
+
+function selectOopsCategory(category) {
+    // Update hidden input
+    document.getElementById('oopsCategory').value = category;
+    
+    // Update visual selection
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        if (btn.dataset.category === category) {
+            btn.style.border = '1px solid var(--accent-green)';
+            btn.style.background = 'rgba(16, 185, 129, 0.1)';
+            btn.style.color = 'var(--accent-green)';
+            btn.classList.add('active');
+        } else {
+            btn.style.border = '1px solid var(--glass-border)';
+            btn.style.background = 'var(--glass-bg)';
+            btn.style.color = 'var(--text-primary)';
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function submitOopsTransaction() {
+    const amount = parseFloat(document.getElementById('oopsAmount').value);
+    const description = document.getElementById('oopsDescription').value.trim();
+    const category = document.getElementById('oopsCategory').value;
+    
+    if (amount && amount > 0 && description) {
+        const result = addTransaction(amount, description, category);
+        if (result.success) {
+            showToast(`$${amount.toFixed(2)} added to your ${category} flow • All caught up! ✨`, 'success');
+            closeOopsModal();
+        } else {
+            showToast(result.error, 'error');
+        }
+    } else {
+        showToast('Just need the amount and what this was for to keep your flow clear', 'info');
+    }
 }
 
 function confirmOopsTransaction() {
@@ -661,6 +741,82 @@ const appState = {
     },
     transactions: []
 };
+
+
+// ===== BUG FIX: ACHIEVEMENT ICON & MASTERY BADGE CLICK HANDLERS =====
+function initializeAchievementIconClicks() {
+    // Get all achievement icons (Spend tab) and mastery badges (Flow tab)
+    const achievementIcons = document.querySelectorAll('.achievement-icon, .mastery-badge');
+
+    achievementIcons.forEach(icon => {
+        // Remove any existing click handlers
+        icon.removeEventListener('click', handleAchievementIconClick);
+
+        // Add click handler
+        icon.addEventListener('click', handleAchievementIconClick);
+
+        // Add touch feedback for mobile
+        icon.addEventListener('touchstart', (e) => {
+            icon.style.transform = 'scale(0.95)';
+        }, { passive: true });
+
+        icon.addEventListener('touchend', (e) => {
+            setTimeout(() => {
+                icon.style.transform = '';
+            }, 150);
+        }, { passive: true });
+    });
+}
+
+function handleAchievementIconClick(event) {
+    const icon = event.currentTarget;
+
+    // Trigger haptic feedback if available
+    if (typeof triggerHaptic === 'function') {
+        triggerHaptic('medium');
+    }
+
+    // Visual feedback
+    icon.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+        icon.style.transform = '';
+    }, 100);
+
+    // Determine achievement type and message
+    let achievementType = 'Smart Choices';
+    let message = 'View your progress';
+
+    // Spend tab achievement icons
+    if (icon.classList.contains('mindful')) {
+        achievementType = 'Smart Choices';
+        message = 'Building mindful spending habits';
+    } else if (icon.classList.contains('flow-month')) {
+        achievementType = 'Flow Mastery';
+        message = 'Mastering your Flow Method';
+    } else if (icon.classList.contains('efficiency')) {
+        achievementType = 'Real Money Built';
+        message = 'Tracking your wealth building';
+    }
+    // Flow tab mastery badges
+    else if (icon.classList.contains('budget-keeper')) {
+        achievementType = 'Smart Choices';
+        message = 'Mastering mindful spending';
+    } else if (icon.classList.contains('flow-master')) {
+        achievementType = 'Flow Mastery';
+        message = 'Advanced Flow Method skills';
+    } else if (icon.classList.contains('wealth-builder')) {
+        achievementType = 'Real Money Built';
+        message = 'Building serious wealth';
+    }
+
+    // Show feedback toast
+    showToast(`${achievementType} • ${message}`, 'info');
+
+    // Navigate to Build tab after short delay
+    setTimeout(() => {
+        switchTab('your-journey');
+    }, 800);
+}
 
 // ===== UTILITY FUNCTIONS MODULE =====
 
@@ -1137,12 +1293,12 @@ const CrossSystemValidator = {
             const testAllocated = 1280;
             const testUsed = 175;
             const spendAmount = testAllocated - testUsed; // 1105
-            
+
             // Use full month calculation for validation (31 days)
             const daysInMonth = 31;
             const rawDailyFlow = spendAmount / daysInMonth; // 1105 / 31 = 35.6
             const roundedDailyFlow = Math.round(rawDailyFlow / 5) * 5; // 35
-            
+
             // The expected result should be around 35, not 40
             const expectedFlow = 35;
             const actualFlow = roundedDailyFlow;
@@ -1231,6 +1387,9 @@ function initializeAchievementSystem() {
             };
         }
 
+        // BUG FIX: Ensure smartChoices and budgetAdherence systems are initialized
+        initializeAchievementIconClicks();
+
         console.log('✅ Achievement system initialized successfully');
         return true;
     } catch (error) {
@@ -1246,22 +1405,22 @@ function initializeAchievementSystem() {
  */
 function testSystemValidation() {
     console.log('🔍 Testing system validation...');
-    
+
     // Initialize system first
     initializeAchievementSystem();
-    
+
     // Test core system validation
     const coreValidation = CrossSystemValidator.validateCoreSystem();
     console.log('Core System Validation:', coreValidation);
-    
+
     // Test mathematical validation  
     const mathValidation = CrossSystemValidator.validateMathematicalAccuracy();
     console.log('Mathematical Validation:', mathValidation);
-    
+
     // Test full system validation
     const fullValidation = CrossSystemValidator.validateAllSystems();
     console.log('Full System Validation:', fullValidation);
-    
+
     // Show current achievement state
     console.log('Current Achievement State:', {
         badges: appState.achievements?.badges,
@@ -1269,7 +1428,7 @@ function testSystemValidation() {
         currentLevel: appState.achievements?.currentLevel,
         structure: !!appState.achievements
     });
-    
+
     return {
         core: coreValidation,
         math: mathValidation,
@@ -1289,7 +1448,7 @@ window.testSystemValidation = testSystemValidation;
  */
 const achievementDisplayNames = {
     "spendingEfficiency": "Smart Choices",
-    "budgetMastery": "Flow Mastery", 
+    "budgetMastery": "Flow Mastery",
     "wealthAcceleration": "Real Money Built"
 };
 
@@ -1299,7 +1458,7 @@ const achievementDisplayNames = {
  */
 function formatGrowthProgress(text) {
     if (!text || typeof text !== 'string') return text;
-    
+
     return text
         .replace(/XP earned/g, "progress built")
         .replace(/XP/g, "progress")
@@ -1325,7 +1484,7 @@ function updateAchievementDisplayWithGrowthLanguage(category, progress) {
     try {
         const displayName = achievementDisplayNames[category] || category;
         const formattedProgress = formatGrowthProgress(progress.toString());
-        
+
         // Update display elements without changing underlying data
         const categoryElements = document.querySelectorAll(`[data-category="${category}"]`);
         categoryElements.forEach(element => {
@@ -1333,13 +1492,13 @@ function updateAchievementDisplayWithGrowthLanguage(category, progress) {
             if (nameElement) {
                 nameElement.textContent = displayName;
             }
-            
+
             const progressElement = element.querySelector('.progress-text, .area-summary');
             if (progressElement) {
                 progressElement.innerHTML = formattedProgress;
             }
         });
-        
+
         return { displayName, formattedProgress };
     } catch (error) {
         console.error('Error updating achievement display:', error);
@@ -1540,24 +1699,24 @@ function processTransaction(amount, description, category = 'freedom') {
     });
 
     updateAllDisplaysSynchronized();
-    
+
     // Coaching triggers for spending behavior
     if (category === 'freedom') {
         const dailyFlow = calculateDailyFlowUnified();
         const totalSpent = appState.categories.freedom.used;
         const dailyFlowAmount = appState.categories.freedom.allocated / 30; // Approximate daily amount
         const percentUsed = totalSpent / appState.categories.freedom.allocated;
-        
+
         // Check for daily flow midpoint coaching
         if (percentUsed >= 0.4 && percentUsed <= 0.6) {
             triggerCoachingMoment('dailyFlowMidpoint');
         }
-        
+
         // Check for staying within daily flow
         if (percentUsed <= 1.0) {
             triggerCoachingMoment('withinDailyFlow');
         }
-        
+
         // Freedom spending coaching
         triggerCoachingMoment('freedomSpending', { amount: amount, description: description });
     }
@@ -4674,7 +4833,7 @@ function switchTab(tabName) {
     if (tabName === 'your-journey') {
         updateAchievementStats();
     }
-    
+
     // Update category cards when switching to Flow tab
     if (tabName === 'budget-health') {
         setTimeout(() => {
@@ -4825,7 +4984,7 @@ function generateCategoryTransactionsList(transactions, categoryType) {
                 <div class="purchase-icon">${emoji}</div>
                 <div class="purchase-details">
                     <div class="purchase-title">${transaction.description}</div>
-                    <div class="purchase-context">Pre-approved • ${timeContext} • ${contextMessage}</div>
+                    <div class="purchase-context">${timeContext} • ${contextMessage}</div>
                 </div>
                 <div class="purchase-amount">$${transaction.amount.toFixed(2)}</div>
             </div>
@@ -4998,7 +5157,7 @@ function generateEnhancedCategoryTransactionsList(transactions, categoryType) {
                 <div class="purchase-icon">${emoji}</div>
                 <div class="purchase-details">
                     <div class="purchase-title">${transaction.description}</div>
-                    <div class="purchase-context">Pre-approved • ${timeContext} • ${contextMessage}</div>
+                    <div class="purchase-context">${timeContext} • ${contextMessage}</div>
                 </div>
                 <div class="purchase-amount">$${transaction.amount.toFixed(2)}</div>
             </div>
@@ -5158,15 +5317,17 @@ function updateRecentPurchases() {
         const contextMessage = getContextualMessage(transaction);
 
         return `
-            <div class="purchase-item" onclick="purchaseTapped(this)" data-transaction-id="${transaction.id}">
-                <div class="purchase-icon">${emoji}</div>
-                <div class="purchase-details">
-                    <div class="purchase-title">${transaction.description}</div>
-                    <div class="purchase-context">Pre-approved • ${timeContext} • ${contextMessage}</div>
-                </div>
-                <div class="purchase-amount">$${transaction.amount.toFixed(2)}</div>
+
+        <div class="purchase-item" onclick="purchaseTapped(this)" data-transaction-id="${transaction.id}">
+            <div class="purchase-icon">${emoji}</div>
+            <div class="purchase-details">
+                <div class="purchase-title">${transaction.description}</div>
+                <div class="purchase-context">${timeContext} • ${contextMessage}</div>
             </div>
-        `;
+            <div class="purchase-amount">$${transaction.amount.toFixed(2)}</div>
+            <div class="purchase-chevron">›</div>
+        </div>
+    `;
     }).join('');
 
     container.innerHTML = purchaseItemsHTML;
@@ -5201,6 +5362,234 @@ function purchaseTapped(element) {
     showTransactionDetailsModal(transaction);
 }
 
+// ===== BUG FIX: Modal consistency fixes
+function showTransactionDetailsModal(transaction) {
+    const emoji = getTransactionEmoji(transaction.description, transaction.category);
+
+    const modalHTML = `
+        <div class="modal-overlay" id="transactionDetailModal" onclick="closeTransactionModal(event)">
+            <div class="modal-content" style="max-width: 360px;">
+                <div class="modal-header">
+                    <h3>💚 Adjust Your Flow</h3>
+                    <button class="modal-close" onclick="closeTransactionModal()">&times;</button>
+                </div>
+                
+                <div class="modal-body" style="padding: 24px;">
+                    <!-- Transaction Icon -->
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 8px;">${emoji}</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">Update this flow to keep things clear ✨</div>
+                    </div>
+                    
+                    <!-- Amount Input -->
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">How much flowed out?</label>
+                        <div class="amount-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="editTransactionAmount" placeholder="0" min="0.01" step="1" 
+                                   value="${transaction.amount}" autofocus
+                                   style="font-size: 18px; font-weight: 600;">
+                        </div>
+                    </div>
+                    
+                    <!-- Description Input -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">What was this for?</label>
+                        <input type="text" id="editTransactionDescription" placeholder="Coffee, lunch, transport..." 
+                               value="${transaction.description}"
+                               style="width: 100%; padding: 12px; border: 1px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-primary); font-size: 14px;">
+                    </div>
+                    
+                    <!-- Category Selection -->
+                    <div style="margin-bottom: 24px;">
+                        <label style="display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Which flow?</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="edit-category-btn ${transaction.category === 'foundation' ? 'active' : ''}" 
+                                    data-category="foundation" onclick="selectEditTransactionCategory('foundation')" 
+                                    style="flex: 1; padding: 12px 8px; border: 1px solid ${transaction.category === 'foundation' ? 'var(--accent-green)' : 'var(--glass-border)'}; border-radius: 8px; background: ${transaction.category === 'foundation' ? 'rgba(16, 185, 129, 0.1)' : 'var(--glass-bg)'}; color: ${transaction.category === 'foundation' ? 'var(--accent-green)' : 'var(--text-primary)'}; font-size: 12px; cursor: pointer; transition: all 0.3s ease;">
+                                Foundation
+                            </button>
+                            <button type="button" class="edit-category-btn ${transaction.category === 'future' ? 'active' : ''}" 
+                                    data-category="future" onclick="selectEditTransactionCategory('future')" 
+                                    style="flex: 1; padding: 12px 8px; border: 1px solid ${transaction.category === 'future' ? 'var(--accent-green)' : 'var(--glass-border)'}; border-radius: 8px; background: ${transaction.category === 'future' ? 'rgba(16, 185, 129, 0.1)' : 'var(--glass-bg)'}; color: ${transaction.category === 'future' ? 'var(--accent-green)' : 'var(--text-primary)'}; font-size: 12px; cursor: pointer; transition: all 0.3s ease;">
+                                Future
+                            </button>
+                            <button type="button" class="edit-category-btn ${transaction.category === 'freedom' ? 'active' : ''}" 
+                                    data-category="freedom" onclick="selectEditTransactionCategory('freedom')" 
+                                    style="flex: 1; padding: 12px 8px; border: 1px solid ${transaction.category === 'freedom' ? 'var(--accent-green)' : 'var(--glass-border)'}; border-radius: 8px; background: ${transaction.category === 'freedom' ? 'rgba(16, 185, 129, 0.1)' : 'var(--glass-bg)'}; color: ${transaction.category === 'freedom' ? 'var(--accent-green)' : 'var(--text-primary)'}; font-size: 12px; cursor: pointer; transition: all 0.3s ease;">
+                                Freedom
+                            </button>
+                        </div>
+                        <input type="hidden" id="editTransactionCategory" value="${transaction.category}">
+                        <input type="hidden" id="editTransactionId" value="${transaction.id}">
+                    </div>
+                    
+                    <!-- Action Buttons (Flow voice) -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                        <button type="button" onclick="closeTransactionModal()" 
+                                style="flex: 1; padding: 12px; border: 1px solid var(--glass-border); border-radius: 8px; background: var(--glass-bg); color: var(--text-secondary); font-size: 14px; cursor: pointer;">
+                            Never Mind
+                        </button>
+                        <button type="button" onclick="submitTransactionEdit()" 
+                                style="flex: 1; padding: 12px; border: none; border-radius: 8px; background: var(--accent-green); color: white; font-size: 14px; font-weight: 600; cursor: pointer;">
+                            Update Flow
+                        </button>
+                    </div>
+                    
+                    <!-- Delete Option -->
+                    <div style="text-align: center; padding-top: 16px; border-top: 1px solid var(--glass-border);">
+                        <button type="button" onclick="confirmTransactionDelete()" 
+                                style="padding: 8px 16px; border: none; border-radius: 6px; background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer; text-decoration: underline;">
+                            Remove this flow entirely
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        const modal = document.getElementById('transactionDetailModal');
+        modal.style.opacity = '1';
+        modal.querySelector('.modal-content').style.transform = 'translateY(0) scale(1)';
+        
+        // Focus amount input
+        document.getElementById('editTransactionAmount').focus();
+    });
+}
+
+function selectEditTransactionCategory(category) {
+    // Update hidden input
+    document.getElementById('editTransactionCategory').value = category;
+    
+    // Update visual selection
+    document.querySelectorAll('.edit-category-btn').forEach(btn => {
+        if (btn.dataset.category === category) {
+            btn.style.border = '1px solid var(--accent-green)';
+            btn.style.background = 'rgba(16, 185, 129, 0.1)';
+            btn.style.color = 'var(--accent-green)';
+            btn.classList.add('active');
+        } else {
+            btn.style.border = '1px solid var(--glass-border)';
+            btn.style.background = 'var(--glass-bg)';
+            btn.style.color = 'var(--text-primary)';
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function submitTransactionEdit() {
+    const transactionId = document.getElementById('editTransactionId').value;
+    const newAmount = parseFloat(document.getElementById('editTransactionAmount').value);
+    const newDescription = document.getElementById('editTransactionDescription').value.trim();
+    const newCategory = document.getElementById('editTransactionCategory').value;
+    
+    if (!newAmount || newAmount <= 0 || !newDescription) {
+        showToast('Just need the amount and what this was for to keep your flow clear', 'info');
+        return;
+    }
+    
+    // Find the transaction
+    const transaction = appState.transactions.find(t => t.id == transactionId);
+    if (!transaction) {
+        showToast('Something went wrong finding that flow', 'error');
+        return;
+    }
+    
+    try {
+        // Store original values for rollback
+        const originalAmount = transaction.amount;
+        const originalCategory = transaction.category;
+        
+        // Update category usage (remove old amount)
+        if (appState.categories[originalCategory]) {
+            appState.categories[originalCategory].used -= originalAmount;
+            appState.categories[originalCategory].used = Math.max(0, appState.categories[originalCategory].used);
+        }
+        
+        // Update transaction
+        transaction.amount = newAmount;
+        transaction.description = newDescription;
+        transaction.category = newCategory;
+        
+        // Add to new category usage
+        if (appState.categories[newCategory]) {
+            appState.categories[newCategory].used += newAmount;
+        }
+        
+        // Recalculate daily flow
+        appState.dailyFlow = calculateDailyFlow(appState.categories);
+        
+        // Update all displays
+        updateAllDisplaysSynchronized();
+        
+        // Save to localStorage
+        saveToLocalStorage();
+        
+        // Success feedback
+        showToast(`Flow updated • $${newAmount.toFixed(2)} for ${newDescription} ✨`, 'success');
+        closeTransactionModal();
+        
+    } catch (error) {
+        console.error('❌ Transaction update failed:', error);
+        showToast('Something went wrong updating your flow', 'error');
+    }
+}
+
+function confirmTransactionDelete() {
+    const transactionId = document.getElementById('editTransactionId').value;
+    const amount = document.getElementById('editTransactionAmount').value;
+    const description = document.getElementById('editTransactionDescription').value;
+    
+    // Simple confirmation with Flow voice
+    const confirmed = confirm(`Remove this $${amount} flow for "${description}"? This can't be undone.`);
+    
+    if (confirmed) {
+        // Find the transaction
+        const transaction = appState.transactions.find(t => t.id == transactionId);
+        if (!transaction) {
+            showToast('Something went wrong finding that flow', 'error');
+            return;
+        }
+        
+        try {
+            // Remove from category usage
+            if (appState.categories[transaction.category]) {
+                appState.categories[transaction.category].used -= transaction.amount;
+                appState.categories[transaction.category].used = Math.max(0, appState.categories[transaction.category].used);
+            }
+            
+            // Remove transaction from array
+            const transactionIndex = appState.transactions.findIndex(t => t.id == transactionId);
+            if (transactionIndex !== -1) {
+                appState.transactions.splice(transactionIndex, 1);
+            }
+            
+            // Recalculate daily flow
+            appState.dailyFlow = calculateDailyFlow(appState.categories);
+            
+            // Update all displays
+            updateAllDisplaysSynchronized();
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            // Success feedback
+            showToast(`Flow removed • Your daily flow updated ✨`, 'success');
+            closeTransactionModal();
+            
+        } catch (error) {
+            console.error('❌ Transaction deletion failed:', error);
+            showToast('Something went wrong removing that flow', 'error');
+        }
+    }
+}
+
+
+/*
 // ===== DAY 29 ADDITION: Transaction Details Modal ======
 function showTransactionDetailsModal(transaction) {
     const timeContext = formatTimeContext(transaction.timestamp);
@@ -5266,7 +5655,7 @@ function showTransactionDetailsModal(transaction) {
         modal.querySelector('.modal-content').style.transform = 'translateY(0) scale(1)';
     });
 }
-/*
+
         function showTransactionDetailsModal(transaction) {
             const timeContext = formatTimeContext(transaction.timestamp);
             const emoji = getTransactionEmoji(transaction.description, transaction.category);
@@ -5326,6 +5715,7 @@ function showTransactionDetailsModal(transaction) {
             });
         }
 */
+
 function closeTransactionModal(event) {
     if (event && event.target !== event.currentTarget) return;
 
@@ -5836,7 +6226,7 @@ function viewAllPurchasesModal() {
                                     <div class="purchase-icon">${emoji}</div>
                                     <div class="purchase-details">
                                         <div class="purchase-title">${transaction.description}</div>
-                                        <div class="purchase-context">Pre-approved • ${timeContext} • ${contextMessage}</div>
+                                        <div class="purchase-context">${timeContext} • ${contextMessage}</div>
                                     </div>
                                     <div class="purchase-amount">$${transaction.amount.toFixed(2)}</div>
                                 </div>
@@ -6490,7 +6880,7 @@ function initializeWithPersistentData() {
                             percentage: cats.freedom.percentage || 40
                         }
                     };
-                    
+
                     // Update allocation state to match
                     allocationState = {
                         foundation: appState.categories.foundation.percentage,
@@ -6521,7 +6911,7 @@ function initializeWithPersistentData() {
                             percentage: cats.spend.percentage || 40
                         }
                     };
-                    
+
                     // Update allocation state to match (legacy conversion)
                     allocationState = {
                         foundation: appState.categories.foundation.percentage,
@@ -7957,7 +8347,7 @@ function updateAllocation(category, newValue) {
 function handleSliderInput(category, slider) {
     try {
         const value = parseInt(slider.value);
-        
+
         // Update allocation state for Flow Method
         if (category === 'foundation') {
             allocationState.foundation = value;
@@ -7984,20 +8374,20 @@ function handleSliderInput(category, slider) {
                 }
             }
         }
-        
+
         // Auto-calculate Freedom (always)
         allocationState.freedom = 100 - allocationState.foundation - allocationState.future;
-        
+
         // **CRITICAL: Update Freedom slider DOM element**
         const freedomSlider = document.getElementById('freedomSlider');
         if (freedomSlider) {
             freedomSlider.value = allocationState.freedom;
         }
-        
+
         // Update all displays
         updateSliderDisplays();
         updateImpactPreview();
-        
+
     } catch (error) {
         console.error('ERROR in handleSliderInput:', error);
         console.error('Stack:', error.stack);
@@ -8009,47 +8399,47 @@ function updateSliderDisplays() {
     // Get income with fallback
     const incomeText = document.getElementById('incomeAmount')?.textContent || '$3200';
     const income = parseInt(incomeText.replace('$', '').replace(',', '')) || 3200;
-    
+
     // Ensure allocation state exists
     if (!allocationState || !allocationState.foundation) {
         allocationState = { ...DEFAULT_ALLOCATION };
     }
-    
+
     // Get validated values
     const foundation = parseInt(allocationState.foundation) || DEFAULT_ALLOCATION.foundation;
     const future = parseInt(allocationState.future) || DEFAULT_ALLOCATION.future;
     const freedom = parseInt(allocationState.freedom) || DEFAULT_ALLOCATION.freedom;
-    
+
     // Update slider DOM values
     const foundationSlider = document.getElementById('foundationSlider');
     const futureSlider = document.getElementById('futureSlider');
     const freedomSlider = document.getElementById('freedomSlider');
-    
+
     if (foundationSlider) foundationSlider.value = foundation;
     if (futureSlider) futureSlider.value = future;
     if (freedomSlider) freedomSlider.value = freedom;
-    
+
     // Calculate amounts
     const foundationAmount = Math.round((foundation / 100) * income);
     const futureAmount = Math.round((future / 100) * income);
     const freedomAmount = Math.round((freedom / 100) * income);
-    
+
     // Update display elements with null checks
     const foundationValueEl = document.getElementById('foundationValue');
     if (foundationValueEl) {
         foundationValueEl.textContent = `${foundation}% • $${foundationAmount.toLocaleString()}`;
     }
-    
+
     const futureValueEl = document.getElementById('futureValue');
     if (futureValueEl) {
         futureValueEl.textContent = `${future}% • $${futureAmount.toLocaleString()}`;
     }
-    
+
     const freedomValueEl = document.getElementById('freedomValue');
     if (freedomValueEl) {
         freedomValueEl.textContent = `${freedom}% • $${freedomAmount.toLocaleString()}`;
     }
-    
+
     // Update category cards
     updateCategoryCards();
 }
@@ -8059,57 +8449,57 @@ function updateCategoryCards() {
     // Get income with fallback
     const incomeText = document.getElementById('incomeAmount')?.textContent || '$3200';
     const income = parseInt(incomeText.replace('$', '').replace(',', '')) || 3200;
-    
+
     // Ensure allocation state exists
     if (!allocationState || !allocationState.foundation) {
         allocationState = { ...DEFAULT_ALLOCATION };
     }
-    
+
     const currentAllocation = allocationState || appState.allocation || DEFAULT_ALLOCATION;
-    
+
     // Get validated values
     const foundation = parseInt(currentAllocation.foundation) || DEFAULT_ALLOCATION.foundation;
     const future = parseInt(currentAllocation.future) || DEFAULT_ALLOCATION.future;
     const freedom = parseInt(currentAllocation.freedom) || DEFAULT_ALLOCATION.freedom;
-    
+
     // Calculate amounts
     const foundationAmount = Math.round((foundation / 100) * income);
     const futureAmount = Math.round((future / 100) * income);
     const freedomAmount = Math.round((freedom / 100) * income);
-    
+
     // Update Foundation category with null checks
     const foundationPercentageEl = document.getElementById('foundationPercentage');
     const foundationAmountEl = document.getElementById('foundationAllocatedAmount');
-    
+
     if (foundationPercentageEl) {
         foundationPercentageEl.textContent = `${foundation}%`;
     }
     if (foundationAmountEl) {
         foundationAmountEl.textContent = `$${foundationAmount.toLocaleString()} allocated`;
     }
-    
+
     // Update Future category with null checks
     const futurePercentageEl = document.getElementById('futurePercentage');
     const futureAmountEl = document.getElementById('futureAllocatedAmount');
-    
+
     if (futurePercentageEl) {
         futurePercentageEl.textContent = `${future}%`;
     }
     if (futureAmountEl) {
         futureAmountEl.textContent = `$${futureAmount.toLocaleString()} allocated`;
     }
-    
+
     // Update Freedom category with null checks
     const freedomPercentageEl = document.getElementById('freedomPercentage');
     const freedomAmountEl = document.getElementById('freedomAllocatedAmount');
-    
+
     if (freedomPercentageEl) {
         freedomPercentageEl.textContent = `${freedom}%`;
     }
     if (freedomAmountEl) {
         freedomAmountEl.textContent = `$${freedomAmount.toLocaleString()} allocated`;
     }
-    
+
     // Update daily flow in Spend tab
     const dailyFlow = Math.round(freedomAmount / 30);
     const dailyFlowEl = document.getElementById('dailyFlowAmount');
@@ -8122,14 +8512,14 @@ function updateCategoryCards() {
 function updateImpactPreview() {
     const income = parseInt(document.getElementById('incomeAmount').textContent.replace('$', '').replace(',', ''));
     const currentDailyFlow = Math.round((allocationState.freedom / 100 * income) / 30);
-    
+
     // Show impact preview
     const impactPreview = document.getElementById('allocationPreview');
     if (impactPreview) {
         const foundationAmount = Math.round((allocationState.foundation / 100) * income);
         const futureAmount = Math.round((allocationState.future / 100) * income);
         const freedomAmount = Math.round((allocationState.freedom / 100) * income);
-        
+
         // Update preview message
         const previewMessage = document.getElementById('previewMessage');
         if (previewMessage) {
@@ -8139,7 +8529,7 @@ function updateImpactPreview() {
                 Freedom: $${freedomAmount.toLocaleString()} (${allocationState.freedom}%)
             `;
         }
-        
+
         // Update daily flow preview
         const previewDailyFlow = document.getElementById('previewDailyFlow');
         if (previewDailyFlow) {
@@ -8154,43 +8544,43 @@ function initializeSliderPositions() {
     if (!allocationState || !allocationState.foundation) {
         allocationState = { ...DEFAULT_ALLOCATION };
     }
-    
+
     const currentAllocation = allocationState || appState.allocation || DEFAULT_ALLOCATION;
-    
+
     // Double-check values are valid numbers
     const foundation = parseInt(currentAllocation.foundation) || DEFAULT_ALLOCATION.foundation;
     const future = parseInt(currentAllocation.future) || DEFAULT_ALLOCATION.future;
     const freedom = parseInt(currentAllocation.freedom) || DEFAULT_ALLOCATION.freedom;
-    
+
     // Update allocation state with validated values
-    allocationState = { 
-        foundation, 
-        future, 
+    allocationState = {
+        foundation,
+        future,
         freedom,
         originalAllocations: allocationState.originalAllocations || { foundation, future, freedom }
     };
-    
+
     // Set slider DOM values
     const foundationSlider = document.getElementById('foundationSlider');
     const futureSlider = document.getElementById('futureSlider');
     const freedomSlider = document.getElementById('freedomSlider');
-    
+
     if (foundationSlider) {
         foundationSlider.value = foundation;
         foundationSlider.setAttribute('value', foundation);
     }
-    
+
     if (futureSlider) {
         futureSlider.value = future;
         futureSlider.setAttribute('value', future);
     }
-    
+
     if (freedomSlider) {
         freedomSlider.value = freedom;
         freedomSlider.setAttribute('value', freedom);
         freedomSlider.disabled = true;
     }
-    
+
     // Update displays immediately
     updateSliderDisplays();
 }
@@ -8420,7 +8810,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         // New user or data restore failed, show onboarding
         console.log('ℹ️ New user or incomplete data, showing onboarding');
-        
+
         // Initialize with defaults for new users
         allocationState = { ...DEFAULT_ALLOCATION };
         if (!appState.categories) {
@@ -8430,7 +8820,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 freedom: { allocated: 1280, used: 0, percentage: 40 }
             };
         }
-        
+
         // Initialize sliders even for new users
         setTimeout(() => {
             validateAllocationState();
@@ -8438,7 +8828,7 @@ document.addEventListener('DOMContentLoaded', function () {
             updateCategoryCards();
             updateSliderDisplays();
         }, 200);
-        
+
         const overlay = document.getElementById('onboardingOverlay');
         if (overlay) {
             overlay.style.display = 'flex';
@@ -8599,22 +8989,22 @@ function validateAllocationState() {
     if (!allocationState.freedom || isNaN(allocationState.freedom)) {
         allocationState.freedom = DEFAULT_ALLOCATION.freedom;
     }
-    
+
     // Ensure Foundation is within valid range (30-80%)
     allocationState.foundation = Math.max(30, Math.min(80, allocationState.foundation));
-    
+
     // Ensure Future is within valid range (0-30%)
     allocationState.future = Math.max(0, Math.min(30, allocationState.future));
-    
+
     // Recalculate Freedom to ensure 100% total
     allocationState.freedom = 100 - allocationState.foundation - allocationState.future;
-    
+
     // Update appState to match if it exists
     if (appState && appState.categories) {
         appState.categories.foundation = appState.categories.foundation || {};
         appState.categories.future = appState.categories.future || {};
         appState.categories.freedom = appState.categories.freedom || {};
-        
+
         appState.categories.foundation.percentage = allocationState.foundation;
         appState.categories.future.percentage = allocationState.future;
         appState.categories.freedom.percentage = allocationState.freedom;
@@ -8629,7 +9019,7 @@ function initializeAllocationInterface() {
     }
 
     // Set initial slider values from current app state with proper fallbacks
-    
+
     // Ensure allocation state exists with fallbacks
     if (!allocationState || !allocationState.foundation) {
         allocationState = { ...DEFAULT_ALLOCATION };
@@ -8651,10 +9041,10 @@ function initializeAllocationInterface() {
     validateAllocationState();
 
     // Store original values for reset
-    allocationState.originalAllocations = { 
+    allocationState.originalAllocations = {
         foundation: allocationState.foundation,
         future: allocationState.future,
-        freedom: allocationState.freedom 
+        freedom: allocationState.freedom
     };
 
     // **CRITICAL: Initialize slider positions after state is loaded**
@@ -8713,10 +9103,10 @@ function updatePreview() {
 // Apply allocation changes
 function applyAllocationChanges() {
     console.log('📊 Applying allocation changes from allocationState:', allocationState);
-    
+
     // Store previous values for coaching comparison
     const previousFoundation = appState.categories.foundation.percentage;
-    
+
     // Update main app state from allocationState (which is now updated by manual drag)
     appState.categories.foundation.percentage = allocationState.foundation;
     appState.categories.future.percentage = allocationState.future;
@@ -8736,14 +9126,14 @@ function applyAllocationChanges() {
 
     // Update daily flow
     calculateDailyFlow();
-    
+
     // Coaching triggers for allocation changes
-    triggerCoachingMoment('allocationAdjustment', { 
+    triggerCoachingMoment('allocationAdjustment', {
         foundation: allocationState.foundation,
         future: allocationState.future,
         freedom: allocationState.freedom
     });
-    
+
     // Special coaching for foundation increases
     if (allocationState.foundation > previousFoundation) {
         triggerCoachingMoment('foundationIncrease');
@@ -8753,7 +9143,7 @@ function applyAllocationChanges() {
     updateAllDisplaysSynchronized();
 
     // Store new values as original for next time
-    allocationState.originalAllocations = { 
+    allocationState.originalAllocations = {
         foundation: allocationState.foundation,
         future: allocationState.future,
         freedom: allocationState.freedom
@@ -8837,17 +9227,17 @@ function updateAllocationEnhanced(category, newValue) {
 // Update allocation display without changing app state
 function updateAllocationDisplayOnly() {
     const income = appState.monthlyIncome || 3200; // Fallback if income not set
-    
+
     // Ensure allocationState values are defined with fallbacks
     const foundation = allocationState.foundation ?? 55;
-    const future = allocationState.future ?? 5; 
+    const future = allocationState.future ?? 5;
     const freedom = allocationState.freedom ?? 40;
 
     // Update slider values
     const foundationSlider = document.getElementById('foundationSlider');
     const futureSlider = document.getElementById('futureSlider');
     const freedomSlider = document.getElementById('freedomSlider');
-    
+
     if (foundationSlider) foundationSlider.value = foundation;
     if (futureSlider) futureSlider.value = future;
     if (freedomSlider) freedomSlider.value = freedom;
@@ -8856,7 +9246,7 @@ function updateAllocationDisplayOnly() {
     const foundationValue = document.getElementById('foundationValue');
     const futureValue = document.getElementById('futureValue');
     const freedomValue = document.getElementById('freedomValue');
-    
+
     if (foundationValue) {
         foundationValue.textContent = `${foundation}% • $${Math.round(income * foundation / 100)}`;
     }
@@ -19350,7 +19740,7 @@ function addGrowthTabTooltips() {
             content: 'Fast progress that builds confidence and unlocks your next growth level quickly.'
         },
         'consistency': {
-            title: 'Consistency Strategy', 
+            title: 'Consistency Strategy',
             content: 'Builds the strongest habit foundation. Higher effort, but creates lasting financial instincts.'
         },
         'steady-growth': {
@@ -19374,7 +19764,7 @@ function addGrowthTabTooltips() {
             content: 'Your first step toward financial security. This buffer starts building confidence with money.'
         },
         'milestone-250': {
-            title: '$250 Cushion', 
+            title: '$250 Cushion',
             content: 'You can handle small unexpected expenses without stress. Real financial breathing room begins.'
         },
         'milestone-500': {
@@ -19387,7 +19777,7 @@ function addGrowthTabTooltips() {
         }
     };
 
-    FlowAppLogger.debug('Growth system initialized', { 
+    FlowAppLogger.debug('Growth system initialized', {
         tooltipKeys: Object.keys(growthTooltips),
         growthTabReady: true
     });
@@ -19450,24 +19840,24 @@ function selectStrategy(strategyType) {
     document.querySelectorAll('.strategy-card').forEach(card => {
         card.classList.remove('selected');
     });
-    
+
     // Mark selected strategy
     const selectedCard = document.querySelector(`.strategy-card.${strategyType}`);
     if (selectedCard) {
         selectedCard.classList.add('selected');
-        
+
         // Store user preference
         if (typeof appState !== 'undefined') {
             appState.user.selectedStrategy = strategyType;
             saveToLocalStorage();
         }
-        
+
         // Show success toast
         showToast(`${getStrategyName(strategyType)} strategy selected! Focus on these next steps.`);
-        
+
         // Update goal planning if available
         updateGoalPlanningStrategy(strategyType);
-        
+
         FlowAppLogger.info('Strategy selected', {
             strategy: strategyType,
             timestamp: new Date().toISOString()
@@ -19493,21 +19883,21 @@ function getStrategyName(strategyType) {
 function updateProgressRings() {
     try {
         const progressData = getGrowthAreaProgress();
-        
+
         Object.keys(progressData).forEach(area => {
             const ring = document.querySelector(`.${area}-progress`);
             const text = ring?.parentElement?.querySelector('.progress-text');
-            
+
             if (ring && text) {
                 const percent = progressData[area];
                 const circumference = 113; // 2 * π * 18
                 const offset = circumference - (percent / 100) * circumference;
-                
+
                 ring.style.strokeDashoffset = offset;
                 text.textContent = `${percent}%`;
             }
         });
-        
+
         FlowAppLogger.debug('Progress rings updated', { progressData });
     } catch (error) {
         FlowAppLogger.error('Error updating progress rings', { error: error.message });
@@ -19520,7 +19910,7 @@ function updateProgressRings() {
 function getGrowthAreaProgress() {
     // Connect to existing achievement system
     const achievements = appState?.achievements || {};
-    
+
     return {
         'smart-choices': calculateSmartChoicesProgress(achievements),
         'flow-mastery': calculateFlowMasteryProgress(achievements),
@@ -19536,10 +19926,10 @@ function calculateSmartChoicesProgress(achievements) {
     const baseProgress = 50; // Starting point
     const mindfulDays = achievements.mindfulDays || 0;
     const thoughtfulPurchases = achievements.thoughtfulPurchases || 0;
-    
+
     // Add progress for mindful behavior (up to 40% additional)
     const mindfulProgress = Math.min(40, (mindfulDays * 2) + (thoughtfulPurchases * 5));
-    
+
     return Math.min(100, baseProgress + mindfulProgress);
 }
 
@@ -19550,13 +19940,13 @@ function calculateFlowMasteryProgress(achievements) {
     // Base progress on streak and consistency
     const streak = achievements.currentStreak || 0;
     const maxStreakSeen = achievements.maxStreak || 0;
-    
+
     // Progress based on current streak (up to 80%)
     const streakProgress = Math.min(80, streak * 3);
-    
+
     // Bonus for maintaining streaks (up to 20%)
     const consistencyBonus = Math.min(20, maxStreakSeen * 1);
-    
+
     return Math.min(100, streakProgress + consistencyBonus);
 }
 
@@ -19567,10 +19957,10 @@ function calculateRealMoneyProgress(achievements) {
     // Progress based on actual money built vs milestones
     const totalBuilt = calculateTotalMoneyBuilt();
     const milestones = [100, 250, 500, 1000, 2500, 5000, 10000];
-    
+
     // Find how many milestones completed
     const completedMilestones = milestones.filter(milestone => totalBuilt >= milestone).length;
-    
+
     // Progress = (completed milestones / total milestones) * 100
     return Math.min(100, Math.round((completedMilestones / milestones.length) * 100));
 }
@@ -19582,16 +19972,16 @@ function updateFutureVision() {
     try {
         const currentSavings = calculateTotalMoneyBuilt();
         const monthlySavingRate = calculateMonthlySavingRate();
-        
+
         const sixMonthProjection = currentSavings + (monthlySavingRate * 6);
         const oneYearProjection = currentSavings + (monthlySavingRate * 12);
-        
+
         const sixMonthEl = document.getElementById('sixMonthProjection');
         const oneYearEl = document.getElementById('oneYearProjection');
-        
+
         if (sixMonthEl) sixMonthEl.textContent = Math.round(sixMonthProjection).toLocaleString();
         if (oneYearEl) oneYearEl.textContent = Math.round(oneYearProjection).toLocaleString();
-        
+
         FlowAppLogger.debug('Future vision updated', {
             currentSavings,
             monthlySavingRate,
@@ -19611,7 +20001,7 @@ function calculateMonthlySavingRate() {
         // Get current state
         const categories = appState?.categories || {};
         const futureCategory = categories.future || {};
-        
+
         // Use allocated amount as monthly saving rate
         return futureCategory.allocated || 100; // Default fallback
     } catch (error) {
@@ -19627,14 +20017,14 @@ function initializeGrowthEnhancements() {
     try {
         updateProgressRings();
         updateFutureVision();
-        
+
         // Restore selected strategy if exists
         const savedStrategy = appState?.user?.selectedStrategy;
         if (savedStrategy) {
             const strategyCard = document.querySelector(`.strategy-card.${savedStrategy}`);
             if (strategyCard) strategyCard.classList.add('selected');
         }
-        
+
         FlowAppLogger.info('Growth enhancements initialized');
     } catch (error) {
         FlowAppLogger.error('Error initializing growth enhancements', { error: error.message });
@@ -19662,7 +20052,7 @@ const enhancedTooltips = {
         content: 'Fast progress that builds confidence and unlocks your next growth level quickly.'
     },
     'consistency': {
-        title: 'Consistency Strategy', 
+        title: 'Consistency Strategy',
         content: 'Builds the strongest habit foundation. Higher effort, but creates lasting financial instincts.'
     },
     'steady-growth': {
@@ -19679,11 +20069,11 @@ function updateAllGrowthComponents() {
         // Update existing components
         updateGrowthStoryHero();
         updateMoneyTimeline();
-        
+
         // Update new Phase 3 components
         updateProgressRings();
         updateFutureVision();
-        
+
         FlowAppLogger.debug('All Growth components updated');
     } catch (error) {
         FlowAppLogger.error('Error updating Growth components', { error: error.message });
@@ -19718,29 +20108,29 @@ const educationalContent = {
 // Show educational modal function
 function showEducationModal(contentKey) {
     console.log('🎓 Opening strategic educational modal for:', contentKey);
-    
+
     // Coaching trigger for first help icon usage
     triggerCoachingMoment('firstHelpIcon', { modalType: contentKey });
-    
+
     const content = educationalContent[contentKey];
     if (!content) {
         console.log('❌ No educational content found for:', contentKey);
         return;
     }
-    
+
     // Create modal if it doesn't exist
     let modal = document.getElementById('education-modal');
     if (!modal) {
         modal = createEducationModal();
     }
-    
+
     // Set content
     modal.querySelector('.education-modal-title').textContent = content.title;
     modal.querySelector('.education-modal-content-text').textContent = content.content;
-    
+
     // Show modal
     modal.classList.add('show');
-    
+
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
 }
@@ -19773,32 +20163,32 @@ function createEducationModal() {
             </div>
         </div>
     `;
-    
+
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
+
     const modal = document.getElementById('education-modal');
-    
+
     // Close on background click
-    modal.addEventListener('click', function(e) {
+    modal.addEventListener('click', function (e) {
         if (e.target === modal) {
             hideEducationModal();
         }
     });
-    
+
     // Close on escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && modal.classList.contains('show')) {
             hideEducationModal();
         }
     });
-    
+
     return modal;
 }
 
 // Initialize strategic education system
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('🎓 Flow: Strategic minimal help icon system initialized!');
-    
+
     // Debug: Check if help icons exist
     const helpIcons = document.querySelectorAll('.help-icon');
     console.log('🔍 Help icons found:', helpIcons.length);
@@ -19815,12 +20205,12 @@ function testHelpIcons() {
     console.log('🧪 Testing help icons...');
     const helpIcons = document.querySelectorAll('.help-icon');
     console.log('Found help icons:', helpIcons.length);
-    
+
     if (helpIcons.length === 0) {
         console.log('❌ No help icons found in DOM');
         return;
     }
-    
+
     helpIcons.forEach((icon, index) => {
         console.log(`Help icon ${index + 1}:`);
         console.log('- Element:', icon);
@@ -19846,7 +20236,7 @@ const coachingMoments = {
         insight: "This is what money clarity feels like.",
         frequency: "once"
     },
-    
+
     firstHelpIcon: {
         trigger: "first_help_icon_clicked",
         icon: "🎓",
@@ -19854,7 +20244,7 @@ const coachingMoments = {
         insight: "Knowledge builds confidence.",
         frequency: "once"
     },
-    
+
     // Behavior coaching - when users develop good habits
     dailyFlowMidpoint: {
         trigger: "daily_flow_50_percent_used",
@@ -19863,7 +20253,7 @@ const coachingMoments = {
         insight: "That's the psychology of freedom.",
         frequency: "weekly"
     },
-    
+
     withinDailyFlow: {
         trigger: "spending_within_daily_flow",
         icon: "🌟",
@@ -19871,7 +20261,7 @@ const coachingMoments = {
         insight: "Small consistent choices build lasting wealth.",
         frequency: "weekly"
     },
-    
+
     quickAddStreak: {
         trigger: "quick_add_streak_5",
         icon: "🔥",
@@ -19879,7 +20269,7 @@ const coachingMoments = {
         insight: "Habits that stick beat streaks that break.",
         frequency: "milestone"
     },
-    
+
     // Flow Method coaching - when users engage with allocation
     allocationAdjustment: {
         trigger: "allocation_slider_changed",
@@ -19888,7 +20278,7 @@ const coachingMoments = {
         insight: "This is how wealth builders think.",
         frequency: "occasional"
     },
-    
+
     foundationIncrease: {
         trigger: "foundation_allocation_increased",
         icon: "🛡️",
@@ -19896,7 +20286,7 @@ const coachingMoments = {
         insight: "Foundation creates opportunity.",
         frequency: "occasional"
     },
-    
+
     // Milestone coaching - when users hit achievements
     foundationMilestone: {
         trigger: "foundation_milestone_reached",
@@ -19905,7 +20295,7 @@ const coachingMoments = {
         insight: "Every dollar here creates real options.",
         frequency: "milestone"
     },
-    
+
     realMoneyBuilt: {
         trigger: "money_milestone_100",
         icon: "💰",
@@ -19913,7 +20303,7 @@ const coachingMoments = {
         insight: "You can feel the difference, can't you?",
         frequency: "milestone"
     },
-    
+
     // Educational moments - connecting actions to bigger picture
     freedomSpending: {
         trigger: "freedom_category_spend",
@@ -19940,24 +20330,24 @@ function showCoachingMoment(triggerType, contextData = {}) {
     if (!coachingState.userPreferences.coachingEnabled) {
         return;
     }
-    
+
     const coaching = coachingMoments[triggerType];
     if (!coaching) {
         console.log('🎓 No coaching moment found for:', triggerType);
         return;
     }
-    
+
     // Check frequency limits
     if (!shouldShowCoaching(triggerType, coaching.frequency)) {
         return;
     }
-    
+
     console.log('🎓 Showing coaching moment:', triggerType);
-    
+
     // Update state
     coachingState.lastShown[triggerType] = Date.now();
     coachingState.sessionCount[triggerType] = (coachingState.sessionCount[triggerType] || 0) + 1;
-    
+
     // Create and show toast
     createCoachingToast({
         icon: coaching.icon,
@@ -19965,7 +20355,7 @@ function showCoachingMoment(triggerType, contextData = {}) {
         insight: coaching.insight,
         triggerType: triggerType
     });
-    
+
     // Track engagement for analytics
     trackCoachingEngagement(triggerType, contextData);
 }
@@ -19975,14 +20365,14 @@ function shouldShowCoaching(triggerType, frequency) {
     const now = Date.now();
     const lastShown = coachingState.lastShown[triggerType] || 0;
     const timeSinceLastShown = now - lastShown;
-    
+
     // Frequency rules based on user preference
     const frequencyMultiplier = {
         'minimal': 3,
         'normal': 1,
         'frequent': 0.5
     }[coachingState.userPreferences.frequency] || 1;
-    
+
     switch (frequency) {
         case 'once':
             return !lastShown; // Show only once ever
@@ -20004,7 +20394,7 @@ function createCoachingToast({ icon, message, insight, triggerType }) {
     if (existingToast) {
         hideCoachingToast(existingToast);
     }
-    
+
     // Create toast HTML with enhanced UX
     const toastHTML = `
         <div class="coaching-toast" id="coaching-toast">
@@ -20018,24 +20408,24 @@ function createCoachingToast({ icon, message, insight, triggerType }) {
             </div>
         </div>
     `;
-    
+
     // Add to page
     document.body.insertAdjacentHTML('beforeend', toastHTML);
-    
+
     const toast = document.getElementById('coaching-toast');
-    
+
     // Show with animation
     setTimeout(() => {
         toast.classList.add('show');
     }, 50);
-    
+
     // Auto-hide after 6 seconds (longer than help modals for reading)
     setTimeout(() => {
         if (toast && toast.classList.contains('show')) {
             hideCoachingToast(toast);
         }
     }, 6000);
-    
+
     // Track that coaching was displayed
     trackCoachingDisplay(triggerType);
 }
@@ -20044,10 +20434,10 @@ function createCoachingToast({ icon, message, insight, triggerType }) {
 function hideCoachingToast(toastElement = null) {
     const toast = toastElement || document.getElementById('coaching-toast');
     if (!toast) return;
-    
+
     toast.classList.remove('show');
     toast.classList.add('exiting');
-    
+
     setTimeout(() => {
         if (toast && toast.parentNode) {
             toast.parentNode.removeChild(toast);
@@ -20064,7 +20454,7 @@ function trackCoachingEngagement(triggerType, contextData) {
         context: contextData,
         userPreference: coachingState.userPreferences.frequency
     });
-    
+
     // Add analytics service integration here if available
     if (typeof gtag !== 'undefined') {
         gtag('event', 'coaching_moment_shown', {
@@ -20091,9 +20481,9 @@ function triggerCoachingMoment(triggerType, contextData = {}) {
 // Add these calls to existing functions to trigger coaching moments
 
 // Initialize coaching system
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('🎓 Flow: Layer 3 Coaching Moments system initialized!');
-    
+
     // Load coaching preferences from localStorage if available
     try {
         const savedPreferences = localStorage.getItem('flowCoachingPreferences');
@@ -20128,10 +20518,10 @@ function toggleCoaching(enabled = null) {
 // Test coaching system function
 function testCoachingSystem() {
     console.log('🧪 Testing coaching system...');
-    
+
     // Test different coaching moments
     const testMoments = ['firstQuickAdd', 'firstHelpIcon', 'allocationAdjustment', 'foundationIncrease'];
-    
+
     testMoments.forEach((moment, index) => {
         setTimeout(() => {
             console.log(`Testing coaching moment: ${moment}`);
