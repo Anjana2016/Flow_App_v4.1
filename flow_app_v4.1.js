@@ -4576,15 +4576,8 @@ function updateAllDisplaysSynchronized() {
     if (futureFill) futureFill.style.width = `${futurePercent}%`;
     if (freedomFill) freedomFill.style.width = `${freedomPercent}%`;
 
-    // Update Budget Health allocation amounts for clean card structure
-    const foundationAllocated = document.getElementById('foundationAllocatedAmount');
-    if (foundationAllocated) foundationAllocated.textContent = `$${appState.categories.foundation.allocated} allocated`;
-
-    const futureAllocated = document.getElementById('futureAllocatedAmount');
-    if (futureAllocated) futureAllocated.textContent = `$${appState.categories.future.allocated} allocated`;
-
-    const freedomAllocated = document.getElementById('freedomAllocatedAmount');
-    if (freedomAllocated) freedomAllocated.textContent = `$${appState.categories.freedom.allocated} allocated`;
+    // NOTE: Category amount displays are now handled by updateCategoryDisplays()
+    // which was called earlier in this function
 
     // Update category percentages on Budget Health cards
     const foundationPercentEl = document.getElementById('foundationPercentage');
@@ -8469,36 +8462,27 @@ function updateCategoryCards() {
 
     // Update Foundation category with null checks
     const foundationPercentageEl = document.getElementById('foundationPercentage');
-    const foundationAmountEl = document.getElementById('foundationAllocatedAmount');
-
+    
     if (foundationPercentageEl) {
         foundationPercentageEl.textContent = `${foundation}%`;
-    }
-    if (foundationAmountEl) {
-        foundationAmountEl.textContent = `$${foundationAmount.toLocaleString()} allocated`;
     }
 
     // Update Future category with null checks
     const futurePercentageEl = document.getElementById('futurePercentage');
-    const futureAmountEl = document.getElementById('futureAllocatedAmount');
-
+    
     if (futurePercentageEl) {
         futurePercentageEl.textContent = `${future}%`;
-    }
-    if (futureAmountEl) {
-        futureAmountEl.textContent = `$${futureAmount.toLocaleString()} allocated`;
     }
 
     // Update Freedom category with null checks
     const freedomPercentageEl = document.getElementById('freedomPercentage');
-    const freedomAmountEl = document.getElementById('freedomAllocatedAmount');
-
+    
     if (freedomPercentageEl) {
         freedomPercentageEl.textContent = `${freedom}%`;
     }
-    if (freedomAmountEl) {
-        freedomAmountEl.textContent = `$${freedomAmount.toLocaleString()} allocated`;
-    }
+    
+    // Update category amounts using the new structure
+    updateCategoryDisplays();
 
     // Update daily flow in Spend tab
     const dailyFlow = Math.round(freedomAmount / 30);
@@ -11146,16 +11130,34 @@ function updateCategoryDisplays() {
             percentElement.textContent = `${allocationState[category]}%`;
         }
 
-        // Update allocated amounts in progress text
-        const allocatedElement = document.getElementById(`${category}AllocatedAmount`);
-        if (allocatedElement && appState.categories[category]) {
-            const amount = appState.categories[category].allocated;
-            if (category === 'foundation') {
-                allocatedElement.textContent = `$${amount} foundation`;
-            } else if (category === 'future') {
-                allocatedElement.textContent = `$${amount} allocated`;
-            } else if (category === 'freedom') {
-                allocatedElement.textContent = `$${amount} allocated`;
+        // Update used and remaining amounts
+        if (appState.categories[category]) {
+            const used = appState.categories[category].used || 0;
+            const allocated = appState.categories[category].allocated || 0;
+            const remaining = allocated - used;
+            
+            // Update amount-used element
+            const usedElement = document.querySelector(`.category-card.${category} .amount-used`);
+            if (usedElement) {
+                if (category === 'foundation') {
+                    usedElement.textContent = `$${used} securing your foundation`;
+                } else if (category === 'future') {
+                    usedElement.textContent = `$${allocated} building your dreams`;
+                } else if (category === 'freedom') {
+                    usedElement.textContent = `$${used} already flowed`;
+                }
+            }
+            
+            // Update amount-remaining element  
+            const remainingElement = document.querySelector(`.category-card.${category} .amount-remaining`);
+            if (remainingElement) {
+                if (category === 'foundation') {
+                    remainingElement.textContent = `$${remaining} cushion remaining`;
+                } else if (category === 'future') {
+                    remainingElement.textContent = `$${allocated} on autopilot`;
+                } else if (category === 'freedom') {
+                    remainingElement.textContent = `$${remaining} ready for fun`;
+                }
             }
         }
     });

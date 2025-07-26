@@ -3270,7 +3270,7 @@ body {
 /* ===== TRANSACTION CHEVRON INDICATOR (BOTTOM RIGHT POSITIONING) ===== */
 .purchase-chevron {
     color: var(--text-muted);
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 300;
     opacity: 0.4;
     transition: all 0.3s ease;
@@ -3298,7 +3298,7 @@ body {
 /* Mobile optimization */
 @media (max-width: 480px) {
     .purchase-chevron {
-        font-size: 12px;
+        font-size: 14px;
         bottom: 6px;
         right: 10px;
     }
@@ -3310,7 +3310,7 @@ body {
 /* Target input fields in Oops and Transaction Details modals */
 #oopsModal input[type="number"],
 #oopsModal input[type="text"],
-#transactionDetailModal input[type="number"], 
+#transactionDetailModal input[type="number"],
 #transactionDetailModal input[type="text"],
 #editTransactionModal input[type="number"],
 #editTransactionModal input[type="text"] {
@@ -3382,7 +3382,7 @@ body {
 }
 
 #oopsModal input[style*="background"],
-#transactionDetailModal input[style*="background"], 
+#transactionDetailModal input[style*="background"],
 #editTransactionModal input[style*="background"] {
     background: rgba(255, 255, 255, 0.05) !important;
 }
@@ -4504,6 +4504,38 @@ body {
         line-height: 1.3;
     }
 
+    /* ===== ENHANCED CATEGORY AMOUNT DISPLAY ===== */
+    .category-amounts {
+        margin-bottom: 12px;
+    }
+
+    .amount-used {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+        line-height: 1.3;
+    }
+
+    .amount-remaining {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.3;
+    }
+
+    /* Enhanced subtitle styling for personality */
+    .category-subtitle {
+        font-size: 14px;
+        font-weight: 500;
+        background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+        line-height: 1.4;
+        font-style: normal;
+    }
+
     .progress-container {
         height: 6px;
         background: rgba(255, 255, 255, 0.1);
@@ -4535,6 +4567,57 @@ body {
         justify-content: space-between;
         font-size: 12px;
         color: var(--text-muted);
+    }
+
+    /* Category card cheveron */
+    /* ===== CATEGORY CARD CHEVRON INDICATORS (MATCHING TRANSACTION STYLE) ===== */
+
+    /* Category Chevron Indicator - Positioned Bottom Right */
+    .category-chevron {
+        color: var(--text-muted);
+        font-size: 16px;
+        font-weight: 300;
+        opacity: 0.4;
+        transition: all 0.3s ease;
+        position: absolute;
+        bottom: 8px;
+        right: 12px;
+        pointer-events: none;
+        z-index: 5;
+    }
+
+    /* Hover States - Match Transaction Card Behavior */
+    .category-card:hover .category-chevron {
+        opacity: 0.7;
+        transform: translateX(2px);
+        color: var(--text-secondary);
+    }
+
+    .category-card:active .category-chevron {
+        opacity: 1;
+        transform: translateX(4px) scale(1.1);
+        color: var(--text-primary);
+    }
+
+    /* Ensure category cards have relative positioning for chevron */
+    .category-card {
+        position: relative !important;
+        cursor: pointer !important;
+    }
+
+    /* Mobile optimization for category chevrons */
+    @media (max-width: 480px) {
+        .category-chevron {
+            font-size: 14px;
+            bottom: 6px;
+            right: 10px;
+        }
+    }
+
+    /* Enhanced hover state for category cards */
+    .category-card:hover {
+        transform: translateY(-2px) !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
     }
 
     /* Quick Add Section */
