@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow - Your Financial Clarity Starts Here</title>
+    <style>
+        /* ===== FLOW V4.0 DESIGN SYSTEM ===== */
+        :root {
+            /* Core Colors */
+            --dark-bg: #0f0f1a;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-hover: rgba(255, 255, 255, 0.15);
+            
+            /* Text Colors */
+            --text-primary: #f8fafc;
+            --text-secondary: rgba(248, 250, 252, 0.7);
+            --text-muted: rgba(248, 250, 252, 0.5);
+            
+            /* Accent Colors */
+            --accent-green: #10b981;
+            --accent-blue: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-amber: #f59e0b;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-freedom: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            --gradient-future: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            --gradient-foundation: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            
+            /* Animation */
+            --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Typography */
+            --font-sm: 14px;
+            --font-base: 16px;
+            --font-lg: 18px;
+            --font-xl: 24px;
+            --font-2xl: 32px;
+            --font-3xl: 40px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ===== ANIMATED BACKGROUND ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(6, 182, 212, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            animation: subtleShift 20s ease-in-out infinite;
+        }
+
+        @keyframes subtleShift {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.02); }
+        }
+
+        /* ===== ONBOARDING CONTAINER ===== */
+        .onboarding-container {
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* ===== PROGRESS INDICATOR ===== */
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+            margin-top: 20px;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s var(--animation-timing);
+        }
+
+        .progress-dot.active {
+            background: var(--accent-green);
+            transform: scale(1.2);
+        }
+
+        /* ===== ONBOARDING SCREENS ===== */
+        .onboarding-screen {
+            display: none;
+            animation: fadeInUp 0.6s var(--animation-timing);
+            flex: 1;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .onboarding-screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== COMMON ELEMENTS ===== */
+        .flow-logo {
+            font-size: 48px;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+
+        .screen-title {
+            font-size: var(--font-2xl);
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .screen-subtitle {
+            font-size: var(--font-base);
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* ===== GLASS CARDS ===== */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 16px;
+            padding: 18px 24px;
+            font-size: var(--font-base);
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s var(--animation-timing);
+            text-align: center;
+            width: 100%;
+            margin-bottom: 12px;
+            min-height: 44px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 18px 24px;
+            font-size: var(--font-base);
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s var(--animation-timing);
+            text-align: center;
+            width: 100%;
+            min-height: 44px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--glass-hover);
+            transform: translateY(-1px);
+        }
+
+        .onboarding-actions {
+            margin-top: auto;
+            padding-top: 32px;
+        }
+
+        /* ===== WELCOME SCREEN ===== */
+        .welcome-hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .welcome-tagline {
+            font-size: var(--font-xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .rebel-statement {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .rebel-title {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .rebel-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .rebel-points li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .rebel-points li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: bold;
+        }
+
+        /* ===== HOW FLOW WORKS SCREEN ===== */
+        .flow-method-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .flow-category {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .flow-category.foundation { border-left: 4px solid var(--accent-amber); }
+        .flow-category.future { border-left: 4px solid var(--accent-purple); }
+        .flow-category.freedom { border-left: 4px solid var(--accent-blue); }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .category-emoji {
+            font-size: 24px;
+        }
+
+        .category-name {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .category-description {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* ===== INCOME SETUP SCREEN ===== */
+        .income-input-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 32px 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .income-label {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .income-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: var(--font-3xl);
+            font-weight: 900;
+            text-align: center;
+            width: 100%;
+            outline: none;
+        }
+
+        .income-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .income-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .validation-message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: var(--font-sm);
+            text-align: center;
+        }
+
+        .validation-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .validation-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        /* ===== PROFILE SELECTION SCREEN ===== */
+        .profile-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .profile-option {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s var(--animation-timing);
+            position: relative;
+        }
+
+        .profile-option:hover {
+            background: var(--glass-hover);
+            transform: translateY(-2px);
+        }
+
+        .profile-option.selected {
+            border: 2px solid var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .profile-option.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            color: var(--accent-green);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .profile-name {
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .profile-percentages {
+            font-size: var(--font-sm);
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .profile-description {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .profile-preview {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ===== DAILY FLOW REVEAL SCREEN ===== */
+        .daily-flow-hero {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px 24px;
+            margin-bottom: 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .daily-flow-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .daily-flow-label {
+            font-size: var(--font-base);
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .daily-flow-amount {
+            font-size: 56px;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .daily-flow-magic {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .daily-flow-subtitle {
+            font-size: var(--font-base);
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 1;
+        }
+
+        .confidence-points {
+            list-style: none;
+            padding: 0;
+        }
+
+        .confidence-points li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 20px;
+            font-size: var(--font-sm);
+        }
+
+        .confidence-points li:before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 360px) {
+            .onboarding-container {
+                padding: 16px;
+            }
+            
+            .flow-logo {
+                font-size: 40px;
+            }
+            
+            .daily-flow-amount {
+                font-size: 48px;
+            }
+        }
+
+        /* ===== ACCESSIBILITY ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== CONFETTI ANIMATION ===== */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-green);
+            animation: confetti-fall 3s linear forwards;
+            z-index: 1000;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="onboarding-container">
+        <!-- Progress Indicator -->
+        <div class="progress-indicator">
+            <div class="progress-dot active" data-step="0"></div>
+            <div class="progress-dot" data-step="1"></div>
+            <div class="progress-dot" data-step="2"></div>
+            <div class="progress-dot" data-step="3"></div>
+            <div class="progress-dot" data-step="4"></div>
+        </div>
+
+        <!-- Screen 1: Welcome -->
+        <div class="onboarding-screen active" data-screen="0">
+            <div class="welcome-hero">
+                <div class="flow-logo">Flow</div>
+                <div class="welcome-tagline">Your money, clarified</div>
+                <div class="screen-subtitle">Most money apps want to judge your spending. We're here to clarify it. Big difference.</div>
+            </div>
+
+            <div class="rebel-statement">
+                <div class="rebel-title">Here's what makes us different</div>
+                <ul class="rebel-points">
+                    <li>No shame. No spreadsheets. Just clarity.</li>
+                    <li>We don't sync to your bank because your data isn't our business</li>
+                    <li>One simple number tells you what you can spend guilt-free</li>
+                    <li>Your future self builds wealth automatically</li>
+                </ul>
+            </div>
+
+            <div class="onboarding-actions">
+                <button class="btn-primary" onclick="nextScreen()">I'm ready for clarity →</button>
+            </div>
+        </div>
+
+        <!-- Screen 2: How Flow Works -->
+        <div class="onboarding-screen" data-screen="1">
+            <div class="screen-title">How Flow works</div>
+            <div class="screen-subtitle">We split your money into three simple buckets. Security first, then growth, then freedom.</div>
+
+            <div class="flow-method-grid">
+                <div class="flow-category foundation">
+                    <div class="category-header">
+                        <div class="category-emoji">🛡️</div>
+                        <div class="category-name">Foundation</div>
+                    </div>
+                    <div class="category-description">Security first - builds confidence. Covers your essentials and emergency cushion so you can sleep well.</div>
+                </div>
+
+                <div class="flow-category future">
+                    <div class="category-header">
+                        <div class="category-emoji">🌱</div>
+                        <div class="category-name">Future</div>
+                    </div>
+                    <div class="category-description">Builds automatically toward your goals. Your future self will thank you for this - it happens without you thinking about it.</div>
+                </div>
+
+                <div class="flow-category freedom">
+                    <div class="category-header">
+                        <div class="category-emoji">💚</div>
+                        <div class="category-name">Freedom</div>
+                    </div>
+                    <div class="category-description">Guilt-free spending amount. This is truly yours to enjoy - no math required, no guilt allowed.</div>
+                </div>
+            </div>
+
+            <div class="onboarding-actions">
+                <button class="btn-primary" onclick="nextScreen()">Perfect, let's set this up →</button>
+                <button class="btn-secondary" onclick="prevScreen()">Back</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Income Setup -->
+        <div class="onboarding-screen" data-screen="2">
+            <div class="screen-title">What's coming in each month?</div>
+            <div class="screen-subtitle">Don't worry about being exact—we can adjust this as life happens.</div>
+
+            <div class="income-input-container">
+                <div class="income-label">Monthly income</div>
+                <input type="number" class="income-input" id="incomeInput" placeholder="3200" value="3200" min="500" max="50000" oninput="updateIncomePreview()">
+                <div class="income-hint">After taxes, side hustles, everything</div>
+            </div>
+
+            <div id="validationMessage" class="validation-message" style="display: none;"></div>
+
+            <div class="onboarding-actions">
+                <button class="btn-primary" onclick="nextScreen()">This looks right →</button>
+                <button class="btn-secondary" onclick="prevScreen()">Back</button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Profile Selection -->
+        <div class="onboarding-screen" data-screen="3">
+            <div class="screen-title">Choose your Flow</div>
+            <div class="screen-subtitle">How aggressive do you want to be about building your future?</div>
+
+            <div class="profile-grid">
+                <div class="profile-option selected" data-profile="starting" onclick="selectProfile('starting')">
+                    <div class="profile-header">
+                        <div class="profile-name">Starting Flow</div>
+                        <div class="profile-percentages">55% / 5% / 40%</div>
+                    </div>
+                    <div class="profile-description">Perfect for building your first emergency fund while still enjoying life. Balanced approach for beginners.</div>
+                    <div class="profile-preview">
+                        <span>Foundation: $<span id="startingFoundation">1760</span></span>
+                        <span>Future: $<span id="startingFuture">160</span></span>
+                        <span>Freedom: $<span id="startingFreedom">1280</span></span>
+                    </div>
+                </div>
+
+                <div class="profile-option" data-profile="serious" onclick="selectProfile('serious')">
+                    <div class="profile-header">
+                        <div class="profile-name">Serious Flow</div>
+                        <div class="profile-percentages">55% / 10% / 35%</div>
+                    </div>
+                    <div class="profile-description">Ready to build wealth more aggressively. 2x more savings while still having freedom for what matters.</div>
+                    <div class="profile-preview">
+                        <span>Foundation: $<span id="seriousFoundation">1760</span></span>
+                        <span>Future: $<span id="seriousFuture">320</span></span>
+                        <span>Freedom: $<span id="seriousFreedom">1120</span></span>
+                    </div>
+                </div>
+
+                <div class="profile-option" data-profile="wealth" onclick="selectProfile('wealth')">
+                    <div class="profile-header">
+                        <div class="profile-name">Wealth Flow</div>
+                        <div class="profile-percentages">55% / 20% / 25%</div>
+                    </div>
+                    <div class="profile-description">Maximum wealth building mode. Perfect for major goals like house down payments or early retirement.</div>
+                    <div class="profile-preview">
+                        <span>Foundation: $<span id="wealthFoundation">1760</span></span>
+                        <span>Future: $<span id="wealthFuture">640</span></span>
+                        <span>Freedom: $<span id="wealthFreedom">800</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="onboarding-actions">
+                <button class="btn-primary" onclick="nextScreen()">This is my flow →</button>
+                <button class="btn-secondary" onclick="prevScreen()">Back</button>
+            </div>
+        </div>
+
+        <!-- Screen 5: Daily Flow Reveal -->
+        <div class="onboarding-screen" data-screen="4">
+            <div class="daily-flow-hero">
+                <div class="daily-flow-label">Your Daily Flow</div>
+                <div class="daily-flow-amount" id="dailyFlowAmount">$43</div>
+                <div class="daily-flow-magic">The only number you need to think about</div>
+                <div class="daily-flow-subtitle">Spend this guilt-free, every single day</div>
+            </div>
+
+            <div class="glass-card">
+                <div class="screen-title" style="text-align: left; margin-bottom: 16px;">🎯 Here's what just happened</div>
+                <ul class="confidence-points">
+                    <li>We automatically split your income across Foundation, Future, and Freedom</li>
+                    <li>Your Future money is building wealth while you sleep</li>
+                    <li>Your Foundation covers all the important stuff</li>
+                    <li>Your Daily Flow comes from Freedom—it's truly yours to enjoy</li>
+                    <li>No more mental math, no more spending anxiety</li>
+                </ul>
+            </div>
+
+            <div class="onboarding-actions">
+                <button class="btn-primary" onclick="enterApp()">Let's start flowing! →</button>
+                <button class="btn-secondary" onclick="prevScreen()">Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== FLOW V4.0 ONBOARDING STATE ===== 
+        let currentScreen = 0;
+        let userIncome = 3200;
+        let selectedProfile = 'starting';
+
+        // Exact match to main app Flow profiles
+        const FLOW_PROFILES = {
+            starting: { foundation: 55, future: 5, freedom: 40 },
+            serious: { foundation: 55, future: 10, freedom: 35 },
+            wealth: { foundation: 55, future: 20, freedom: 25 }
+        };
+
+        // ===== SCREEN NAVIGATION =====
+        function nextScreen() {
+            // Validate current screen before proceeding
+            if (currentScreen === 2 && !validateIncome()) {
+                return; // Stay on income screen if invalid
+            }
+
+            if (currentScreen < 4) {
+                // Hide current screen
+                document.querySelector(`[data-screen="${currentScreen}"]`).classList.remove('active');
+                document.querySelector(`[data-step="${currentScreen}"]`).classList.remove('active');
+                
+                // Show next screen
+                currentScreen++;
+                document.querySelector(`[data-screen="${currentScreen}"]`).classList.add('active');
+                document.querySelector(`[data-step="${currentScreen}"]`).classList.add('active');
+                
+                // Update calculations for reveal screen
+                if (currentScreen === 4) {
+                    updateDailyFlowReveal();
+                }
+            }
+        }
+
+        function prevScreen() {
+            if (currentScreen > 0) {
+                // Hide current screen
+                document.querySelector(`[data-screen="${currentScreen}"]`).classList.remove('active');
+                document.querySelector(`[data-step="${currentScreen}"]`).classList.remove('active');
+                
+                // Show previous screen
+                currentScreen--;
+                document.querySelector(`[data-screen="${currentScreen}"]`).classList.add('active');
+                document.querySelector(`[data-step="${currentScreen}"]`).classList.add('active');
+            }
+        }
+
+        // ===== INCOME VALIDATION ===== 
+        function validateIncome() {
+            const income = parseInt(document.getElementById('incomeInput').value);
+            const messageEl = document.getElementById('validationMessage');
+            
+            if (!income || income < 500) {
+                showValidationMessage('Minimum income is $500/month', 'error');
+                return false;
+            } else if (income > 50000) {
+                showValidationMessage('Maximum income is $50,000/month', 'error');
+                return false;
+            } else {
+                userIncome = income;
+                hideValidationMessage();
+                return true;
+            }
+        }
+
+        function showValidationMessage(message, type) {
+            const messageEl = document.getElementById('validationMessage');
+            messageEl.textContent = message;
+            messageEl.className = `validation-message ${type}`;
+            messageEl.style.display = 'block';
+        }
+
+        function hideValidationMessage() {
+            document.getElementById('validationMessage').style.display = 'none';
+        }
+
+        function updateIncomePreview() {
+            const income = parseInt(document.getElementById('incomeInput').value) || 3200;
+            userIncome = income;
+            
+            // Update all profile previews
+            Object.keys(FLOW_PROFILES).forEach(profile => {
+                const percentages = FLOW_PROFILES[profile];
+                const foundation = Math.round(income * percentages.foundation / 100);
+                const future = Math.round(income * percentages.future / 100);
+                const freedom = Math.round(income * percentages.freedom / 100);
+                
+                document.getElementById(`${profile}Foundation`).textContent = foundation.toLocaleString();
+                document.getElementById(`${profile}Future`).textContent = future.toLocaleString();
+                document.getElementById(`${profile}Freedom`).textContent = freedom.toLocaleString();
+            });
+
+            // Clear validation message when typing
+            hideValidationMessage();
+        }
+
+        // ===== PROFILE SELECTION =====
+        function selectProfile(profile) {
+            selectedProfile = profile;
+            
+            // Update UI selection
+            document.querySelectorAll('.profile-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-profile="${profile}"]`).classList.add('selected');
+        }
+
+        // ===== DAILY FLOW CALCULATION (EXACT MATCH TO MAIN APP) =====
+        function calculateDailyFlow(income, profile) {
+            const percentages = FLOW_PROFILES[profile];
+            const freedomAmount = Math.round(income * percentages.freedom / 100);
+            return Math.round(freedomAmount / 30);
+        }
+
+        function updateDailyFlowReveal() {
+            const dailyFlow = calculateDailyFlow(userIncome, selectedProfile);
+            document.getElementById('dailyFlowAmount').textContent = `$${dailyFlow}`;
+        }
+
+        // ===== CONFETTI CELEBRATION =====
+        function createConfetti() {
+            const colors = ['#10b981', '#06b6d4', '#8b5cf6', '#f59e0b', '#ec4899'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * window.innerWidth + 'px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 50);
+            }
+        }
+
+        // ===== MAIN APP INTEGRATION =====
+        function enterApp() {
+            // Create main app compatible data structure
+            const profilePercentages = FLOW_PROFILES[selectedProfile];
+            const foundationAmount = Math.round(userIncome * profilePercentages.foundation / 100);
+            const futureAmount = Math.round(userIncome * profilePercentages.future / 100);
+            const freedomAmount = Math.round(userIncome * profilePercentages.freedom / 100);
+            const dailyFlow = calculateDailyFlow(userIncome, selectedProfile);
+
+            const mainAppData = {
+                userProfile: {
+                    monthlyIncome: userIncome,
+                    savingsProfile: selectedProfile,
+                    setupCompleted: true,
+                    lastUpdated: Date.now()
+                },
+                budgetState: {
+                    categories: {
+                        foundation: { 
+                            allocated: foundationAmount, 
+                            used: 0, 
+                            percentage: profilePercentages.foundation 
+                        },
+                        future: { 
+                            allocated: futureAmount, 
+                            used: 0, 
+                            percentage: profilePercentages.future 
+                        },
+                        freedom: { 
+                            allocated: freedomAmount, 
+                            used: 0, 
+                            percentage: profilePercentages.freedom 
+                        }
+                    },
+                    dailyFlow: dailyFlow
+                },
+                transactions: [],
+                achievements: { onboardingComplete: true },
+                appSettings: {
+                    version: "4.1-onboarding-integration",
+                    dataVersion: 3,
+                    backupTimestamp: Date.now()
+                }
+            };
+
+            // Save to localStorage with main app key
+            localStorage.setItem('flowBudgeting_v3', JSON.stringify(mainAppData));
+
+            // Show celebration
+            createConfetti();
+
+            // Redirect to main app after brief celebration
+            setTimeout(() => {
+                // In production, this would redirect to app.html
+                // For demo purposes, show completion message
+                //alert(`🎉 Setup Complete!\n\nYour Flow:\n• Foundation: $${foundationAmount.toLocaleString()}\n• Future: $${futureAmount.toLocaleString()}\n• Freedom: $${freedomAmount.toLocaleString()}\n• Daily Flow: $${dailyFlow}\n\nRedirecting to app.html...`);
+                
+                // Production redirect:
+                 window.location.href = 'flow_app_v4.2.html';
+            }, 1500);
+        }
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize with default values
+            updateIncomePreview();
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight' || e.key === 'Enter') {
+                    nextScreen();
+                } else if (e.key === 'ArrowLeft') {
+                    prevScreen();
+                }
+            });
+
+            console.log('🌊 Flow v4.0 Onboarding loaded! Welcome to your financial clarity journey.');
+        });
+    </script>
+</body>
+</html>
