@@ -20089,19 +20089,97 @@ if (document.readyState === 'loading') {
 
 // ===== PHASE 2B: STRATEGIC MINIMAL HELP ICON SYSTEM =====
 
-// Educational content database - Strategic concepts with authentic Flow voice
+// Enhanced Educational content database - Strategic concepts with authentic Flow voice
 const educationalContent = {
     'daily-flow-philosophy': {
         title: 'Daily Flow Philosophy',
-        content: 'Most budget apps make you calculate what you can spend every single day. Math, stress, guilt when you get it wrong. Your Daily Flow is different. We take your income, automatically set aside what you need for Foundation and Future, then divide what\'s left by the days in the month. That\'s your guilt-free amount for today. No mental math. No spending anxiety. Just one number that updates live as you spend. This is what financial clarity actually feels like.'
+        subtitle: 'Why this changes everything',
+        icon: '💡',
+        sections: [
+            {
+                type: 'challenge',
+                title: 'The Problem with Traditional Budgeting',
+                icon: '🤔',
+                content: 'Most budget apps make you calculate what you can spend every single day. Math, stress, guilt when you get it wrong.'
+            },
+            {
+                type: 'alternative', 
+                title: 'The Flow Difference',
+                icon: '✨',
+                content: 'Your Daily Flow is calculated automatically from your Freedom allocation. No daily math, no category juggling, no stress.'
+            },
+            {
+                type: 'highlight',
+                title: 'Real Impact',
+                content: 'Today you have $67 to flow with. Use it, save it, whatever feels right. Foundation and Future are building automatically.'
+            },
+            {
+                type: 'benefit',
+                title: 'Why This Works', 
+                icon: '🎯',
+                content: 'You spend guilt-free knowing your future is handled. No mental gymnastics, no spreadsheet stress. Just clarity.'
+            }
+        ]
     },
     'flow-method-philosophy': {
         title: 'Flow Method Philosophy',
-        content: 'Most money apps want you to track every penny and stress about 20+ categories. What if you only needed three? Foundation handles the scary stuff - bills, emergencies, peace of mind. Future builds automatically toward your goals without you thinking about it. Freedom is everything left over - spend it guilt-free. It\'s the difference between hoping you\'ll be okay financially and knowing you will be. Three buckets. Zero stress.'
+        subtitle: 'Three categories vs twenty',
+        icon: '🔄',
+        sections: [
+            {
+                type: 'challenge',
+                title: 'The Category Chaos Problem',
+                icon: '🤯',
+                content: 'Most money apps want you to track 20+ categories. Groceries, dining, entertainment, gas, subscriptions... Mental exhaustion guaranteed.'
+            },
+            {
+                type: 'alternative',
+                title: 'What If You Only Needed Three?',
+                icon: '🎯', 
+                content: 'Foundation (your security), Future (your growth), Freedom (your life). Everything fits. Nothing complex.'
+            },
+            {
+                type: 'highlight',
+                title: 'Real Impact',
+                content: 'Instead of endless categorizing, you allocate once and flow freely. Your money builds wealth automatically while you live your life.'
+            },
+            {
+                type: 'benefit',
+                title: 'Freedom Through Simplicity',
+                icon: '🌟',
+                content: 'No more decision fatigue. No category confusion. Just clear allocation and confident spending. This is how money should feel.'
+            }
+        ]
     },
     'growth-story-philosophy': {
         title: 'Your Growth Story',
-        content: 'Other apps celebrate hitting arbitrary milestones and earning fake points. But real wealth building isn\'t a game. Your Growth Story tracks what actually matters: Smart Choices (building habits that stick), Flow Mastery (getting your allocation dialed in), and Real Money Built (actual dollars toward freedom). Each milestone is something you can feel in your life - more confidence, less stress, genuine financial options. That\'s the difference between playing and building.'
+        subtitle: 'Real progress vs fake points',
+        icon: '🌱',
+        sections: [
+            {
+                type: 'challenge',
+                title: 'The Gaming Problem',
+                icon: '🎮',
+                content: 'Other apps celebrate hitting arbitrary milestones and earning fake points. But real wealth building isn\'t a game.'
+            },
+            {
+                type: 'alternative',
+                title: 'Track What Actually Matters',
+                icon: '📈',
+                content: 'Smart Choices (building habits that stick), Flow Mastery (getting your allocation dialed in), and Real Money Built (actual dollars toward freedom).'
+            },
+            {
+                type: 'highlight', 
+                title: 'Real Impact',
+                content: 'Each milestone is something you can feel in your life - more confidence, less stress, genuine financial options.'
+            },
+            {
+                type: 'benefit',
+                title: 'Building vs Playing',
+                icon: '🏗️',
+                content: 'That\'s the difference between playing and building. Your progress here translates directly to financial confidence in real life.'
+            }
+        ]
     }
 };
 
@@ -20109,7 +20187,7 @@ const educationalContent = {
 function showEducationModal(contentKey) {
     console.log('🎓 Opening strategic educational modal for:', contentKey);
 
-    // Coaching trigger for first help icon usage
+    // Coaching trigger for first help icon usage - PRESERVE EXISTING
     triggerCoachingMoment('firstHelpIcon', { modalType: contentKey });
 
     const content = educationalContent[contentKey];
@@ -20118,23 +20196,46 @@ function showEducationModal(contentKey) {
         return;
     }
 
-    // Create modal if it doesn't exist
+    // Create modal if it doesn't exist - PRESERVE EXISTING
     let modal = document.getElementById('education-modal');
     if (!modal) {
         modal = createEducationModal();
     }
 
-    // Set content
+    // Set enhanced content with conflict-free class names
     modal.querySelector('.education-modal-title').textContent = content.title;
-    modal.querySelector('.education-modal-content-text').textContent = content.content;
+    modal.querySelector('.education-modal-subtitle').textContent = content.subtitle;
+    modal.querySelector('.education-header-icon').textContent = content.icon;
 
-    // Show modal
+    // Build sections HTML with conflict-free class names
+    const sectionsContainer = modal.querySelector('.education-modal-sections');
+    sectionsContainer.innerHTML = content.sections.map(section => {
+        if (section.type === 'highlight') {
+            return `
+                <div class="education-modal-section highlight">
+                    <div class="education-highlight-title">${section.title}</div>
+                    <div class="education-highlight-text">${section.content}</div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="education-modal-section">
+                    <div class="education-section-title">
+                        <div class="education-section-icon">${section.icon}</div>
+                        ${section.title}
+                    </div>
+                    <div class="education-section-content">${section.content}</div>
+                </div>
+            `;
+        }
+    }).join('');
+
+    // Show modal - PRESERVE EXISTING FUNCTIONALITY
     modal.classList.add('show');
 
-    // Prevent body scroll
+    // Prevent body scroll - PRESERVE EXISTING
     document.body.style.overflow = 'hidden';
 }
-
 // Hide educational modal function
 function hideEducationModal() {
     const modal = document.getElementById('education-modal');
@@ -20151,14 +20252,19 @@ function createEducationModal() {
         <div class="education-modal" id="education-modal">
             <div class="education-modal-content">
                 <div class="education-modal-header">
-                    <h2 class="education-modal-title"></h2>
+                    <div class="education-header-icon"></div>
+                    <div class="education-header-text">
+                        <h2 class="education-modal-title"></h2>
+                        <p class="education-modal-subtitle"></p>
+                    </div>
                     <button class="education-modal-close" onclick="hideEducationModal()">&times;</button>
                 </div>
                 <div class="education-modal-body">
-                    <p class="education-modal-content-text"></p>
+                    <div class="education-modal-sections"></div>
                 </div>
                 <div class="education-modal-footer">
                     <button class="btn-education-secondary" onclick="hideEducationModal()">Got it</button>
+                    <button class="btn-education-primary" onclick="hideEducationModal()">See It in Action</button>
                 </div>
             </div>
         </div>
@@ -20168,14 +20274,14 @@ function createEducationModal() {
 
     const modal = document.getElementById('education-modal');
 
-    // Close on background click
+    // Close on background click - PRESERVE EXISTING FUNCTIONALITY
     modal.addEventListener('click', function (e) {
         if (e.target === modal) {
             hideEducationModal();
         }
     });
 
-    // Close on escape key
+    // Close on escape key - PRESERVE EXISTING FUNCTIONALITY  
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && modal.classList.contains('show')) {
             hideEducationModal();
