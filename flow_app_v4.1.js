@@ -337,7 +337,7 @@ function showOopsModal() {
         const modal = document.getElementById('oopsModal');
         modal.style.opacity = '1';
         modal.querySelector('.modal-content').style.transform = 'translateY(0) scale(1)';
-        
+
         // Focus amount input
         document.getElementById('oopsAmount').focus();
     });
@@ -346,7 +346,7 @@ function showOopsModal() {
 function selectOopsCategory(category) {
     // Update hidden input
     document.getElementById('oopsCategory').value = category;
-    
+
     // Update visual selection
     document.querySelectorAll('.category-btn').forEach(btn => {
         if (btn.dataset.category === category) {
@@ -367,7 +367,7 @@ function submitOopsTransaction() {
     const amount = parseFloat(document.getElementById('oopsAmount').value);
     const description = document.getElementById('oopsDescription').value.trim();
     const category = document.getElementById('oopsCategory').value;
-    
+
     if (amount && amount > 0 && description) {
         const result = addTransaction(amount, description, category);
         if (result.success) {
@@ -5448,7 +5448,7 @@ function showTransactionDetailsModal(transaction) {
         const modal = document.getElementById('transactionDetailModal');
         modal.style.opacity = '1';
         modal.querySelector('.modal-content').style.transform = 'translateY(0) scale(1)';
-        
+
         // Focus amount input
         document.getElementById('editTransactionAmount').focus();
     });
@@ -5457,7 +5457,7 @@ function showTransactionDetailsModal(transaction) {
 function selectEditTransactionCategory(category) {
     // Update hidden input
     document.getElementById('editTransactionCategory').value = category;
-    
+
     // Update visual selection
     document.querySelectorAll('.edit-category-btn').forEach(btn => {
         if (btn.dataset.category === category) {
@@ -5479,53 +5479,53 @@ function submitTransactionEdit() {
     const newAmount = parseFloat(document.getElementById('editTransactionAmount').value);
     const newDescription = document.getElementById('editTransactionDescription').value.trim();
     const newCategory = document.getElementById('editTransactionCategory').value;
-    
+
     if (!newAmount || newAmount <= 0 || !newDescription) {
         showToast('Just need the amount and what this was for to keep your flow clear', 'info');
         return;
     }
-    
+
     // Find the transaction
     const transaction = appState.transactions.find(t => t.id == transactionId);
     if (!transaction) {
         showToast('Something went wrong finding that flow', 'error');
         return;
     }
-    
+
     try {
         // Store original values for rollback
         const originalAmount = transaction.amount;
         const originalCategory = transaction.category;
-        
+
         // Update category usage (remove old amount)
         if (appState.categories[originalCategory]) {
             appState.categories[originalCategory].used -= originalAmount;
             appState.categories[originalCategory].used = Math.max(0, appState.categories[originalCategory].used);
         }
-        
+
         // Update transaction
         transaction.amount = newAmount;
         transaction.description = newDescription;
         transaction.category = newCategory;
-        
+
         // Add to new category usage
         if (appState.categories[newCategory]) {
             appState.categories[newCategory].used += newAmount;
         }
-        
+
         // Recalculate daily flow
         appState.dailyFlow = calculateDailyFlow(appState.categories);
-        
+
         // Update all displays
         updateAllDisplaysSynchronized();
-        
+
         // Save to localStorage
         saveToLocalStorage();
-        
+
         // Success feedback
         showToast(`Flow updated • $${newAmount.toFixed(2)} for ${newDescription} ✨`, 'success');
         closeTransactionModal();
-        
+
     } catch (error) {
         console.error('❌ Transaction update failed:', error);
         showToast('Something went wrong updating your flow', 'error');
@@ -5536,10 +5536,10 @@ function confirmTransactionDelete() {
     const transactionId = document.getElementById('editTransactionId').value;
     const amount = document.getElementById('editTransactionAmount').value;
     const description = document.getElementById('editTransactionDescription').value;
-    
+
     // Simple confirmation with Flow voice
     const confirmed = confirm(`Remove this $${amount} flow for "${description}"? This can't be undone.`);
-    
+
     if (confirmed) {
         // Find the transaction
         const transaction = appState.transactions.find(t => t.id == transactionId);
@@ -5547,33 +5547,33 @@ function confirmTransactionDelete() {
             showToast('Something went wrong finding that flow', 'error');
             return;
         }
-        
+
         try {
             // Remove from category usage
             if (appState.categories[transaction.category]) {
                 appState.categories[transaction.category].used -= transaction.amount;
                 appState.categories[transaction.category].used = Math.max(0, appState.categories[transaction.category].used);
             }
-            
+
             // Remove transaction from array
             const transactionIndex = appState.transactions.findIndex(t => t.id == transactionId);
             if (transactionIndex !== -1) {
                 appState.transactions.splice(transactionIndex, 1);
             }
-            
+
             // Recalculate daily flow
             appState.dailyFlow = calculateDailyFlow(appState.categories);
-            
+
             // Update all displays
             updateAllDisplaysSynchronized();
-            
+
             // Save to localStorage
             saveToLocalStorage();
-            
+
             // Success feedback
             showToast(`Flow removed • Your daily flow updated ✨`, 'success');
             closeTransactionModal();
-            
+
         } catch (error) {
             console.error('❌ Transaction deletion failed:', error);
             showToast('Something went wrong removing that flow', 'error');
@@ -6747,6 +6747,21 @@ function loadFromLocalStorage() {
         }
 
         const parsed = JSON.parse(savedData);
+
+        if (savedData) {
+            //const data = JSON.parse(savedData);
+
+            // Check if this is a fresh onboarding completion
+            if (parsed.achievements?.onboardingComplete && !parsed.achievements?.welcomeShown) {
+                showToast(`🎉 Welcome to Flow! Your $${parsed.budgetState.dailyFlow} daily flow is ready!`, 'success');
+
+                // Mark welcome as shown
+                parsed.achievements.welcomeShown = true;
+                localStorage.setItem('flowBudgeting_v3', JSON.stringify(parsed));
+            }
+
+            // Continue with your existing data loading...
+        }
 
         // Validate data structure
         if (validateLoadedData(parsed)) {
@@ -8462,25 +8477,25 @@ function updateCategoryCards() {
 
     // Update Foundation category with null checks
     const foundationPercentageEl = document.getElementById('foundationPercentage');
-    
+
     if (foundationPercentageEl) {
         foundationPercentageEl.textContent = `${foundation}%`;
     }
 
     // Update Future category with null checks
     const futurePercentageEl = document.getElementById('futurePercentage');
-    
+
     if (futurePercentageEl) {
         futurePercentageEl.textContent = `${future}%`;
     }
 
     // Update Freedom category with null checks
     const freedomPercentageEl = document.getElementById('freedomPercentage');
-    
+
     if (freedomPercentageEl) {
         freedomPercentageEl.textContent = `${freedom}%`;
     }
-    
+
     // Update category amounts using the new structure
     updateCategoryDisplays();
 
@@ -8792,8 +8807,8 @@ document.addEventListener('DOMContentLoaded', function () {
         // ===== DAY 41: INITIALIZE SPENDING EFFICIENCY SYSTEM =====
         initializeSpendingEfficiencySystem();
     } else {
-        // New user or data restore failed, show onboarding
-        console.log('ℹ️ New user or incomplete data, showing onboarding');
+        // New user or data restore failed - initialize with defaults
+        console.log('ℹ️ New user or incomplete data, initializing with defaults');
 
         // Initialize with defaults for new users
         allocationState = { ...DEFAULT_ALLOCATION };
@@ -8813,12 +8828,8 @@ document.addEventListener('DOMContentLoaded', function () {
             updateSliderDisplays();
         }, 200);
 
-        const overlay = document.getElementById('onboardingOverlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            overlay.classList.remove('hidden');
-            console.log('🎯 Onboarding overlay displayed');
-        }
+        // ONBOARDING SUPPRESSED: Onboarding overlay will remain hidden
+        console.log('🚫 Onboarding suppressed - using separate flow_onboarding_v4.html');
     }
 
 
@@ -9837,6 +9848,11 @@ document.addEventListener('DOMContentLoaded', function () {
         status: 'active'
     });
 
+
+    if (!checkOnboardingComplete()) {
+        return; // Will redirect to onboarding
+    }
+
     // DAY 44: Initialize Achievement System Structure before tests
     initializeAchievementSystemStructure();
 
@@ -9888,6 +9904,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }, 1000);
 });
+
+function checkOnboardingComplete() {
+    const savedData = localStorage.getItem('flowBudgeting_v3');
+
+    if (!savedData) {
+        window.location.href = 'flow_onboarding_v4.html';
+        return false;
+    }
+
+    try {
+        const parsed = JSON.parse(savedData);
+        if (!parsed.userProfile?.setupCompleted) {
+            window.location.href = 'flow_onboarding_v4.html';
+            return false;
+        }
+        return true;
+    } catch (error) {
+        console.error('Corrupted user data, redirecting to onboarding');
+        window.location.href = 'flow_onboarding_v4.html';
+        return false;
+    }
+}
+
 
 // ===== ERROR HANDLING WITH STATE RECOVERY =====
 window.onerror = function (msg, url, lineNo, columnNo, error) {
@@ -11135,7 +11174,7 @@ function updateCategoryDisplays() {
             const used = appState.categories[category].used || 0;
             const allocated = appState.categories[category].allocated || 0;
             const remaining = allocated - used;
-            
+
             // Update amount-used element
             const usedElement = document.querySelector(`.category-card.${category} .amount-used`);
             if (usedElement) {
@@ -11147,7 +11186,7 @@ function updateCategoryDisplays() {
                     usedElement.textContent = `$${used} already flowed`;
                 }
             }
-            
+
             // Update amount-remaining element  
             const remainingElement = document.querySelector(`.category-card.${category} .amount-remaining`);
             if (remainingElement) {
@@ -20105,7 +20144,7 @@ const educationalContent = {
                 content: 'Most budget apps make you calculate what you can spend every single day. Math, stress, guilt when you get it wrong.'
             },
             {
-                type: 'alternative', 
+                type: 'alternative',
                 title: 'The Flow Difference',
                 icon: '✨',
                 content: 'Your Daily Flow is calculated automatically from your Freedom allocation. No daily math, no category juggling, no stress.'
@@ -20117,7 +20156,7 @@ const educationalContent = {
             },
             {
                 type: 'benefit',
-                title: 'Why This Works', 
+                title: 'Why This Works',
                 icon: '🎯',
                 content: 'You spend guilt-free knowing your future is handled. No mental gymnastics, no spreadsheet stress. Just clarity.'
             }
@@ -20137,7 +20176,7 @@ const educationalContent = {
             {
                 type: 'alternative',
                 title: 'What If You Only Needed Three?',
-                icon: '🎯', 
+                icon: '🎯',
                 content: 'Foundation (your security), Future (your growth), Freedom (your life). Everything fits. Nothing complex.'
             },
             {
@@ -20171,7 +20210,7 @@ const educationalContent = {
                 content: 'Smart Choices (building habits that stick), Flow Mastery (getting your allocation dialed in), and Real Money Built (actual dollars toward freedom).'
             },
             {
-                type: 'highlight', 
+                type: 'highlight',
                 title: 'Real Impact',
                 content: 'Each milestone is something you can feel in your life - more confidence, less stress, genuine financial options.'
             },

@@ -6,6 +6,18 @@ LAST UPDATED: Allocation Sliders Fixed & Touch-optimized UI
 STATUS: Production Ready - Glassmorphism Design System
 */
 
+/* ===== ONBOARDING SUPPRESSION - USING SEPARATE ONBOARDING FILE ===== */
+
+/* Permanently hide onboarding overlay - using flow_onboarding_v4.html instead */
+#onboardingOverlay,
+.onboarding-overlay {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -9999 !important;
+}
+
 /* ===== COMPLETE TOOLTIP ELIMINATION - CRITICAL FIX ===== */
 
 /* Disable ALL tooltip systems across all devices */
