@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>💚 Flow v4.0 - Self-Contained Test</title>
+    
+    <style>
+        /* Minimal CSS for testing sliders */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .allocation-customizer {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+        
+        .slider-group {
+            margin: 20px 0;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .custom-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            appearance: none;
+        }
+        
+        .custom-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4ade80;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1, h3 {
+            color: white;
+            text-align: center;
+        }
+        
+        .debug-info {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <h1>💚 Flow Slider Test - Self-Contained</h1>
+        
+        <!-- Simple Tab Navigation -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('spend')">Spend</button>
+            <button class="tab" onclick="showTab('flow')">Flow</button>
+            <button class="tab" onclick="showTab('growth')">Growth</button>
+        </div>
+        
+        <!-- Spend Tab -->
+        <div class="tab-content active" id="spend-tab">
+            <h3>Spend Tab</h3>
+            <p style="color: white;">The sliders are on the Flow tab. Click "Flow" above to test them.</p>
+        </div>
+        
+        <!-- Flow Tab -->
+        <div class="tab-content" id="flow-tab">
+            <h3>Flow Tab - Allocation Sliders</h3>
+            
+            <div class="allocation-customizer">
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>🛡️ Foundation</span>
+                        <span id="foundationValue">55% • $1,760</span>
+                    </div>
+                    <input type="range" 
+                           class="custom-slider foundation" 
+                           id="foundationSlider" 
+                           min="30" 
+                           max="80" 
+                           value="55"
+                           oninput="handleSliderInput('foundation', this)">
+                    <div style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 5px;">Your safety net and non-negotiables</div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>🌱 Future</span>
+                        <span id="futureValue">5% • $160</span>
+                    </div>
+                    <input type="range" 
+                           class="custom-slider future" 
+                           id="futureSlider" 
+                           min="0" 
+                           max="30" 
+                           value="5"
+                           oninput="handleSliderInput('future', this)">
+                    <div style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 5px;">Growing automatically while you live</div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span>💚 Freedom</span>
+                        <span id="freedomValue">40% • $1,280</span>
+                    </div>
+                    <input type="range" 
+                           class="custom-slider freedom" 
+                           id="freedomSlider" 
+                           min="10" 
+                           max="60" 
+                           value="40"
+                           oninput="handleSliderInput('freedom', this)">
+                    <div style="color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 5px;">Today's guilt-free spending money</div>
+                </div>
+            </div>
+            
+            <div class="debug-info" id="debugInfo">
+                <strong>Debug Console:</strong><br>
+                Move the sliders above to see real-time updates here.
+            </div>
+        </div>
+        
+        <!-- Growth Tab -->
+        <div class="tab-content" id="growth-tab">
+            <h3>Growth Tab</h3>
+            <p style="color: white;">This would contain growth tracking features.</p>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let appState = {
+            monthlyIncome: 3200,
+            categories: {
+                foundation: { percentage: 55, allocated: 1760 },
+                future: { percentage: 5, allocated: 160 },
+                freedom: { percentage: 40, allocated: 1280 }
+            }
+        };
+        
+        let debugLog = [];
+        
+        function log(message) {
+            debugLog.push(new Date().toLocaleTimeString() + ': ' + message);
+            if (debugLog.length > 10) debugLog.shift();
+            document.getElementById('debugInfo').innerHTML = 
+                '<strong>Debug Console:</strong><br>' + debugLog.join('<br>');
+            console.log(message);
+        }
+        
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Hide all tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            log(`Switched to ${tabName} tab`);
+        }
+        
+        function handleSliderInput(category, slider) {
+            log(`=== SLIDER MOVED: ${category} to ${slider.value}% ===`);
+            
+            try {
+                const newValue = parseInt(slider.value);
+                
+                // Get all sliders
+                const foundationSlider = document.getElementById('foundationSlider');
+                const futureSlider = document.getElementById('futureSlider');
+                const freedomSlider = document.getElementById('freedomSlider');
+                
+                if (!foundationSlider || !futureSlider || !freedomSlider) {
+                    log('ERROR: Could not find all sliders in DOM');
+                    return;
+                }
+                
+                // Get current values
+                let foundation = parseInt(foundationSlider.value);
+                let future = parseInt(futureSlider.value);
+                let freedom = parseInt(freedomSlider.value);
+                
+                log(`Current values: F:${foundation}% Fu:${future}% Fr:${freedom}%`);
+                
+                // Update the changed category and auto-adjust others
+                if (category === 'foundation') {
+                    foundation = newValue;
+                    freedom = 100 - foundation - future;
+                    if (freedom < 10) { 
+                        freedom = 10; 
+                        foundation = 100 - future - freedom; 
+                    }
+                } else if (category === 'future') {
+                    future = newValue;
+                    freedom = 100 - foundation - future;
+                    if (freedom < 10) { 
+                        freedom = 10; 
+                        future = 100 - foundation - freedom; 
+                    }
+                } else if (category === 'freedom') {
+                    freedom = newValue;
+                    foundation = 100 - future - freedom;
+                    if (foundation < 30) { 
+                        foundation = 30; 
+                        freedom = 100 - future - foundation; 
+                    }
+                }
+                
+                const total = foundation + future + freedom;
+                log(`Adjusted values: F:${foundation}% Fu:${future}% Fr:${freedom}% (Total: ${total}%)`);
+                
+                // Update all sliders
+                foundationSlider.value = foundation;
+                futureSlider.value = future;
+                freedomSlider.value = freedom;
+                
+                // Update displays
+                const income = appState.monthlyIncome;
+                ['foundation', 'future', 'freedom'].forEach(cat => {
+                    const percentage = cat === 'foundation' ? foundation : cat === 'future' ? future : freedom;
+                    const amount = Math.round((percentage / 100) * income);
+                    
+                    const valueElement = document.getElementById(cat + 'Value');
+                    if (valueElement) {
+                        valueElement.textContent = `${percentage}% • $${amount.toLocaleString()}`;
+                        log(`Updated ${cat} display: ${percentage}% • $${amount.toLocaleString()}`);
+                    }
+                    
+                    // Update app state
+                    appState.categories[cat].percentage = percentage;
+                    appState.categories[cat].allocated = amount;
+                });
+                
+                log('✅ Slider update completed successfully');
+                
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`);
+                console.error('Slider error:', error);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 App initialized - sliders ready for testing');
+        });
+    </script>
+</body>
+</html>

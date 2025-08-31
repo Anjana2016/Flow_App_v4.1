@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>💚 Flow v4.1 - Your Financial Freedom</title>
+
+    <!--
+    Flow Budgeting App - HTML
+    VERSION: v4.1.0 - Production Ready
+    DATE: July 21, 2025
+    LAST UPDATED: Allocation Sliders Fixed & Manual Drag System
+    STATUS: Production Ready - Touch-optimized Interface
+    -->
+    
+    <!-- Your CSS file -->
+    <link rel="stylesheet" href="flow_app_v4.1.css">
+</head>
+
+<body>
+    <!-- Tooltip Container - Moved to very top for testing -->
+    <div class="tooltip" id="tooltip">
+        <div class="tooltip-title"></div>
+        <div class="tooltip-content"></div>
+    </div>
+
+    <div class="bg-animation"></div>
+
+    <!-- ===== DAY 11 ADDITION: ONBOARDING OVERLAY SYSTEM ===== -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <button class="skip-button" onclick="bypassOnboardingFlow()">Skip Setup</button>
+
+        <div class="onboarding-container">
+            <div class="progress-container-onboarding">
+                <div class="progress-text-onboarding">Step <span id="currentStep">1</span> of 4</div>
+                <div class="progress-bar-onboarding">
+                    <div class="progress-fill-onboarding" id="progressFill" style="width: 25%"></div>
+                </div>
+            </div>
+
+            <!-- STEP 1: WELCOME & PHILOSOPHY -->
+            <div class="onboarding-step active" id="step1">
+                <div class="step-icon">🎉</div>
+                <h2 class="step-title">Welcome to Flow!</h2>
+                <p class="step-subtitle">Guilt-free spending meets smart money clarity</p>
+                <p class="step-description">
+                    Forget complex budgets and financial stress. Flow gives you one simple number:
+                    your daily flow amount. That's YOUR money to spend without any guilt or worry.
+                </p>
+                <div
+                    style="background: rgba(16, 185, 129, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    <div style="font-size: 14px; font-weight: 600; color: var(--accent-green); margin-bottom: 8px;">
+                        ✨ The Flow Method
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                        <strong>Foundation</strong> (bills & essentials) • <strong>Future</strong> (your growth) •
+                        <strong>Freedom</strong> (guilt-free flow)
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="nextStep()">Let's Get Started! 🚀</button>
+                <button class="btn-secondary" onclick="bypassOnboardingFlow()">I'm already a user</button>
+            </div>
+
+            <!-- STEP 2: INCOME SETUP - DAY 12 ENHANCED WITH VALIDATION -->
+            <div class="onboarding-step" id="step2">
+                <div class="step-icon">💰</div>
+                <h2 class="step-title">What Flows In Monthly?</h2>
+                <p class="step-subtitle">This helps us calculate your perfect daily flow amount</p>
+
+                <div class="income-input-container">
+                    <div class="income-label">What Flows In Monthly (after taxes)</div>
+                    <input type="number" class="income-input" id="incomeInput" placeholder="3200" value="3200"
+                        oninput="validateAndUpdateIncome()" />
+
+                    <div class="income-presets">
+                        <button class="preset-btn" onclick="setIncomeWithValidation(2500)">$2,500</button>
+                        <button class="preset-btn selected" onclick="setIncomeWithValidation(3200)">$3,200</button>
+                        <button class="preset-btn" onclick="setIncomeWithValidation(4000)">$4,000</button>
+                        <button class="preset-btn" onclick="setIncomeWithValidation(5000)">$5,000</button>
+                    </div>
+
+                    <!-- DAY 12 ADDITION: Validation Message Display -->
+                    <div class="validation-message" id="validationMessage"></div>
+                </div>
+
+                <div class="daily-flow-preview" id="dailyFlowPreview">
+                    <div class="preview-label">Your estimated daily flow:</div>
+                    <div class="preview-amount" id="previewAmount">$40</div>
+                </div>
+
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 16px; margin-bottom: 24px;">
+                    🔒 Your information stays private and secure on your device
+                </div>
+
+                <!-- DAY 12 ADDITION: Button with validation state -->
+                <button class="btn-primary" id="incomeNextBtn" onclick="nextStep()">Perfect! Next Step</button>
+                <button class="btn-secondary" onclick="prevStep()">← Back</button>
+            </div>
+
+            <!-- STEP 3: SAVINGS PROFILE SELECTION -->
+            <div class="onboarding-step" id="step3">
+                <div class="step-icon">🎯</div>
+                <h2 class="step-title">Choose Your Savings Style</h2>
+                <p class="step-subtitle">Pick what feels right for your current life situation</p>
+
+                <div class="profile-options">
+                    <div class="profile-option selected" data-profile="starting"
+                        onclick="processProfileSelection('starting')">
+                        <div class="profile-header">
+                            <div class="profile-emoji">🌱</div>
+                            <div>
+                                <div class="profile-name">Starting Out</div>
+                                <div class="profile-save-rate">5% savings rate</div>
+                            </div>
+                        </div>
+                        <div class="profile-details">Perfect for building the habit. Most of your money goes to enjoying
+                            life while you start saving.</div>
+                        <div class="profile-preview">
+                            <span>Daily Flow:</span>
+                            <span class="profile-daily-flow" id="startingFlow">$40</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-option" data-profile="serious" onclick="processProfileSelection('serious')">
+                        <div class="profile-header">
+                            <div class="profile-emoji">🚀</div>
+                            <div>
+                                <div class="profile-name">Getting Serious</div>
+                                <div class="profile-save-rate">10% savings rate</div>
+                            </div>
+                        </div>
+                        <div class="profile-details">Ready to level up your savings while still having plenty for fun
+                            and experiences.</div>
+                        <div class="profile-preview">
+                            <span>Daily Flow:</span>
+                            <span class="profile-daily-flow" id="seriousFlow">$35</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-option" data-profile="wealth" onclick="processProfileSelection('wealth')">
+                        <div class="profile-header">
+                            <div class="profile-emoji">💎</div>
+                            <div>
+                                <div class="profile-name">Wealth Building</div>
+                                <div class="profile-save-rate">20% savings rate</div>
+                            </div>
+                        </div>
+                        <div class="profile-details">Aggressive savings mode. You're focused on building serious wealth
+                            for the future.</div>
+                        <div class="profile-preview">
+                            <span>Daily Flow:</span>
+                            <span class="profile-daily-flow" id="wealthFlow">$25</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="nextStep()">Lock It In! 🔒</button>
+                <button class="btn-secondary" onclick="prevStep()">← Back</button>
+            </div>
+
+            <!-- STEP 4: APP TOUR & FIRST ACTION -->
+            <div class="onboarding-step" id="step4">
+                <div class="step-icon">🎊</div>
+                <h2 class="step-title">You're All Set!</h2>
+                <p class="step-subtitle">Here's what you can do in your new Flow app</p>
+
+                <div class="tour-features">
+                    <div class="tour-feature">
+                        <div class="tour-feature-icon">💚</div>
+                        <div class="tour-feature-content">
+                            <div class="tour-feature-title">Daily Flow Tab</div>
+                            <div class="tour-feature-desc">See your daily spending amount and add expenses instantly
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tour-feature">
+                        <div class="tour-feature-icon">🎯</div>
+                        <div class="tour-feature-content">
+                            <div class="tour-feature-title">Flow Health</div>
+                            <div class="tour-feature-desc">Monitor your 3 S's and customize your flows</div>
+                        </div>
+                    </div>
+
+                    <div class="tour-feature">
+                        <div class="tour-feature-icon">👤</div>
+                        <div class="tour-feature-content">
+                            <div class="tour-feature-title">Your Journey</div>
+                            <div class="tour-feature-desc">Clarify progress, insights, and manage your profile</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="background: rgba(139, 92, 246, 0.1); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                    <div style="font-size: 14px; font-weight: 600; color: var(--accent-purple); margin-bottom: 8px;">
+                        🏆 Milestone reached!
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">
+                        "Setup Master" - You've successfully configured your Flow system!
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="finalizeOnboardingFlow()">Start My Journey! 🎉</button>
+                <button class="btn-secondary" onclick="prevStep()">← Back</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== WEEK 3 EDUCATION MODAL SYSTEM ===== -->
+    <!-- Education Modal Overlay -->
+    <div class="education-modal-overlay" id="educationModalOverlay">
+        <div class="education-modal-container">
+            <!-- Progress Header -->
+            <div class="education-progress-header">
+                <button class="education-close-btn" onclick="closeEducationModal()"
+                    aria-label="Close Education">×</button>
+
+                <div class="education-title">
+                    <h2>🎓 Master Your Flow & Build Wealth</h2>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="education-progress-container">
+                    <div class="education-progress-dots">
+                        <span class="progress-dot active" data-card="0"></span>
+                        <span class="progress-dot" data-card="1"></span>
+                        <span class="progress-dot" data-card="2"></span>
+                        <span class="progress-dot" data-card="3"></span>
+                        <span class="progress-dot" data-card="4"></span>
+                    </div>
+                    <div class="education-progress-text">
+                        <span id="currentCardNumber">1</span> of 5 completed
+                    </div>
+                    <div class="education-progress-bar">
+                        <div class="education-progress-fill" id="educationProgressFill"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Stack Container -->
+            <div class="education-card-stack" id="educationCardStack">
+                <!-- Cards will be dynamically inserted here -->
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="education-navigation">
+                <button class="nav-btn nav-back" id="educationNavBack" onclick="previousEducationCard()">
+                    <span>← Back</span>
+                </button>
+                <button class="nav-btn nav-skip" id="educationNavSkip" onclick="skipEducationCard()">
+                    <span>Skip</span>
+                </button>
+                <button class="nav-btn nav-next" id="educationNavNext" onclick="nextEducationCard()">
+                    <span>Next →</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- ===== END WEEK 3 EDUCATION MODAL ===== -->
+
+    <!-- ===== WEEK 5 SETTINGS MODAL SYSTEM (ADAPTED FROM WEEK 3) ===== -->
+    <!-- Settings Modal Overlay -->
+    <div class="settings-modal-overlay" id="settingsModalOverlay">
+        <div class="settings-modal-container">
+            <!-- Header with Section Navigation (Adapted from Week 3 progress header) -->
+            <div class="settings-progress-header">
+                <button class="settings-close-btn" onclick="closeSettingsModal()" aria-label="Close Settings">×</button>
+
+                <div class="settings-title">
+                    <h2>⚙️ Settings</h2>
+                    <p class="settings-subtitle">Customize your Flow experience</p>
+                </div>
+
+                <!-- Progress Indicators (Adapted from Education Modal) -->
+                <div class="settings-progress-container">
+                    <div class="settings-progress-dots">
+                        <div class="progress-dot settings-progress-dot active" data-section="0"
+                            onclick="showSettingsSection(0)"></div>
+                        <div class="progress-dot settings-progress-dot" data-section="1"
+                            onclick="showSettingsSection(1)"></div>
+                        <div class="progress-dot settings-progress-dot" data-section="2"
+                            onclick="showSettingsSection(2)"></div>
+                    </div>
+                    <div class="settings-progress-text">
+                        <span id="settingsProgressText">Flow Settings (1/3)</span>
+                    </div>
+                    <div class="settings-progress-bar">
+                        <div class="settings-progress-fill" id="settingsProgressFill"></div>
+                    </div>
+                </div>
+
+                <!-- Section Navigation (Adapted from progress dots) -->
+                <div class="settings-section-nav">
+                    <button class="section-nav-btn active" data-section="0" onclick="showSettingsSection(0)">
+                        💰 Flow
+                    </button>
+                    <button class="section-nav-btn" data-section="1" onclick="showSettingsSection(1)">
+                        🔔 Experience
+                    </button>
+                    <button class="section-nav-btn" data-section="2" onclick="showSettingsSection(2)">
+                        🗂️ Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Container (Adapted from card stack) -->
+            <div class="settings-content-container" id="settingsContentContainer">
+                <!-- Section 1: My Flow -->
+                <div class="settings-section-content active" id="settingsSection0">
+                    <!-- Income Slider with Validation -->
+                    <div class="settings-form-group">
+                        <label class="settings-form-label">🏦 What Flows In Monthly</label>
+                        <div class="income-slider-container">
+                            <input type="range" id="incomeSlider" class="settings-slider" min="1000" max="15000"
+                                step="100" value="3200">
+                            <div class="slider-value">
+                                <span id="incomeSliderValue">$3,200</span>
+                                <span class="daily-flow-preview" id="dailyFlowPreview">= $35/day</span>
+                            </div>
+                            <div class="slider-validation-feedback">
+                                <span class="slider-bounds">$1,000 - $15,000</span>
+                                <span class="slider-status valid" id="incomeSliderStatus">Valid range</span>
+                            </div>
+                        </div>
+                        <div class="validation-message" id="incomeValidationMessage">
+                            <span class="validation-icon">✓</span>
+                            <span class="validation-text">Valid income amount</span>
+                        </div>
+                    </div>
+
+                    <!-- Profile Selection with Validation -->
+                    <div class="settings-form-group">
+                        <label class="settings-form-label">🎯 Financial Style</label>
+                        <div class="profile-selection">
+                            <div class="profile-option" id="profile_starting_out"
+                                onclick="selectProfileWithValidation('starting_out')">
+                                <div class="profile-header">
+                                    <span class="profile-emoji">🌱</span>
+                                    <span class="profile-name">Starting Out</span>
+                                </div>
+                                <div class="profile-details">5% future, 40% freedom • $40/day</div>
+                                <div class="profile-description">Building the habit, keeping it simple</div>
+                            </div>
+
+                            <div class="profile-option selected valid" id="profile_getting_serious"
+                                onclick="selectProfileWithValidation('getting_serious')">
+                                <div class="profile-header">
+                                    <span class="profile-emoji">⚖️</span>
+                                    <span class="profile-name">Getting Serious</span>
+                                </div>
+                                <div class="profile-details">10% future, 35% freedom • $35/day</div>
+                                <div class="profile-description">Balanced growth, steady progress</div>
+                            </div>
+
+                            <div class="profile-option" id="profile_wealth_building"
+                                onclick="selectProfileWithValidation('wealth_building')">
+                                <div class="profile-header">
+                                    <span class="profile-emoji">🚀</span>
+                                    <span class="profile-name">Wealth Building</span>
+                                </div>
+                                <div class="profile-details">20% future, 25% freedom • $25/day</div>
+                                <div class="profile-description">Aggressive saving, maximum growth</div>
+                            </div>
+                        </div>
+                        <div class="validation-message success show" id="profileValidationMessage">
+                            <span class="validation-icon">✓</span>
+                            <span class="validation-text">Getting Serious profile selected</span>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Real-time Preview Card -->
+                    <div class="settings-preview-card">
+                        <div class="preview-title">💚 Your New Daily Flow</div>
+                        <div class="preview-amount" id="previewDailyFlow">$35/day</div>
+                        <div class="preview-breakdown">
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Foundation:</span>
+                                <span class="breakdown-amount" id="previewFoundation">$1,760</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Future:</span>
+                                <span class="breakdown-amount" id="previewFuture">$320</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">Freedom:</span>
+                                <span class="breakdown-amount" id="previewFreedom">$1,120</span>
+                            </div>
+                        </div>
+                        <div class="preview-note">Fine-tune allocations in Flow tab →</div>
+                    </div>
+                </div>
+
+                <!-- Section 2: App Experience -->
+                <div class="settings-section-content" id="settingsSection1">
+                    <!-- Essential Notifications -->
+                    <div class="settings-form-group">
+                        <label class="settings-form-label">🔔 Essential Notifications</label>
+                        <div class="toggle-group">
+                            <div class="toggle-item">
+                                <span class="toggle-label">Daily spending reminders</span>
+                                <div class="settings-toggle active" id="toggleDailyReminders"
+                                    onclick="toggleSetting('dailyReminders')">
+                                    <div class="settings-toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div class="toggle-item">
+                                <span class="toggle-label">Milestone celebrations</span>
+                                <div class="settings-toggle active" id="toggleAchievements"
+                                    onclick="toggleSetting('achievements')">
+                                    <div class="settings-toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div class="toggle-item">
+                                <span class="toggle-label">Flow warnings</span>
+                                <div class="settings-toggle active" id="toggleFlowWarnings"
+                                    onclick="toggleSetting('flowWarnings')">>
+                                    <div class="settings-toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Preferences -->
+                    <div class="settings-form-group">
+                        <label class="settings-form-label">🎨 App Preferences</label>
+                        <div class="toggle-group">
+                            <div class="toggle-item">
+                                <span class="toggle-label">Dark mode</span>
+                                <div class="settings-toggle active" id="toggleDarkMode"
+                                    onclick="toggleSetting('darkMode')">
+                                    <div class="settings-toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div class="toggle-item">
+                                <span class="toggle-label">Haptic feedback</span>
+                                <div class="settings-toggle active" id="toggleHapticFeedback"
+                                    onclick="toggleSetting('hapticFeedback')">
+                                    <div class="settings-toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div class="toggle-item">
+                                <span class="toggle-label">Reduced animations</span>
+                                <div class="settings-toggle" id="toggleReducedAnimations"
+                                    onclick="toggleSetting('reducedAnimations')">
+                                    <div class="settings-toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Export -->
+                    <div class="settings-form-group">
+                        <label class="settings-form-label">📤 Quick Export</label>
+                        <button class="settings-action-btn primary" onclick="exportTransactionsCSV()">
+                            Export Flow History (CSV)
+                        </button>
+                        <div class="export-description">Get your data for Excel or Google Sheets</div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Data Management -->
+                <div class="settings-section-content" id="settingsSection2">
+                    <div class="data-management-warning">
+                        <div class="warning-icon">⚠️</div>
+                        <div class="warning-text">Careful - these actions affect your data</div>
+                    </div>
+
+                    <!-- Clear Flow History with Enhanced Confirmation -->
+                    <div class="data-action-item">
+                        <button class="settings-action-btn secondary" onclick="clearAllTransactionsWithConfirmation()">
+                            Clear All Flow History
+                        </button>
+                        <div class="action-description">
+                            <div class="action-summary">Removes all flow history</div>
+                            <div class="action-details">• Keeps your flow settings<br>• Requires confirmation</div>
+                        </div>
+                    </div>
+
+                    <!-- Export Data with Progress -->
+                    <div class="data-action-item">
+                        <button class="settings-action-btn primary" onclick="exportTransactionsCSVWithProgress()">
+                            Export Flow Data
+                        </button>
+                        <div class="action-description export-description">
+                            <div class="action-summary">Download CSV file with all your flows</div>
+                            <div class="action-details">• Includes dates, amounts, categories<br>• Perfect for
+                                spreadsheet analysis</div>
+                        </div>
+                    </div>
+
+                    <!-- DEBUG: Diagnostic Button -->
+                    <div class="data-action-item">
+                        <button class="settings-action-btn primary" onclick="settingsDiagnostics().runAllTests()"
+                            style="background: #6366f1;">
+                            🔍 Run Settings Diagnostics
+                        </button>
+                        <div class="action-description">
+                            <div class="action-summary">Debug validation functions & CSS</div>
+                            <div class="action-details">• Check console for detailed results<br>• Helps identify
+                                interaction issues</div>
+                        </div>
+                    </div>
+
+                    <!-- Reset Budget with Enhanced Confirmation -->
+                    <div class="data-action-item">
+                        <button class="settings-action-btn secondary" onclick="resetBudgetDefaultsWithConfirmation()">
+                            Reset Flow to Defaults
+                        </button>
+                        <div class="action-description">
+                            <div class="action-summary">Income: $3,200 • Profile: Starting Out (5% save)</div>
+                            <div class="action-details">• Keeps your flow history<br>• Requires confirmation
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delete All Data with Double Confirmation -->
+                    <div class="data-action-item danger">
+                        <button class="settings-action-btn danger" onclick="deleteAllDataWithConfirmation()">
+                            Delete All Data
+                        </button>
+                        <div class="action-description">
+                            <div class="action-summary">⚠️ Removes EVERYTHING permanently</div>
+                            <div class="action-details">• All transactions, settings, progress<br>• Requires double
+                                confirmation</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apply/Cancel Actions -->
+            <div class="settings-actions">
+                <button class="btn-secondary" onclick="cancelSettingsChanges()">Never Mind</button>
+                <button class="btn-primary" onclick="applySettingsChanges()">Flow It</button>
+            </div>
+        </div>
+    </div>
+    <!-- ===== END WEEK 5 SETTINGS MODAL ===== -->
+
+    <!-- ===== MAIN APP CONTAINER (PRESERVED 100% FROM PHASE 2) ===== -->
+    <div class="app-container">
+        <!-- TAB 1: SPEND -->
+        <div class="tab-content active" id="daily-flow">
+            <div class="tab-header-container" style="position: relative;">
+                <h1 class="tab-main-title">
+                    Spend
+                </h1>
+                <p class="tab-subtitle">Spend guilt-free today ✨</p>
+
+                <!-- Education Icon (Week 3 Implementation) -->
+                <button class="education-icon-btn" onclick="openFlowEducation()" aria-label="Open Financial Education">
+                    <span class="education-icon">🎓</span>
+                    <span class="education-badge" id="educationProgressBadge">0/5</span>
+                </button>
+            </div>
+            <!-- Achievement Icons -->
+            <div class="achievement-icons">
+                <div class="achievement-icon mindful">
+                    <span>⚡</span>
+                </div>
+                <div class="achievement-icon flow-month">
+                    <span>🔥</span>
+                </div>
+                <div class="achievement-icon efficiency">
+                    <span>💰</span>
+                </div>
+            </div>
+
+            <div class="hero-section">
+                <div class="daily-flow-display" onclick="celebrateFlow()">
+                    <div class="daily-flow-label">Your Daily Flow</div>
+                    <div class="daily-flow-amount" id="dailyFlowAmount">$40</div>
+                    <div class="daily-flow-description">Spend guilt-free today ✨</div>
+                    
+                    <!-- ADD: Descriptive subtitle -->
+                    <div class="descriptive-subtitle">One number. Zero stress. Updates live with each purchase. No math required</div>
+                    
+                    <!-- Help icon in top-right corner -->
+                    <button class="help-icon" onclick="showEducationModal('daily-flow-philosophy')" aria-label="Learn about Daily Flow" style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
+                </div>
+            </div>
+
+            <!-- Enhanced Quick Add System -->
+            <div class="quick-add-section">
+                <div class="quick-add-header">
+                    <div class="quick-add-title">⚡ Quick Add</div>
+                    
+                    <button class="location-toggle" onclick="toggleLocationSuggestions()">📍 Near You</button>
+                </div>
+
+                <!-- Location Suggestions (Initially Hidden) -->
+                <div class="location-suggestions" id="locationSuggestions" style="display: none;">
+                    <div class="location-header">
+                        <span>📍</span>
+                        <span class="location-title">Recent & Nearby</span>
+                    </div>
+                    <div class="location-buttons">
+                        <button class="location-btn" onclick="quickLocationSpend(6, 'Starbucks')">
+                            ☕ Starbucks ~$6
+                        </button>
+                        <button class="location-btn" onclick="quickLocationSpend(45, 'Target')">
+                            🛒 Target ~$45
+                        </button>
+                        <button class="location-btn" onclick="quickLocationSpend(32, 'Safeway')">
+                            🥕 Safeway ~$32
+                        </button>
+                        <button class="location-btn" onclick="quickLocationSpend(18, 'AMC Theaters')">
+                            🎬 AMC ~$18
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Enhanced 6-Button Grid -->
+                <div class="quick-add-grid">
+                    <div class="quick-add-btn coffee" onclick="quickCategorySpend(5, 'Coffee')">
+                        <div class="quick-add-icon">☕</div>
+                        <div class="quick-add-label">Coffee</div>
+                        <div class="quick-add-price">~$5</div>
+                    </div>
+
+                    <div class="quick-add-btn food" onclick="quickCategorySpend(15, 'Food')">
+                        <div class="quick-add-icon">🍔</div>
+                        <div class="quick-add-label">Food</div>
+                        <div class="quick-add-price">~$15</div>
+                    </div>
+
+                    <div class="quick-add-btn transport" onclick="quickCategorySpend(10, 'Transport')">
+                        <div class="quick-add-icon">🚗</div>
+                        <div class="quick-add-label">Transport</div>
+                        <div class="quick-add-price">~$10</div>
+                    </div>
+
+                    <div class="quick-add-btn shopping" onclick="quickCategorySpend(30, 'Shopping')">
+                        <div class="quick-add-icon">🛒</div>
+                        <div class="quick-add-label">Shopping</div>
+                        <div class="quick-add-price">~$30</div>
+                    </div>
+
+                    <div class="quick-add-btn fun" onclick="quickCategorySpend(20, 'Fun')">
+                        <div class="quick-add-icon">🎉</div>
+                        <div class="quick-add-label">Fun</div>
+                        <div class="quick-add-price">~$20</div>
+                    </div>
+
+                    <div class="quick-add-btn oops" onclick="showOopsModal()">
+                        <div class="quick-add-icon">💳</div>
+                        <div class="quick-add-label">Oops</div>
+                        <div class="quick-add-price">Add missed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-purchases">
+                <div class="section-header">
+                    <h2 class="section-title">💚 Recent Guilt-Free Wins</h2>
+                    <span class="view-all" onclick="viewAllPurchases()">See all →</span>
+                </div>
+                <div id="recentPurchasesList">
+                    <!-- Dynamic transaction items -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 2: FLOW -->
+        <div class="tab-content" id="budget-health">
+            <div class="tab-header-container" style="position: relative;">
+                <h1 class="tab-main-title">Flow</h1>
+                <p class="tab-subtitle">Your money, clarified 🎯</p>
+
+                <!-- Settings Icon (Week 5 Implementation) -->
+                <button class="settings-icon-btn" onclick="openSettingsModal()" aria-label="Open Settings">
+                    <span class="settings-icon">⚙️</span>
+                </button>
+            </div>
+
+            <!-- Mastery Badges -->
+            <div class="mastery-badges">
+                <div class="mastery-badge budget-keeper">
+                    <span>🎯</span>
+                </div>
+                <div class="mastery-badge flow-master">
+                    <span>🌊</span>
+                </div>
+                <div class="mastery-badge wealth-builder">
+                    <span>💎</span>
+                </div>
+            </div>
+
+            <!-- Enhanced Income Display -->
+            <div class="income-overview">
+                <div class="income-label">Your Money Coming In</div>
+                <div class="income-display-container">
+                    <div class="income-amount" id="incomeAmount">
+                        $3,200
+                    </div>
+                    <!-- ADD: Income subtitle -->
+                    <div class="descriptive-subtitle">Everything flows from here into 3 buckets: Foundation, Future, Freedom</div>
+                </div>
+                <div class="income-period">Click to adjust your base ✨</div>
+                
+                <!-- Help icon in top-right corner -->
+                <button class="help-icon" onclick="showEducationModal('flow-method-philosophy')" aria-label="Learn about Flow Method" style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
+
+                <!-- Income Edit Modal (Hidden by default) -->
+                <div class="income-edit-overlay" id="incomeEditOverlay" style="display: none;">
+                    <div class="income-edit-modal">
+                        <div class="edit-header">
+                            <h3>Adjust Your Income</h3>
+                            <button class="close-edit" onclick="cancelIncomeEdit()">×</button>
+                        </div>
+                        <div class="edit-content">
+                            <div class="current-income">
+                                <span class="edit-label">Current: </span>
+                                <span class="current-amount" id="currentIncomeDisplay">$3,200</span>
+                            </div>
+                            <div class="input-group">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="newIncomeInput" class="income-input" placeholder="3200"
+                                    min="500" max="50000">
+                            </div>
+                            <div class="impact-preview" id="incomeImpactPreview">
+                                <div class="preview-item">
+                                    <span class="preview-label">Daily Freedom:</span>
+                                    <span class="preview-change" id="dailyFlowPreview">$40 → $40</span>
+                                </div>
+                                <div class="preview-item">
+                                    <span class="preview-label">Foundation:</span>
+                                    <span class="preview-change" id="foundationPreview">$1,760 → $1,760</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="edit-actions">
+                            <button class="btn-cancel" onclick="cancelIncomeEdit()">Cancel</button>
+                            <button class="btn-apply" onclick="applyIncomeChange()">Update Income</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="income-adjust-btn" onclick="startIncomeEdit()">
+                    <span class="adjust-icon">✏️</span>
+                    <span class="adjust-text">Tap to adjust</span>
+                </button>
+            </div>
+
+
+
+            <div class="categories-grid">
+                <div class="category-card foundation" onclick="showCategoryDetails('foundation')">
+                    <div class="category-header">
+                        <div class="category-title-group">
+                            <div class="category-emoji">🛡️</div>
+                            <div class="category-title">Foundation</div>
+                        </div>
+                        <div class="category-percentage" id="foundationPercentage">55%</div>
+                    </div>
+                    
+                    <div class="category-content">
+                        <div class="category-amounts">
+                            <div class="amount-used">$1,680 securing your foundation</div>
+                            <div class="amount-remaining">$80 cushion remaining</div>
+                        </div>
+                        <div class="category-subtitle">Building unshakeable confidence 💪</div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-fill foundation" id="foundationProgressFill" style="width: 95%"></div>
+                    </div>
+                    <div class="category-chevron">›</div>
+                </div>
+
+                <div class="category-card future" onclick="showCategoryDetails('future')">
+                    <div class="category-header">
+                        <div class="category-title-group">
+                            <div class="category-emoji">🌱</div>
+                            <div class="category-title">Future</div>
+                        </div>
+                        <div class="category-percentage" id="futurePercentage">5%</div>
+                    </div>
+                    
+                    <div class="category-content">
+                        <div class="category-amounts">
+                            <div class="amount-used">$160 building your dreams</div>
+                            <div class="amount-remaining">$0 on autopilot</div>
+                        </div>
+                        <div class="category-subtitle">Your future-you is going to love this 🚀</div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-fill future" id="futureProgressFill" style="width: 100%"></div>
+                    </div>
+                    <div class="category-chevron">›</div>
+                </div>
+
+                <div class="category-card freedom" onclick="showCategoryDetails('freedom')">
+                    <div class="category-header">
+                        <div class="category-title-group">
+                            <div class="category-emoji">💚</div>
+                            <div class="category-title">Freedom</div>
+                        </div>
+                        <div class="category-percentage" id="freedomPercentage">40%</div>
+                    </div>
+                    
+                    <div class="category-content">
+                        <div class="category-amounts">
+                            <div class="amount-used">$860 already flowed</div>
+                            <div class="amount-remaining">$420 ready for fun</div>
+                        </div>
+                        <div class="category-subtitle">Pure guilt-free spending power ✨</div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-fill freedom" id="freedomProgressFill" style="width: 67%"></div>
+                    </div>
+                    <div class="category-chevron">›</div>
+                </div>
+            </div>
+
+            <!-- Flow Profile Selector - Horizontal Layout -->
+            <div class="flow-profiles">
+                <div class="profiles-header">
+                    <h4>Quick Flow Profiles</h4>
+                    <p>Choose a preset or customize below</p>
+                </div>
+                <div class="profile-options">
+                    <button class="profile-option foundation-flow active" onclick="selectProfile('foundation')"
+                        data-profile="foundation">
+                        <span class="profile-icon">🛡️</span>
+                        <span class="profile-name">Foundation Flow</span>
+                        <span class="profile-split">55% • 5% • 40%</span>
+                    </button>
+                    <button class="profile-option growth-flow" onclick="selectProfile('growth')" data-profile="growth">
+                        <span class="profile-icon">🌱</span>
+                        <span class="profile-name">Growth Flow</span>
+                        <span class="profile-split">50% • 15% • 35%</span>
+                    </button>
+                    <button class="profile-option freedom-flow" onclick="selectProfile('freedom')"
+                        data-profile="freedom">
+                        <span class="profile-icon">💚</span>
+                        <span class="profile-name">Freedom Flow</span>
+                        <span class="profile-split">45% • 5% • 50%</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Enhanced Flow Customization Section -->
+            <div class="allocation-customizer" id="allocationCustomizer">
+                <div class="customization-header">
+                    <h3 class="customization-title">🎛️ Customize Your Allocations</h3>
+                    <!-- ADD: Customizer subtitle -->
+                    <div class="section-subtitle">Adjust to fit your life phase</div>
+                    <p class="customization-subtitle">Adjust allocations to match your goals</p>
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span class="slider-name">�️ Foundation</span>
+                        <span class="slider-value" id="foundationValue">55% • $1,760</span>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="range" class="custom-slider foundation" id="foundationSlider" min="30" max="80"
+                            value="55" step="1" oninput="handleSliderInput('foundation', this)"
+                            onmousedown="startSliderDrag('foundation', this)"
+                            onmouseup="endSliderDrag('foundation', this)"
+                            ontouchstart="startSliderDrag('foundation', this)"
+                            ontouchend="endSliderDrag('foundation', this)">
+                        <div class="slider-tooltip" id="foundationTooltip">55% • $1,760</div>
+                    </div>
+                    <div class="slider-description">Security first - builds confidence</div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span class="slider-name">🌱 Future</span>
+                        <span class="slider-value" id="futureValue">5% • $160</span>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="range" class="custom-slider future" id="futureSlider" min="0" max="30" value="5"
+                            step="1" oninput="handleSliderInput('future', this)" onmousedown="startSliderDrag('future', this)"
+                            onmouseup="endSliderDrag('future', this)" ontouchstart="startSliderDrag('future', this)"
+                            ontouchend="endSliderDrag('future', this)">
+                        <div class="slider-tooltip" id="futureTooltip">5% • $160</div>
+                    </div>
+                    <div class="slider-description">Builds automatically toward goals</div>
+                </div>
+
+                <div class="slider-group">
+                    <div class="slider-label">
+                        <span class="slider-name">💚 Freedom</span>
+                        <span class="slider-value" id="freedomValue">40% • $1,280</span>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="range" class="custom-slider freedom" id="freedomSlider" min="0" max="100"
+                            value="40" step="1" disabled
+                            title="Freedom percentage is automatically calculated">
+                        <div class="slider-tooltip" id="freedomTooltip">40% • $1,280</div>
+                    </div>
+                    <div class="slider-description">Spend guilt-free today</div>
+                </div>
+
+                <button class="reset-button" onclick="resetToProfileDefault()">
+                    ↺ Reset to Profile Default
+                </button>
+
+                <!-- Real-time Preview -->
+                <div class="allocation-preview" id="allocationPreview">
+                    <div class="preview-header">
+                        <span class="preview-label">Impact Preview</span>
+                        <span class="preview-daily-flow">Daily Freedom: $<span id="previewDailyFlow">40</span></span>
+                    </div>
+                    <div class="preview-message" id="previewMessage">
+                        Drag sliders to see how changes affect your daily flow
+                    </div>
+                </div>
+
+                <div class="flow-buttons">
+                    <button class="btn-flow-primary" onclick="applyAllocationChanges()">Update My Flow</button>
+                    <button class="btn-flow-secondary" onclick="resetToDefaultFlow()">Back to Foundation Flow</button>
+                </div>
+            </div>
+
+            <!-- STREAM 6: Goal Planning Section -->
+            <div class="goal-planning" id="goalPlanningSection">
+                <div class="goal-header">
+                    <div class="goal-title">Goal Planning</div>
+                    <button class="add-goal-btn">+ Add Goal</button>
+                </div>
+
+                <!-- Active Goal Example -->
+                <div class="active-goal">
+                    <div class="goal-info">
+                        <div class="goal-details">
+                            <h3>Europe Trip</h3>
+                            <div class="goal-timeline">Target: 8 months (March 2026)</div>
+                        </div>
+                        <div class="goal-amount">
+                            <div class="goal-target">$2,400</div>
+                            <div class="goal-progress-text">$840 saved (35%)</div>
+                        </div>
+                    </div>
+
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress-fill"></div>
+                    </div>
+
+                    <!-- Impact Preview -->
+                    <div class="goal-impact">
+                        <div class="impact-title">💡 Smart Suggestion</div>
+                        <div class="impact-suggestion">
+                            Boost Future to 15% → daily freedom drops $45 → $35, but you'll reach your goal 2 months
+                            earlier
+                        </div>
+                        <div class="impact-options">
+                            <button class="impact-option sounds-good" onclick="handleGoalChoice('accept')">Sounds
+                                good</button>
+                            <button class="impact-option adjust" onclick="handleGoalChoice('adjust')">Let me
+                                adjust</button>
+                            <button class="impact-option keep" onclick="handleGoalChoice('keep')">Keep current</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coming Soon Indicator -->
+                <div class="coming-soon-indicator">
+                    <span class="coming-soon-icon">🔮</span>
+                    <span class="coming-soon-text">Full goal planning coming in v5.0 • This preview shows what's
+                        possible</span>
+                </div>
+            </div>
+
+            <!-- DAY 17 ADDITION: Category Detail View -->
+            <div class="category-detail-view" id="categoryDetailView" style="display: none;">
+                <div class="detail-header">
+                    <button class="back-btn-glass" onclick="hideCategoryDetails()">← Back to Categories</button>
+                    <div class="detail-category-header">
+                        <span class="detail-emoji" id="detailEmoji">🏠</span>
+                        <h2 class="detail-title" id="detailTitle">Secure Expenses</h2>
+                    </div>
+                </div>
+
+                <div class="detail-summary-glass-card">
+                    <div class="summary-amount-display" id="detailAmount">$1,680 / $1,760</div>
+                    <div class="summary-percentage-text" id="detailPercentage">You're crushing it! 95.5% used</div>
+                </div>
+
+                <div class="transactions-section">
+                    <h3 class="transactions-title">Recent Activity</h3>
+                    <div class="transactions-list" id="transactionsList">
+                        <!-- Transaction items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: BUILD -->
+        <div class="tab-content" id="your-journey">
+            <!-- Tab Header -->
+            <div class="growth-tab-header">
+                <h1 class="growth-tab-title">Build</h1>
+                <p class="growth-tab-subtitle">Real progress toward financial freedom 🚀</p>
+                <!-- ADD: Build subtitle -->
+                <div class="section-subtitle">Real progress across three areas</div>
+            </div>
+
+            <!-- Growth Story Hero -->
+            <div class="growth-story-hero">
+                <div class="growth-hero-content">
+                    <h2 class="growth-title" style="position: relative;">
+                        <div style="text-align: center;">Build Wealth</div>
+                        <div style="text-align: center;">Warrior</div>
+                        
+                        <!-- Help icon aligned with "Build Wealth" line -->
+                        <button class="help-icon" onclick="showEducationModal('growth-story-philosophy')" aria-label="Learn about Growth Story" style="position: absolute; top: 0; right: 0; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
+                    </h2>
+                    <p class="growth-subtitle">Real progress across three areas of your money life</p>
+
+                    <div class="milestone-progress-hero">
+                        <div class="milestone-info" id="heroMilestoneInfo">
+                            $<span id="totalBuiltAmount">347</span> built • $<span id="nextMilestoneAmount">153</span>
+                            from
+                            your next meaningful milestone
+                        </div>
+                        <div class="milestone-bar">
+                            <div class="milestone-fill" id="milestoneProgressFill" style="width: 70%"></div>
+                        </div>
+                        <div class="milestone-encouragement" id="milestoneEncouragement">
+                            You're <span id="milestoneProgressPercent">70</span>% to something that changes everything
+                            🔥
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Money Timeline -->
+            <div class="money-timeline">
+                <h3 class="timeline-title">Your Money Timeline</h3>
+                <p class="timeline-subtitle">Each milestone represents real financial security</p>
+
+                <div class="timeline-track">
+                    <div class="milestone-marker completed">
+                        <div class="marker-circle">✓</div>
+                        <div class="marker-label">$100<br>Foundation</div>
+                    </div>
+                    <div class="milestone-marker completed">
+                        <div class="marker-circle">✓</div>
+                        <div class="marker-label">$250<br>Cushion</div>
+                    </div>
+                    <div class="milestone-marker current">
+                        <div class="marker-circle">$500</div>
+                        <div class="marker-label">$500<br>Security</div>
+                    </div>
+                    <div class="milestone-marker future">
+                        <div class="marker-circle">$1K</div>
+                        <div class="marker-label">$1,000<br>Freedom</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Achievements Section -->
+            <div class="achievements-section">
+                <h2>💚 What You're Building</h2>
+                <p class="descriptive-subtitle">Real progress that builds financial confidence</p>
+                <!-- ADD: Achievement subtitle -->
+                <div class="section-subtitle">Real progress across three areas of your money life</div>
+            </div>
+
+            <!-- Growth Areas -->
+            <div class="growth-areas">
+                <!-- Smart Choices Area -->
+                <div class="growth-area smart-choices">
+                    <div class="area-header">
+                        <div class="area-info">
+                            <div class="area-icon">🧠</div>
+                            <div class="area-details">
+                                <h3>Smart Choices</h3>
+                                <p class="descriptive-subtitle">Building mindful spending habits</p>
+                            </div>
+                        </div>
+                        <div class="growth-progress-ring">
+                            <svg class="progress-circle" viewBox="0 0 42 42">
+                                <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
+                                <circle cx="21" cy="21" r="18" class="progress-fill smart-choices-progress"
+                                    style="stroke-dasharray: 113; stroke-dashoffset: 34;"></circle>
+                            </svg>
+                            <div class="progress-text">75%</div>
+                        </div>
+                        <div class="growth-indicator" id="smartChoicesIndicator">Building habits</div>
+                    </div>
+
+                    <div class="building-moments">
+                        <div class="building-moment">
+                            <div class="moment-info">
+                                <div class="moment-status">🌱</div>
+                                <div class="moment-details">
+                                    <div class="moment-name">Mindful Week</div>
+                                    <div class="moment-context">5/7 days • 2 more mindful days</div>
+                                </div>
+                            </div>
+                            <div class="moment-impact">Building discipline</div>
+                        </div>
+
+                        <div class="building-moment">
+                            <div class="moment-info">
+                                <div class="moment-status">✅</div>
+                                <div class="moment-details">
+                                    <div class="moment-name">Thoughtful Spending</div>
+                                    <div class="moment-context">Built July 15th</div>
+                                </div>
+                            </div>
+                            <div class="moment-impact">Habit formed</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flow Mastery Area -->
+                <div class="growth-area flow-mastery">
+                    <div class="area-header">
+                        <div class="area-info">
+                            <div class="area-icon">🎯</div>
+                            <div class="area-details">
+                                <h3>Flow Mastery</h3>
+                                <p class="descriptive-subtitle">Mastering your Flow Method allocation</p>
+                                <div class="area-summary">18 consecutive days in flow</div>
+                            </div>
+                        </div>
+                        <div class="growth-progress-ring">
+                            <svg class="progress-circle" viewBox="0 0 42 42">
+                                <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
+                                <circle cx="21" cy="21" r="18" class="progress-fill flow-mastery-progress"
+                                    style="stroke-dasharray: 113; stroke-dashoffset: 45;"></circle>
+                            </svg>
+                            <div class="progress-text">60%</div>
+                        </div>
+                        <div class="growth-indicator" id="flowMasteryIndicator">18-day streak</div>
+                    </div>
+
+                    <div class="building-moments">
+                        <div class="building-moment">
+                            <div class="moment-info">
+                                <div class="moment-status">🔥</div>
+                                <div class="moment-details">
+                                    <div class="moment-name">Flow Month</div>
+                                    <div class="moment-context">18 days of staying in flow</div>
+                                </div>
+                            </div>
+                            <div class="moment-impact">Momentum building</div>
+                        </div>
+
+                        <div class="building-moment">
+                            <div class="moment-info">
+                                <div class="moment-status">✅</div>
+                                <div class="moment-details">
+                                    <div class="moment-name">Daily Rhythm</div>
+                                    <div class="moment-context">Built July 8th</div>
+                                </div>
+                            </div>
+                            <div class="moment-impact">Foundation set</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real Money Built Area -->
+                <div class="growth-area real-money">
+                    <div class="area-header">
+                        <div class="area-info">
+                            <div class="area-icon">💰</div>
+                            <div class="area-details">
+                                <h3>Real Money Built</h3>
+                                <p class="descriptive-subtitle">Actual dollars toward financial freedom</p>
+                                <div class="area-summary" id="realMoneyBuiltSummary">$347 built while living your life
+                                </div>
+                            </div>
+                        </div>
+                        <div class="growth-progress-ring">
+                            <svg class="progress-circle" viewBox="0 0 42 42">
+                                <circle cx="21" cy="21" r="18" class="progress-bg"></circle>
+                                <circle cx="21" cy="21" r="18" class="progress-fill real-money-progress"
+                                    style="stroke-dasharray: 113; stroke-dashoffset: 22;"></circle>
+                            </svg>
+                            <div class="progress-text">80%</div>
+                        </div>
+                        <div class="growth-indicator" id="realMoneyIndicator">$347 built</div>
+                    </div>
+
+                    <div class="building-moments">
+                        <div class="building-moment">
+                            <div class="moment-info">
+                                <div class="moment-status">🎯</div>
+                                <div class="moment-details">
+                                    <div class="moment-name">Security Milestone</div>
+                                    <div class="moment-context">$153 from $500 security</div>
+                                </div>
+                            </div>
+                            <div class="moment-impact">Changes everything</div>
+                        </div>
+
+                        <div class="building-moment">
+                            <div class="moment-info">
+                                <div class="moment-status">✅</div>
+                                <div class="moment-details">
+                                    <div class="moment-name">Foundation Built</div>
+                                    <div class="moment-context">Built June 12th</div>
+                                </div>
+                            </div>
+                            <div class="moment-impact">First step done</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Milestone Focus -->
+            <div class="next-milestone">
+                <div class="milestone-header">
+                    <h3>Next Milestone: Security</h3>
+                    <div class="milestone-amount">$500</div>
+                </div>
+                <div class="milestone-description">
+                    This milestone changes how you feel about money. Real security starts here.
+                </div>
+                <div class="milestone-options">
+                    <div class="milestone-option">
+                        <div class="option-icon">🏃‍♂️</div>
+                        <div class="option-details">
+                            <div class="option-name">Quick Wins</div>
+                            <div class="option-description">Two mindful days + $153 more</div>
+                        </div>
+                    </div>
+                    <div class="milestone-option">
+                        <div class="option-icon">🎯</div>
+                        <div class="option-details">
+                            <div class="option-name">Consistency</div>
+                            <div class="option-description">Flow Month builds strongest foundation</div>
+                        </div>
+                    </div>
+                    <div class="milestone-option">
+                        <div class="option-icon">⚖️</div>
+                        <div class="option-details">
+                            <div class="option-name">Steady Growth</div>
+                            <div class="option-description">Balanced progress across all areas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Multiple Paths Forward -->
+            <div class="paths-forward">
+                <h3 class="paths-title">Multiple Paths to Your Next Milestone</h3>
+                <p class="paths-subtitle">Choose the strategy that fits your style and timeline</p>
+
+                <div class="strategy-cards">
+                    <div class="strategy-card quick-wins">
+                        <div class="strategy-header">
+                            <div class="strategy-icon">⚡</div>
+                            <div class="strategy-info">
+                                <h4>Quick Wins</h4>
+                                <p class="strategy-timeline">2-3 weeks</p>
+                            </div>
+                        </div>
+                        <div class="strategy-content">
+                            <p class="strategy-description">Two mindful days + saving $153 more</p>
+                            <div class="strategy-actions">
+                                <span class="action-item">• Skip 3 coffee shop visits</span>
+                                <span class="action-item">• One mindful weekend</span>
+                            </div>
+                        </div>
+                        <button class="strategy-btn" onclick="selectStrategy('quick-wins')">Choose Quick Wins</button>
+                    </div>
+
+                    <div class="strategy-card consistency">
+                        <div class="strategy-header">
+                            <div class="strategy-icon">🎯</div>
+                            <div class="strategy-info">
+                                <h4>Consistency</h4>
+                                <p class="strategy-timeline">1-2 months</p>
+                            </div>
+                        </div>
+                        <div class="strategy-content">
+                            <p class="strategy-description">Flow Month completion builds strongest habits</p>
+                            <div class="strategy-actions">
+                                <span class="action-item">• 7 more mindful days</span>
+                                <span class="action-item">• Steady flow progress</span>
+                            </div>
+                        </div>
+                        <button class="strategy-btn" onclick="selectStrategy('consistency')">Choose Consistency</button>
+                    </div>
+
+                    <div class="strategy-card steady-growth">
+                        <div class="strategy-header">
+                            <div class="strategy-icon">📈</div>
+                            <div class="strategy-info">
+                                <h4>Steady Growth</h4>
+                                <p class="strategy-timeline">2-3 months</p>
+                            </div>
+                        </div>
+                        <div class="strategy-content">
+                            <p class="strategy-description">Balanced progress across all growth areas</p>
+                            <div class="strategy-actions">
+                                <span class="action-item">• Equal focus on all areas</span>
+                                <span class="action-item">• Sustainable pace</span>
+                            </div>
+                        </div>
+                        <button class="strategy-btn" onclick="selectStrategy('steady-growth')">Choose Steady
+                            Growth</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Future Vision -->
+            <div class="future-vision">
+                <div class="vision-header">
+                    <h3 class="vision-title">Your Financial Future</h3>
+                    <p class="vision-subtitle">Based on your current building momentum</p>
+                </div>
+
+                <div class="vision-cards">
+                    <div class="vision-card six-months">
+                        <div class="vision-timeframe">6 Months</div>
+                        <div class="vision-amount">$<span id="sixMonthProjection">1,247</span></div>
+                        <div class="vision-description">Real emergency cushion</div>
+                    </div>
+
+                    <div class="vision-card one-year">
+                        <div class="vision-timeframe">1 Year</div>
+                        <div class="vision-amount">$<span id="oneYearProjection">2,890</span></div>
+                        <div class="vision-description">Life options opening up</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DAY 17 ADDITION: Category Detail Overlay -->
+    <div class="category-detail-overlay hidden" id="categoryDetailOverlay">
+        <div class="detail-container">
+            <div class="detail-header">
+                <button class="detail-back-btn" onclick="hideCategoryDetails()">←</button>
+                <div class="detail-category-info">
+                    <span class="detail-emoji" id="detailEmoji">🏠</span>
+                    <h2 class="detail-title" id="detailTitle">Secure Expenses</h2>
+                </div>
+            </div>
+
+            <div class="detail-summary-card">
+                <div class="summary-amount" id="detailAmount">$1,680 / $1,760</div>
+                <div class="summary-message" id="detailMessage">You're crushing it! 95.5% used ✨</div>
+            </div>
+
+            <div class="transactions-section">
+                <h3 class="transactions-header">Recent Activity</h3>
+                <div class="transactions-list" id="transactionsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DAY 27 TESTING PANEL ===== -->
+    <div class="testing-panel hidden" id="testingPanel">
+        <div class="testing-header">
+            <h3>🧪 Day 27 Testing Panel</h3>
+            <button class="close-testing" onclick="hideTestingPanel()">×</button>
+        </div>
+
+        <div class="testing-section">
+            <h4>📅 Date Simulation</h4>
+            <div class="date-controls">
+                <label>Set Current Month:</label>
+                <select id="monthSelect">
+                    <option value="2025-06">June 2025</option>
+                    <option value="2025-07" selected>July 2025</option>
+                    <option value="2025-08">August 2025</option>
+                </select>
+                <button class="test-btn" onclick="simulateMonth()">Apply Month</button>
+            </div>
+        </div>
+
+        <div class="testing-section">
+            <h4>🔄 Period Transition Tests</h4>
+            <button class="test-btn" onclick="testPeriodDetection()">Test Period Detection</button>
+            <button class="test-btn" onclick="testCarryoverCalculation()">Test Carryover Calc</button>
+            <button class="test-btn" onclick="testFullTransition()">Test Full Transition</button>
+            <div class="test-results" id="testResults"></div>
+        </div>
+
+        <div class="testing-section">
+            <h4>💰 Current State</h4>
+            <div class="state-display" id="stateDisplay">
+                <div>Monthly Income: $<span id="displayIncome">3200</span></div>
+                <div>Daily Flow: $<span id="displayDailyFlow">40</span></div>
+                <div>Current Period: <span id="displayPeriod">2025-07</span></div>
+                <div>Spend Used: $<span id="displaySpendUsed">0</span></div>
+            </div>
+        </div>
+
+        <div class="testing-section">
+            <h4>🎮 Quick Actions</h4>
+            <button class="test-btn" onclick="simulateUsage()">Simulate Month Usage</button>
+            <button class="test-btn" onclick="resetToDefaults()">Reset to Defaults</button>
+            <button class="test-btn" onclick="showSavedData()">Show Saved Data</button>
+        </div>
+    </div>
+
+    <!-- Testing Panel Toggle Button -->
+    <button class="testing-toggle" id="testingToggle" onclick="toggleTestingPanel()">
+        🧪 Test Day 27
+    </button>
+    </div>
+
+    <!-- 3-TAB BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" onclick="switchTab('daily-flow')">
+            <span class="nav-icon">💚</span>
+            <span class="nav-label">Spend</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchTab('budget-health')">
+            <span class="nav-icon">🎯</span>
+            <span class="nav-label">Flow</span>
+        </a>
+        <a href="#" class="nav-item" onclick="switchTab('your-journey')">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Build</span>
+        </a>
+    </nav>
+
+    <!-- ===== DAY 33 ADDITION: Calculation Transparency Modal ===== -->
+    <div class="modal-overlay" id="calculationModalOverlay" onclick="closeCalculationModal()">
+        <div class="modal calculation-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>📊 How We Calculate Your Daily Flow</h3>
+                <button class="modal-close" onclick="closeCalculationModal()">×</button>
+            </div>
+
+            <div class="calculation-content">
+                <div class="calculation-intro">
+                    <div class="intro-text">Here's how we calculate your guilt-free daily spending amount:</div>
+                    <div class="intro-tip">💡 Click on any step to learn more!</div>
+                </div>
+
+                <div class="calculation-flow">
+                    <!-- Step 1: Income -->
+                    <div class="calculation-step interactive-step" onclick="toggleStepEducation('step1')">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Start with Your Monthly Income
+                                <span class="education-indicator">📚</span>
+                            </div>
+                            <div class="step-amount" id="calcIncomeAmount">$3,200</div>
+                            <div class="step-description">The money you earn each month</div>
+                        </div>
+                        <div class="step-visual">
+                            <div class="money-bag">💰</div>
+                        </div>
+                    </div>
+
+                    <!-- Educational Content for Step 1 -->
+                    <div class="step-education" id="step1-education">
+                        <div class="education-content">
+                            <h4>💰 Understanding Your Income Base</h4>
+                            <p><strong>Why start here?</strong> Your income is the foundation of all financial planning.
+                                It determines what's possible with your budget.</p>
+                            <div class="education-tips">
+                                <div class="tip-item">
+                                    <span class="tip-icon">💡</span>
+                                    <span>Include all sources: salary, freelance, side hustles</span>
+                                </div>
+                                <div class="tip-item">
+                                    <span class="tip-icon">📊</span>
+                                    <span>Use your net income (after taxes) for accuracy</span>
+                                </div>
+                                <div class="tip-item">
+                                    <span class="tip-icon">🔄</span>
+                                    <span>Update monthly if your income varies</span>
+                                </div>
+                            </div>
+                            <div class="personalized-insight">
+                                <button class="insight-btn" onclick="showPersonalizedTip('income')">
+                                    Get personalized income tip 🎯
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calculation-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-text">subtract</div>
+                        <div class="arrow-head">⬇️</div>
+                    </div>
+
+                    <!-- Step 2: Allocations -->
+                    <div class="calculation-step interactive-step" onclick="toggleStepEducation('step2')">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Subtract Your Smart Allocations
+                                <span class="education-indicator">📚</span>
+                            </div>
+                            <div class="step-breakdown">
+                                <div class="breakdown-item secure-item">
+                                    <div class="breakdown-icon">🏠</div>
+                                    <div class="breakdown-details">
+                                        <span class="breakdown-label">Secure (<span
+                                                id="calcSecurePercent">55</span>%)</span>
+                                        <span class="breakdown-amount" id="calcSecureAmount">$1,760</span>
+                                    </div>
+                                </div>
+                                <div class="breakdown-item save-item">
+                                    <div class="breakdown-icon">💰</div>
+                                    <div class="breakdown-details">
+                                        <span class="breakdown-label">Save (<span id="calcSavePercent">5</span>%)</span>
+                                        <span class="breakdown-amount" id="calcSaveAmount">$160</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="remaining-amount">
+                                <span class="remaining-label">Remaining for spending:</span>
+                                <span class="remaining-value" id="calcSpendAmount">$1,280</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Educational Content for Step 2 -->
+                    <div class="step-education" id="step2-education">
+                        <div class="education-content">
+                            <h4>🏠 The Power of Smart Allocations</h4>
+                            <p><strong>Why allocate first?</strong> By setting aside money for essentials and savings
+                                before spending, you ensure financial security and build wealth automatically.</p>
+
+                            <div class="allocation-breakdown">
+                                <div class="allocation-item">
+                                    <div class="allocation-header">
+                                        <span class="allocation-icon">🏠</span>
+                                        <strong>Secure (55%)</strong>
+                                    </div>
+                                    <p>Rent, utilities, groceries, insurance, minimum debt payments</p>
+                                    <div class="allocation-tip">💡 These keep you safe and stable</div>
+                                </div>
+
+                                <div class="allocation-item">
+                                    <div class="allocation-header">
+                                        <span class="allocation-icon">💰</span>
+                                        <strong>Save (5%)</strong>
+                                    </div>
+                                    <p>Emergency fund, future goals, wealth building</p>
+                                    <div class="allocation-tip">💡 Your future self will thank you</div>
+                                </div>
+                            </div>
+
+                            <div class="personalized-insight">
+                                <button class="insight-btn" onclick="showCustomAllocation()">
+                                    Customize your allocations 🎛️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calculation-arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-text">divide by</div>
+                        <div class="arrow-head">⬇️</div>
+                    </div>
+
+                    <!-- Step 3: Daily Division -->
+                    <div class="calculation-step interactive-step" onclick="toggleStepEducation('step3')">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Divide by Days Remaining
+                                <span class="education-indicator">📚</span>
+                            </div>
+                            <div class="step-formula">
+                                <span class="formula-amount" id="calcSpendAmountFormula">$1,280</span>
+                                <span class="formula-operator">÷</span>
+                                <span class="formula-days" id="calcDaysRemaining">32</span>
+                                <span class="formula-text">days left this month</span>
+                            </div>
+                            <div class="step-description">Spread evenly across remaining days</div>
+                        </div>
+                        <div class="step-visual">
+                            <div class="calendar">📅</div>
+                        </div>
+                    </div>
+
+                    <!-- Educational Content for Step 3 -->
+                    <div class="step-education" id="step3-education">
+                        <div class="education-content">
+                            <h4>📅 Smart Daily Budgeting</h4>
+                            <p><strong>Why daily amounts?</strong> Breaking your budget into daily chunks makes it
+                                easier to track and stay on course, while giving you flexibility day-to-day.</p>
+
+                            <div class="daily-benefits">
+
+                                <!-- Wealth Milestone Hero Section -->
+                                <div class="wealth-progression-hero glass-card">
+                                    <div class="current-wealth-display">
+                                        <div class="wealth-amount" id="currentWealthAmount">$0</div>
+                                        <div class="wealth-label">Total Wealth Built</div>
+                                    </div>
+                                    <div class="next-milestone">
+                                        <div class="milestone-progress" id="nextMilestoneProgressText">0% to Next
+                                            Milestone</div>
+                                        <div class="milestone-progress-bar">
+                                            <div class="progress-fill" id="nextMilestoneProgressBar" style="width: 0%">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="wealth-milestone-badges" id="wealthMilestoneBadges">
+                                        <!-- 8-tier milestone badges will be rendered here -->
+                                    </div>
+                                </div>
+
+                                <!-- Engagement Badges Gallery -->
+                                <div class="engagement-badges glass-card">
+                                    <div class="badge-category" data-category="spending-efficiency">
+                                        <h3>Smart Choices</h3>
+                                        <div class="badge-grid" id="spendingEfficiencyBadges">
+                                            <!-- Frugal Week, Minimal Spender, Zero Spend Hero -->
+                                        </div>
+                                    </div>
+                                    <div class="badge-category" data-category="budget-mastery">
+                                        <h3>Flow Mastery</h3>
+                                        <div class="badge-grid" id="budgetMasteryBadges">
+                                            <!-- Budget Keeper, Flow Master, Perfect Month -->
+                                        </div>
+                                    </div>
+                                    <div class="badge-category" data-category="wealth-acceleration">
+                                        <h3>Real Money Built</h3>
+                                        <div class="badge-grid" id="wealthAccelerationBadges">
+                                            <!-- Wealth Builder, Savings Surge, Compound Champion -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="arrow-head">⬇️</div>
+                            </div>
+
+                            <!-- Final Result -->
+                            <div class="calculation-result">
+                                <div class="result-celebration">🎉</div>
+                                <div class="result-title">Your Daily Flow</div>
+                                <div class="result-amount" id="calcDailyFlow">$40</div>
+                                <div class="result-description">Guilt-free spending money for today!</div>
+                                <div class="result-note">This amount updates automatically as you spend 💚</div>
+
+                                <!-- Result Actions -->
+                                <div class="result-actions">
+                                    <button class="action-btn primary" onclick="showPersonalizedTip('celebration')">
+                                        🎯 Get spending tips
+                                    </button>
+                                    <button class="action-btn secondary" onclick="showCustomAllocation()">
+                                        ⚙️ Adjust allocations
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personalized Tip Modal -->
+                        <div class="tip-modal" id="personalizedTipModal">
+                            <div class="tip-modal-content">
+                                <div class="tip-modal-header">
+                                    <h4 id="tipModalTitle">Personalized Tip</h4>
+                                    <button class="tip-close" onclick="hidePersonalizedTip()">×</button>
+                                </div>
+                                <div class="tip-modal-body" id="tipModalBody">
+                                    <!-- Dynamic content -->
+                                </div>
+                                <div class="tip-modal-footer">
+                                    <button class="tip-btn" onclick="hidePersonalizedTip()">Got it! 👍</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script src="flow_app_v4.1.js"></script>
+            
+            <!-- SLIDER FIX: Re-bind event handlers with JavaScript -->
+            <script>
+                // Wait for DOM to load, then fix slider event handlers
+                setTimeout(() => {
+                    const foundationSlider = document.getElementById('foundationSlider');
+                    const futureSlider = document.getElementById('futureSlider');
+                    const freedomSlider = document.getElementById('freedomSlider');
+                    
+                    // Force sliders to be fully interactive
+                    [foundationSlider, futureSlider, freedomSlider].forEach(slider => {
+                        if (slider) {
+                            slider.style.pointerEvents = 'auto';
+                            slider.style.zIndex = '1000';
+                            slider.style.position = 'relative';
+                            slider.style.touchAction = 'none'; // Prevent scrolling during touch
+                            
+                            // Make Freedom slider appear read-only
+                            if (slider.id === 'freedomSlider') {
+                                slider.style.opacity = '0.7';
+                                slider.style.cursor = 'not-allowed';
+                                slider.title = 'Freedom percentage is automatically calculated from Foundation and Future';
+                            }
+                            
+                            // Add manual drag handling
+                            let isDragging = false;
+                            let startX = 0;
+                            let startValue = 0;
+                            
+                            slider.addEventListener('touchstart', function(e) {
+                                // Prevent dragging Freedom slider directly
+                                if (this.id === 'freedomSlider') {
+                                    console.log('🚫 Freedom slider is read-only - use Foundation or Future sliders to adjust');
+                                    e.preventDefault();
+                                    return;
+                                }
+                                
+                                isDragging = true;
+                                startX = e.touches[0].clientX;
+                                startValue = parseInt(this.value);
+                                e.preventDefault();
+                            });
+                            
+                            slider.addEventListener('touchmove', function(e) {
+                                if (!isDragging) return;
+                                
+                                // Prevent dragging Freedom slider directly
+                                if (this.id === 'freedomSlider') {
+                                    console.log('🚫 Freedom slider cannot be dragged directly');
+                                    e.preventDefault();
+                                    return;
+                                }
+                                
+                                const rect = this.getBoundingClientRect();
+                                const currentX = e.touches[0].clientX;
+                                const deltaX = currentX - startX;
+                                const sliderWidth = rect.width;
+                                const range = this.max - this.min;
+                                
+                                // Calculate new value based on drag distance
+                                const deltaValue = (deltaX / sliderWidth) * range;
+                                let newValue = startValue + deltaValue;
+                                
+                                // Clamp to min/max
+                                newValue = Math.max(this.min, Math.min(this.max, Math.round(newValue)));
+                                
+                                // Apply slider business rules and auto-adjust others
+                                const foundationSlider = document.getElementById('foundationSlider');
+                                const futureSlider = document.getElementById('futureSlider');
+                                const freedomSlider = document.getElementById('freedomSlider');
+                                
+                                let foundation = parseInt(foundationSlider.value);
+                                let future = parseInt(futureSlider.value);
+                                let freedom = parseInt(freedomSlider.value);
+                                
+                                // Update the slider being dragged
+                                if (this.id === 'foundationSlider') {
+                                    foundation = newValue;
+                                    // Auto-adjust freedom, keep future unchanged
+                                    freedom = 100 - foundation - future;
+                                    // Ensure freedom stays within bounds (10-60)
+                                    if (freedom < 10) {
+                                        freedom = 10;
+                                        foundation = 100 - future - freedom;
+                                    } else if (freedom > 60) {
+                                        freedom = 60;
+                                        foundation = 100 - future - freedom;
+                                    }
+                                } else if (this.id === 'futureSlider') {
+                                    future = newValue;
+                                    // Auto-adjust freedom, keep foundation unchanged
+                                    freedom = 100 - foundation - future;
+                                    // Ensure freedom stays within bounds (10-60)
+                                    if (freedom < 10) {
+                                        freedom = 10;
+                                        future = 100 - foundation - freedom;
+                                    } else if (freedom > 60) {
+                                        freedom = 60;
+                                        future = 100 - foundation - freedom;
+                                    }
+                                }
+                                
+                                // Update all slider values
+                                foundationSlider.value = foundation;
+                                foundationSlider.setAttribute('value', foundation);
+                                futureSlider.value = future;
+                                futureSlider.setAttribute('value', future);
+                                freedomSlider.value = freedom;
+                                freedomSlider.setAttribute('value', freedom);
+                                
+                                // CRITICAL: Update allocationState to match slider values
+                                if (typeof allocationState !== 'undefined') {
+                                    allocationState.foundation = foundation;
+                                    allocationState.future = future;
+                                    allocationState.freedom = freedom;
+                                }
+                                
+                                // UPDATE IMPACT PREVIEW ONLY (not category cards - they update on "Update My Flow")
+                                if (typeof updatePreview === 'function') {
+                                    updatePreview();
+                                } else {
+                                    // Fallback: Manual Impact Preview update
+                                    const previewDailyFlow = document.getElementById('previewDailyFlow');
+                                    if (previewDailyFlow) {
+                                        const income = window.appState?.monthlyIncome || 3200;
+                                        const freedomAmount = Math.round(income * freedom / 100);
+                                        const dailyFreedom = Math.round(freedomAmount / 30); // Approximate daily flow
+                                        previewDailyFlow.textContent = dailyFreedom;
+                                    }
+                                }
+                                
+                                // Trigger input event on the slider being dragged
+                                const inputEvent = new Event('input', { bubbles: true });
+                                this.dispatchEvent(inputEvent);
+                                
+                                e.preventDefault();
+                            });
+                            
+                            slider.addEventListener('touchend', function(e) {
+                                if (isDragging) {
+                                    isDragging = false;
+                                    
+                                    // Trigger change event
+                                    const changeEvent = new Event('change', { bubbles: true });
+                                    this.dispatchEvent(changeEvent);
+                                }
+                                e.preventDefault();
+                            });
+                        }
+                    });
+                    
+                    // Foundation slider
+                    if (foundationSlider && typeof handleSliderInput !== 'undefined') {
+                        foundationSlider.oninput = null;
+                        foundationSlider.onchange = null;
+                        
+                        foundationSlider.addEventListener('input', function(e) {
+                            // Force value sync before processing
+                            this.setAttribute('value', this.value);
+                            handleSliderInput('foundation', this);
+                        });
+                        foundationSlider.addEventListener('change', function(e) {
+                            this.setAttribute('value', this.value);
+                            handleSliderInput('foundation', this);
+                        });
+                        foundationSlider.addEventListener('mouseup', function(e) {
+                            this.setAttribute('value', this.value);
+                            handleSliderInput('foundation', this);
+                        });
+                        foundationSlider.addEventListener('touchend', function(e) {
+                            this.setAttribute('value', this.value);
+                            console.log('Foundation slider TOUCHEND event fired!', this.value);
+                            handleSliderInput('foundation', this);
+                        });
+                    }
+                    
+                    // Future slider
+                    if (futureSlider && typeof handleSliderInput !== 'undefined') {
+                        futureSlider.oninput = null;
+                        futureSlider.onchange = null;
+                        
+                        futureSlider.addEventListener('input', function(e) {
+                            this.setAttribute('value', this.value);
+                            console.log('Future INPUT event - value changed to:', this.value);
+                            handleSliderInput('future', this);
+                        });
+                        futureSlider.addEventListener('change', function(e) {
+                            this.setAttribute('value', this.value);
+                            console.log('Future CHANGE event - value changed to:', this.value);
+                            handleSliderInput('future', this);
+                        });
+                        futureSlider.addEventListener('mouseup', function(e) {
+                            this.setAttribute('value', this.value);
+                            console.log('Future MOUSEUP event - value changed to:', this.value);
+                            handleSliderInput('future', this);
+                        });
+                        futureSlider.addEventListener('touchend', function(e) {
+                            this.setAttribute('value', this.value);
+                            console.log('Future slider TOUCHEND event fired!', this.value);
+                            handleSliderInput('future', this);
+                        });
+                        
+                        // Track slider movement events
+                        futureSlider.addEventListener('touchmove', function(e) {
+                            // Touch move tracking for UI responsiveness
+                        });
+                        futureSlider.addEventListener('mousemove', function(e) {
+                            if (e.buttons === 1) { // Left mouse button pressed
+                                // Mouse move tracking for UI responsiveness
+                            }
+                        });
+                    }
+                    
+                    // Freedom slider
+                    if (freedomSlider && typeof handleSliderInput !== 'undefined') {
+                        freedomSlider.oninput = null;
+                        freedomSlider.onchange = null;
+                        
+                        freedomSlider.addEventListener('input', function(e) {
+                            this.setAttribute('value', this.value);
+                            handleSliderInput('freedom', this);
+                        });
+                        freedomSlider.addEventListener('change', function(e) {
+                            this.setAttribute('value', this.value);
+                            handleSliderInput('freedom', this);
+                        });
+                        freedomSlider.addEventListener('mouseup', function(e) {
+                            this.setAttribute('value', this.value);
+                            handleSliderInput('freedom', this);
+                        });
+                        freedomSlider.addEventListener('touchend', function(e) {
+                            this.setAttribute('value', this.value);
+                            console.log('Freedom slider TOUCHEND event fired!', this.value);
+                            handleSliderInput('freedom', this);
+                        });
+                    }
+                }, 1000);
+            </script>
+</body>
+
+</html>

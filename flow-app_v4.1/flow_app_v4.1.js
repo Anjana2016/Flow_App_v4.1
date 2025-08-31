@@ -3,16 +3,16 @@
  * FLOW BUDGETING APP - VERSION LOG
  * ====================================================================
  * 
- * VERSION: v4.2.0
- * STATUS: Production Ready - Smart Layered Education System
- * DATE: July 26, 2025
- * LAST UPDATED: July 26, 2025 - SLES Integration & Educational Excellence
+ * VERSION: v4.1.0
+ * STATUS: Production Ready - Allocation Sliders Fixed
+ * DATE: July 21, 2025
+ * LAST UPDATED: July 21, 2025 - Manual Drag & Preview System
  * 
  * ====================================================================
- * RECENT CHANGES (v4.2.0):
+ * RECENT CHANGES (v4.1.0):
  * ====================================================================
  * 
- * 🎯 SMART LAYERED EDUCATION SYSTEM (SLES):
+ * 🎯 ALLOCATION SLIDER SYSTEM FIXES:
  * - Fixed manual drag handlers for touch/mouse input
  * - Implemented two-phase UX: Preview during drag, Apply on button click
  * - Fixed "undefined%" display issue on first load
@@ -369,7 +369,7 @@ function submitOopsTransaction() {
     const category = document.getElementById('oopsCategory').value;
 
     if (amount && amount > 0 && description) {
-        const result = processTransaction(amount, description, category);
+        const result = addTransaction(amount, description, category);
         if (result.success) {
             showToast(`$${amount.toFixed(2)} added to your ${category} flow • All caught up! ✨`, 'success');
             closeOopsModal();
@@ -835,475 +835,91 @@ function animateElementScale(element, targetScale = 1.05, duration = 200) {
     setTimeout(() => element.style.transform = 'scale(1)', duration);
 }
 
-// ===== v4.0 SPECIFICATION COMPLIANT DAILY FLOW CALCULATION =====
-function calculateDailyFlow(categories, currentDay, daysInMonth) {
-    FlowAppLogger.debug('v4.0 Daily Flow Calculation Started', {
-        categoriesProvided: !!categories,
-        currentDay,
-        daysInMonth
-    });
-
-    // Input validation
-    if (!categories || typeof categories !== 'object') {
-        FlowAppLogger.warn('Invalid categories provided to calculateDailyFlow', { categories });
-        categories = appState?.categories || {};
-    }
-
-    // Handle both new (freedom) and legacy (spend) category naming
-    let freedomCategory = categories.freedom || categories.spend;
-    if (!freedomCategory || typeof freedomCategory !== 'object') {
-        FlowAppLogger.warn('Freedom/spend category not found, using fallback', {
-            availableCategories: Object.keys(categories)
-        });
-        freedomCategory = { allocated: 1280, used: 0 };
-    }
-
-    // Extract values with defaults - v4.0 specification
-    const income = typeof freedomCategory.allocated === 'number' ? freedomCategory.allocated : 1280;
-    const spent = typeof freedomCategory.used === 'number' ? freedomCategory.used : 0;
-
-    // Default current day if not provided
-    const validCurrentDay = typeof currentDay === 'number' ? currentDay : new Date().getDate();
-
-    // Default days in month if not provided
-    const validDaysInMonth = typeof daysInMonth === 'number' ?
-        daysInMonth :
-        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-
-    // v4.0 Specification Algorithm
-    const remaining = income - spent;
-    const daysRemaining = validDaysInMonth - validCurrentDay + 1;
-    const rawDailyFlow = remaining / daysRemaining;
-
-    // v4.0 Specification: $1 precision with Math.round(), prevent negatives
-    const result = Math.max(0, Math.round(rawDailyFlow));
-
-    FlowAppLogger.debug('v4.0 Daily Flow Calculation Complete', {
-        income,
-        spent,
-        remaining,
-        currentDay: validCurrentDay,
-        daysInMonth: validDaysInMonth,
-        daysRemaining,
-        rawDailyFlow,
-        result,
-        precision: '$1 (v4.0 compliant)'
-    });
-
-    return result;
-}
-
-// C2: Pre-transaction Fund Availability Checking
-function validateTransactionSafety(amount, category) {
-    FlowAppLogger.debug(`[validateTransactionSafety] Checking ${amount} transaction for ${category} category`);
-
-    try {
-        // Validate inputs
-        if (!amount || amount <= 0) {
-            FlowAppLogger.debug(`[validateTransactionSafety] Invalid amount: ${amount}`);
-            return { isValid: false, reason: 'Invalid transaction amount', availableFunds: 0 };
-        }
-
-        if (!category || !appState.categories[category]) {
-            FlowAppLogger.debug(`[validateTransactionSafety] Invalid category: ${category}`);
-            return { isValid: false, reason: 'Invalid category', availableFunds: 0 };
-        }
-
-        // Get category data
-        const categoryData = appState.categories[category];
-        const allocated = categoryData.allocated || 0;
-        const used = categoryData.used || 0;
-        const availableFunds = Math.max(0, allocated - used);
-
-        FlowAppLogger.debug(`[validateTransactionSafety] Category ${category}: allocated=${allocated}, used=${used}, available=${availableFunds}`);
-
-        // Check fund availability
-        const isValid = amount <= availableFunds;
-        const shortfall = isValid ? 0 : amount - availableFunds;
-
-        const result = {
-            isValid: isValid,
-            availableFunds: availableFunds,
-            shortfall: shortfall,
-            reason: isValid ? 'Transaction approved' : `Insufficient funds - need $${shortfall} more`,
-            categoryData: {
-                allocated: allocated,
-                used: used,
-                remaining: availableFunds
-            }
-        };
-
-        FlowAppLogger.debug(`[validateTransactionSafety] Result:`, result);
-        return result;
-
-    } catch (error) {
-        FlowAppLogger.error(`[validateTransactionSafety] Error:`, error);
-        return {
-            isValid: false,
-            reason: 'Validation error occurred',
-            availableFunds: 0,
-            error: error.message
-        };
-    }
-}
-
-// C3: Category Balance Enforcement
-function enforceCategoryLimits(transaction) {
-    FlowAppLogger.debug(`[enforceCategoryLimits] Enforcing limits for transaction:`, transaction);
-
-    try {
-        // Validate transaction structure
-        if (!transaction || typeof transaction !== 'object') {
-            FlowAppLogger.debug(`[enforceCategoryLimits] Invalid transaction structure:`, transaction);
-            return {
-                allowed: false,
-                reason: 'Invalid transaction data',
-                enforcementAction: 'reject'
-            };
-        }
-
-        const { amount, category, description } = transaction;
-
-        // Use existing validateTransactionSafety function
-        const safetyCheck = validateTransactionSafety(amount, category);
-
-        FlowAppLogger.debug(`[enforceCategoryLimits] Safety check result:`, safetyCheck);
-
-        if (safetyCheck.isValid) {
-            // Transaction is within limits
-            return {
-                allowed: true,
-                reason: 'Transaction within category limits',
-                enforcementAction: 'approve',
-                availableFunds: safetyCheck.availableFunds,
-                categoryData: safetyCheck.categoryData
-            };
-        } else {
-            // Transaction would overdraw category
-            const enforcement = {
-                allowed: false,
-                reason: safetyCheck.reason,
-                enforcementAction: 'prevent_overdraft',
-                shortfall: safetyCheck.shortfall,
-                availableFunds: safetyCheck.availableFunds,
-                suggestedAmount: safetyCheck.availableFunds,
-                categoryData: safetyCheck.categoryData,
-                userMessage: generateOverdraftMessage(category, safetyCheck)
-            };
-
-            FlowAppLogger.debug(`[enforceCategoryLimits] Transaction blocked:`, enforcement);
-            return enforcement;
-        }
-
-    } catch (error) {
-        FlowAppLogger.error(`[enforceCategoryLimits] Error:`, error);
-        return {
-            allowed: false,
-            reason: 'Enforcement system error',
-            enforcementAction: 'error',
-            error: error.message
-        };
-    }
-}
-
-// C3: Helper function for user-friendly overdraft messages
-function generateOverdraftMessage(category, safetyCheck) {
-    const categoryNames = {
-        'freedom': 'Freedom',
-        'foundation': 'Foundation',
-        'future': 'Future'
-    };
-
-    const categoryName = categoryNames[category] || category;
-    const available = safetyCheck.availableFunds;
-    const shortfall = safetyCheck.shortfall;
-
-    if (available === 0) {
-        return `Your ${categoryName} category is fully used. Consider moving funds from another category or waiting for next month.`;
-    } else {
-        return `This would exceed your ${categoryName} limit by $${shortfall}. You have $${available} available in this category.`;
-    }
-}
-
-// A4: Progressive Warning System
-function checkSpendingThresholds(currentSpent, categoryAllocated, category = 'freedom') {
-    FlowAppLogger.debug(`[checkSpendingThresholds] Checking thresholds for ${category}: $${currentSpent} of $${categoryAllocated}`);
-
-    try {
-        // Validate inputs
-        if (typeof currentSpent !== 'number' || typeof categoryAllocated !== 'number') {
-            FlowAppLogger.debug('[checkSpendingThresholds] Invalid input parameters');
-            return { threshold: 'none', message: null, shouldWarn: false };
-        }
-
-        if (categoryAllocated <= 0) {
-            FlowAppLogger.debug('[checkSpendingThresholds] No allocation for category');
-            return { threshold: 'none', message: null, shouldWarn: false };
-        }
-
-        // Calculate usage percentage
-        const usagePercentage = (currentSpent / categoryAllocated) * 100;
-        FlowAppLogger.debug(`[checkSpendingThresholds] Usage: ${usagePercentage.toFixed(1)}%`);
-
-        // Progressive threshold checking (in order of severity)
-        if (usagePercentage >= 100) {
-            return {
-                threshold: '100%',
-                usagePercentage: usagePercentage,
-                message: generateThresholdMessage(category, '100%', usagePercentage),
-                shouldWarn: true,
-                severity: 'warning',
-                icon: '🚨'
-            };
-        } else if (usagePercentage >= 90) {
-            return {
-                threshold: '90%',
-                usagePercentage: usagePercentage,
-                message: generateThresholdMessage(category, '90%', usagePercentage),
-                shouldWarn: true,
-                severity: 'caution',
-                icon: '⚠️'
-            };
-        } else if (usagePercentage >= 75) {
-            return {
-                threshold: '75%',
-                usagePercentage: usagePercentage,
-                message: generateThresholdMessage(category, '75%', usagePercentage),
-                shouldWarn: true,
-                severity: 'info',
-                icon: '📊'
-            };
-        } else {
-            return {
-                threshold: 'safe',
-                usagePercentage: usagePercentage,
-                message: null,
-                shouldWarn: false,
-                severity: 'none'
-            };
-        }
-
-    } catch (error) {
-        FlowAppLogger.error('[checkSpendingThresholds] Error:', error);
-        return { threshold: 'error', message: null, shouldWarn: false, error: error.message };
-    }
-}
-
-// A4: Generate empowering threshold messages (SLES-compliant Flow voice)
-function generateThresholdMessage(category, threshold, usagePercentage) {
-    const categoryNames = {
-        'freedom': 'Freedom',
-        'foundation': 'Foundation',
-        'future': 'Future'
-    };
-
-    const categoryName = categoryNames[category] || category;
-    const roundedPercentage = Math.round(usagePercentage);
-
-    const messages = {
-        'freedom': {
-            '75%': [
-                `📊 You've built ${roundedPercentage}% of this month's flow—mindful pacing! 💚`,
-                `📊 Three-quarters of your freedom designed and used—feel that intentionality? ✨`,
-                `📊 ${roundedPercentage}% flowed this month—you're designing your financial life, not just spending 🎯`
-            ],
-            '90%': [
-                `⚠️ You've built through ${roundedPercentage}% of this month's flow—almost complete! 💪`,
-                `⚠️ ${roundedPercentage}% of freedom used mindfully—notice how stress-free this feels? 🌟`,
-                `⚠️ Close to completing this month's flow—${100 - roundedPercentage}% of intentional space remaining ⭐`
-            ],
-            '100%': [
-                `🚨 This month's flow complete—you've built beyond your design! Next month brings fresh freedom 🔄`,
-                `🚨 Monthly freedom fully expressed—this is what financial awareness looks like! Reset coming soon 🌱`,
-                `🚨 ${roundedPercentage}% flowed—you're building understanding of your financial patterns 📈`
-            ]
-        },
-        'foundation': {
-            '75%': [
-                `📊 ${roundedPercentage}% of Foundation built this month—your security is growing! 🛡️`,
-                `📊 Three-quarters of essential Foundation designed—feel that stability building? 💎`
-            ],
-            '90%': [
-                `⚠️ ${roundedPercentage}% of Foundation built—your security system almost complete! 🏗️`,
-                `⚠️ Foundation nearly complete for this month—this is what financial confidence builds from 💪`
-            ],
-            '100%': [
-                `🚨 Foundation fully built this month—your security exceeded the design! Impressive dedication 🏆`,
-                `🚨 Foundation complete—you've built more security than planned. That's wealth-building mindset! 🎯`
-            ]
-        },
-        'future': {
-            '75%': [
-                `📊 ${roundedPercentage}% of Future built this month—watch your wealth grow! 🌱`,
-                `📊 Three-quarters of future-building complete—this is how financial freedom builds ⚡`
-            ],
-            '90%': [
-                `⚠️ ${roundedPercentage}% of Future built—you're almost at this month's wealth-building goal! 🚀`,
-                `⚠️ Future building nearly complete—feel that momentum toward financial freedom? 🌟`
-            ],
-            '100%': [
-                `🚨 Future building exceeded this month's design—you're accelerating toward wealth! 🎉`,
-                `🚨 Future category over-built—this is what dedication to financial freedom looks like! 💎`
-            ]
-        }
-    };
-
-    const categoryMessages = messages[category] || messages['freedom'];
-    const thresholdMessages = categoryMessages[threshold] || [`${threshold} of ${categoryName} category built this month`];
-
-    // Return random message from array for variety
-    return thresholdMessages[Math.floor(Math.random() * thresholdMessages.length)];
-}
-
-
-// C1: Category Transfer Validation
-function validateCategoryTransfer(originalTransaction, newAmount, newCategory) {
-    FlowAppLogger.debug(`[validateCategoryTransfer] Validating category transfer:`, {
-        originalTransaction,
-        newAmount,
-        newCategory
-    });
-
-    try {
-        // Validate inputs
-        if (!originalTransaction || typeof originalTransaction !== 'object') {
-            FlowAppLogger.debug('[validateCategoryTransfer] Invalid original transaction');
-            return {
-                isValid: false,
-                reason: 'Invalid transaction data',
-                transferAction: 'reject'
-            };
-        }
-
-        if (!newAmount || newAmount <= 0) {
-            FlowAppLogger.debug('[validateCategoryTransfer] Invalid new amount');
-            return {
-                isValid: false,
-                reason: 'Invalid transaction amount',
-                transferAction: 'reject'
-            };
-        }
-
-        if (!newCategory || !appState.categories[newCategory]) {
-            FlowAppLogger.debug('[validateCategoryTransfer] Invalid target category');
-            return {
-                isValid: false,
-                reason: 'Invalid target category',
-                transferAction: 'reject'
-            };
-        }
-
-        const originalAmount = originalTransaction.amount;
-        const originalCategory = originalTransaction.category;
-
-        FlowAppLogger.debug('[validateCategoryTransfer] Transfer details:', {
-            from: `${originalCategory}: $${originalAmount}`,
-            to: `${newCategory}: $${newAmount}`,
-            netChange: newAmount - originalAmount
-        });
-
-        // Step 1: Check if we can remove original amount from original category
-        // (This should always work since the transaction already exists)
-        const originalCategoryAfterRemoval = {
-            allocated: appState.categories[originalCategory].allocated,
-            used: (appState.categories[originalCategory].used || 0) - originalAmount
-        };
-
-        // Step 2: Check if we can add new amount to new category
-        // Create temporary state to test the new amount
-        const newCategoryCurrentUsed = appState.categories[newCategory].used || 0;
-        const tempNewCategoryUsed = newCategoryCurrentUsed + newAmount;
-
-        const newCategoryValidation = validateTransactionSafety(newAmount, newCategory);
-
-        if (!newCategoryValidation.isValid) {
-            // Would overdraw the new category
-            return {
-                isValid: false,
-                reason: `Cannot move to ${newCategory}: ${newCategoryValidation.reason}`,
-                transferAction: 'prevent_overdraft',
-                originalCategory: originalCategory,
-                newCategory: newCategory,
-                shortfall: newCategoryValidation.shortfall,
-                availableInNewCategory: newCategoryValidation.availableFunds,
-                suggestedAmount: newCategoryValidation.availableFunds,
-                transferDetails: {
-                    wouldRemoveFrom: originalCategory,
-                    wouldAddTo: newCategory,
-                    amountChange: newAmount - originalAmount
-                }
-            };
-        }
-
-        // Transfer is valid
-        return {
-            isValid: true,
-            reason: 'Category transfer approved',
-            transferAction: 'approve',
-            originalCategory: originalCategory,
-            newCategory: newCategory,
-            transferDetails: {
-                willRemoveFrom: originalCategory,
-                willAddTo: newCategory,
-                amountChange: newAmount - originalAmount,
-                netEffect: newAmount === originalAmount ? 'category_change_only' :
-                    newAmount > originalAmount ? 'increase_and_transfer' : 'decrease_and_transfer'
-            },
-            categoryImpacts: {
-                [originalCategory]: {
-                    before: appState.categories[originalCategory].used,
-                    after: (appState.categories[originalCategory].used || 0) - originalAmount,
-                    change: -originalAmount
-                },
-                [newCategory]: {
-                    before: appState.categories[newCategory].used,
-                    after: (appState.categories[newCategory].used || 0) + newAmount,
-                    change: +newAmount
-                }
-            }
-        };
-
-    } catch (error) {
-        FlowAppLogger.error('[validateCategoryTransfer] Error:', error);
-        return {
-            isValid: false,
-            reason: 'Category transfer validation error',
-            transferAction: 'error',
-            error: error.message
-        };
-    }
-}
-
-// ===== BACKWARD COMPATIBILITY: Legacy calculateDailyFlowUnified wrapper =====
-
-// ===== BACKWARD COMPATIBILITY: Legacy calculateDailyFlowUnified wrapper =====
+// ===== UNIFIED DAILY FLOW CALCULATION ENGINE =====
+// Single source of truth for all daily flow calculations
 function calculateDailyFlowUnified(options = {}) {
-    FlowAppLogger.debug('Legacy calculateDailyFlowUnified called, converting to v4.0 spec', { options });
-
     const {
         spendAllocated = appState.categories?.freedom?.allocated || 0,
         spendUsed = appState.categories?.freedom?.used || 0,
-        currentDay = new Date().getDate(),
-        useRemainingDays = true,
-        forceFullAllocation = false
+        currentDay = appState.currentDay || new Date().getDate(),
+        useRemainingDays = true, // Set to false for fresh period calculations
+        forceFullAllocation = false // Set to true for onboarding/new period
     } = options;
 
-    // Convert legacy options to v4.0 specification format
-    const categories = {
-        freedom: {
-            allocated: spendAllocated,
-            used: forceFullAllocation ? 0 : spendUsed
-        }
-    };
-
+    // Calculate days consistently
     const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-    const validCurrentDay = useRemainingDays ? currentDay : 1;
 
-    // Call v4.0 specification function
-    return calculateDailyFlow(categories, validCurrentDay, daysInMonth);
+    // Calculate spend amount to use
+    const spendAmount = forceFullAllocation ? spendAllocated : (spendAllocated - spendUsed);
+
+    // Calculate days to use
+    const daysToUse = useRemainingDays ? Math.max(daysInMonth - currentDay, 1) : daysInMonth;
+
+    // Calculate daily flow
+    const dailyFlow = spendAmount / daysToUse;
+
+    // Round to nearest $5 (consistent across all calculations)
+    const roundedDailyFlow = Math.round(dailyFlow / 5) * 5;
+
+    // Use centralized logging - only show calculation details in DEBUG mode
+    if (typeof FlowTestLogger !== 'undefined') {
+        FlowTestLogger.debug('Unified Daily Flow Calculation:', {
+            spendAllocated,
+            spendUsed,
+            spendAmount,
+            currentDay,
+            daysInMonth,
+            daysToUse,
+            rawDailyFlow: dailyFlow,
+            roundedDailyFlow,
+            calculationType: forceFullAllocation ? 'Full Allocation' : 'Remaining Budget'
+        });
+    }
+
+    return roundedDailyFlow;
 }
 
 // ===== REPLACE EXISTING CALCULATIONS WITH UNIFIED VERSION =====
+
+// Updated main app calculation
+function calculateDailyFlow(categories) {
+    // Validate categories structure to prevent undefined errors
+    if (!categories || typeof categories !== 'object') {
+        console.warn('⚠️ calculateDailyFlow called with invalid categories, using fallback');
+        // Use fallback from appState if available
+        categories = appState?.categories || {
+            freedom: { allocated: 1280, used: 0 }
+        };
+    }
+
+    // Handle both old and new category naming for backward compatibility
+    let freedomCategory = null;
+
+    // Try new naming first (freedom)
+    if (categories.freedom && typeof categories.freedom === 'object') {
+        freedomCategory = categories.freedom;
+    }
+    // Fall back to old naming (spend) for backward compatibility
+    else if (categories.spend && typeof categories.spend === 'object') {
+        freedomCategory = categories.spend;
+    }
+    // Use fallback values if neither exists
+    else {
+        console.warn('⚠️ categories.freedom/spend missing, using fallback values');
+        freedomCategory = { allocated: 1280, used: 0 };
+    }
+
+    // Ensure allocated and used properties exist
+    const allocated = typeof freedomCategory.allocated === 'number' ? freedomCategory.allocated : 1280;
+    const used = typeof freedomCategory.used === 'number' ? freedomCategory.used : 0;
+
+    return calculateDailyFlowUnified({
+        spendAllocated: allocated,
+        spendUsed: used,
+        useRemainingDays: true,
+        forceFullAllocation: false
+    });
+}
 
 // Updated onboarding calculation
 function calculateDailyFlowOnboarding(monthlyIncome, saveRate = 0.05) {
@@ -2065,15 +1681,12 @@ function showBadgeUnlockToast(badgeConfig) {
 }
 
 function processTransaction(amount, description, category = 'freedom') {
-    // C2: Comprehensive transaction safety validation (replaces all manual validation)
-    const validationResult = validateTransactionSafety(amount, category);
-    if (!validationResult.isValid) {
-        FlowAppLogger.warn('Transaction blocked by safety validation:', validationResult);
-        showToast(validationResult.reason, 'warning');
-        return { success: false, error: validationResult.reason }; // Fixed: consistent return format
-    }
+    if (amount <= 0) return { success: false, error: 'Invalid amount' };
 
-    FlowAppLogger.debug('[processTransaction] Transaction validated, proceeding with processing');
+    const availableFunds = appState.categories[category].allocated - appState.categories[category].used;
+    if (amount > availableFunds) {
+        return { success: false, error: 'Insufficient funds' };
+    }
 
     // Process transaction
     appState.categories[category].used += amount;
@@ -5872,21 +5485,6 @@ function submitTransactionEdit() {
         return;
     }
 
-    // C1 & C2: Validate category transfer and transaction safety
-    const transferValidation = validateCategoryTransfer(
-        { amount: originalTransaction.amount, category: originalTransaction.category },
-        newAmount,
-        newCategory
-    );
-
-    if (!transferValidation.isValid) {
-        FlowAppLogger.warn('Transaction edit blocked by category transfer validation:', transferValidation);
-        showToast(transferValidation.reason, 'warning');
-        return;
-    }
-
-    FlowAppLogger.debug('[submitTransactionEdit] Category transfer validated, proceeding with edit');
-
     // Find the transaction
     const transaction = appState.transactions.find(t => t.id == transactionId);
     if (!transaction) {
@@ -9193,15 +8791,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Validate mathematical consistency on startup
-        const startupValidation = validateDailyFlowConsistency();
-        if (!startupValidation.isConsistent) {
-            FlowAppLogger.warn('⚠️ Data inconsistency detected on startup:', startupValidation.errors);
-            showToast('Mathematical validation detected minor inconsistencies. App functionality preserved.', 'info');
-        } else {
-            FlowAppLogger.debug('✅ Startup validation: All mathematical calculations consistent');
-        }
-
         updateAllDisplaysSynchronized();
 
         // **CRITICAL: Initialize allocation state and slider positions**
@@ -11068,61 +10657,7 @@ function validateDailyFlowConsistency() {
         const allTestsPass = testResults.tests.every(test => test.allMatch !== false && test.match !== false);
         testResults.isConsistent = allTestsPass;
 
-        // C2: Test Pre-transaction Fund Availability Checking
-        FlowTestLogger.test('Testing validateTransactionSafety function...');
-
-        // Test valid transaction
-        const validResult = validateTransactionSafety(50, 'freedom');
-        FlowTestLogger.test(`Valid transaction (50, freedom): ${validResult.isValid ? 'PASS' : 'FAIL'}`);
-
-        // Test invalid transaction (amount too high)
-        const invalidResult = validateTransactionSafety(5000, 'freedom');
-        FlowTestLogger.test(`Invalid transaction (5000, freedom): ${!invalidResult.isValid ? 'PASS' : 'FAIL'}`);
-
-        // Test edge cases
-        const zeroResult = validateTransactionSafety(0, 'freedom');
-        FlowTestLogger.test(`Zero amount transaction: ${!zeroResult.isValid ? 'PASS' : 'FAIL'}`);
-
-        const invalidCategoryResult = validateTransactionSafety(50, 'nonexistent');
-        FlowTestLogger.test(`Invalid category transaction: ${!invalidCategoryResult.isValid ? 'PASS' : 'FAIL'}`);
-
-
-        // C3: Test Category Balance Enforcement
-        FlowTestLogger.test('Testing enforceCategoryLimits function...');
-
-        // Test allowed transaction
-        const allowedTransaction = { amount: 50, category: 'freedom', description: 'Test purchase' };
-        const allowedResult = enforceCategoryLimits(allowedTransaction);
-        FlowTestLogger.test(`Allowed transaction: ${allowedResult.allowed ? 'PASS' : 'FAIL'}`);
-
-        // Test blocked transaction (too high amount)
-        const blockedTransaction = { amount: 5000, category: 'freedom', description: 'Expensive item' };
-        const blockedResult = enforceCategoryLimits(blockedTransaction);
-        FlowTestLogger.test(`Blocked overdraft transaction: ${!blockedResult.allowed ? 'PASS' : 'FAIL'}`);
-
-        // Test invalid transaction structure
-        const invalidTransaction = null;
-        const invalidTransactionResult = enforceCategoryLimits(invalidTransaction);
-        FlowTestLogger.test(`Invalid transaction structure: ${!invalidTransactionResult.allowed ? 'PASS' : 'FAIL'}`);
-
-        // C1: Test Category Transfer Validation
-        FlowTestLogger.test('Testing validateCategoryTransfer function...');
-
-        // Test valid category transfer
-        const mockTransaction = { amount: 25, category: 'freedom' };
-        const validTransfer = validateCategoryTransfer(mockTransaction, 25, 'foundation');
-        FlowTestLogger.test(`Valid category transfer: ${validTransfer.isValid ? 'PASS' : 'FAIL'}`);
-
-        // Test invalid transfer (amount too high for target)
-        const invalidTransfer = validateCategoryTransfer(mockTransaction, 9999, 'foundation');
-        FlowTestLogger.test(`Invalid category transfer (overdraft): ${!invalidTransfer.isValid ? 'PASS' : 'FAIL'}`);
-
-        // Test invalid target category
-        const invalidCategoryTransfer = validateCategoryTransfer(mockTransaction, 25, 'nonexistent');
-        FlowTestLogger.test(`Invalid target category: ${!invalidCategoryTransfer.isValid ? 'PASS' : 'FAIL'}`);
-
         console.log(`\n🎯 Daily Flow Consistency: ${testResults.isConsistent ? '✅ CONSISTENT' : '❌ INCONSISTENT'}`);
-
 
         if (!testResults.isConsistent) {
             console.log('❌ Errors found:', testResults.errors);
