@@ -13,7 +13,7 @@
     LAST UPDATED: Smart Layered Education System Integration
     STATUS: Production Ready - Educational Excellence
     -->
-    
+
     <!-- Your CSS file -->
     <link rel="stylesheet" href="flow_app_v4.2.css">
 </head>
@@ -572,20 +572,27 @@
                     <div class="daily-flow-label">Your Daily Flow</div>
                     <div class="daily-flow-amount" id="dailyFlowAmount">$40</div>
                     <div class="daily-flow-description">Spend guilt-free today ✨</div>
-                    
+
                     <!-- ADD: Descriptive subtitle -->
-                    <div class="descriptive-subtitle">One number. Zero stress. Updates live with each purchase. No math required</div>
-                    
+                    <div class="descriptive-subtitle">Spend confidently today. Updates live with each purchase. No math
+                        required. Zero stress</div>
+
+                    <!-- NEW: Tomorrow's flow footer -->
+                    <div class="tomorrow-flow-hint" id="tomorrowFlowHint">
+                        Tomorrow: $40 • Building your financial clarity 💚
+                    </div>
+
                     <!-- Help icon in top-right corner -->
-                    <button class="help-icon" onclick="showEducationModal('daily-flow-philosophy')" aria-label="Learn about Daily Flow" style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
+                    <button class="help-icon" onclick="showEducationModal('daily-flow-philosophy')"
+                        aria-label="Learn about Daily Flow"
+                        style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
                 </div>
             </div>
-
             <!-- Enhanced Quick Add System -->
             <div class="quick-add-section">
                 <div class="quick-add-header">
                     <div class="quick-add-title">⚡ Quick Add</div>
-                    
+
                     <button class="location-toggle" onclick="toggleLocationSuggestions()">📍 Near You</button>
                 </div>
 
@@ -696,12 +703,15 @@
                         $3,200
                     </div>
                     <!-- ADD: Income subtitle -->
-                    <div class="descriptive-subtitle">Everything flows from here into 3 buckets: Foundation, Future, Freedom</div>
+                    <div class="descriptive-subtitle">Everything flows from here into 3 buckets: Foundation, Future,
+                        Freedom</div>
                 </div>
                 <div class="income-period">Click to adjust your base ✨</div>
-                
+
                 <!-- Help icon in top-right corner -->
-                <button class="help-icon" onclick="showEducationModal('flow-method-philosophy')" aria-label="Learn about Flow Method" style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
+                <button class="help-icon" onclick="showEducationModal('flow-method-philosophy')"
+                    aria-label="Learn about Flow Method"
+                    style="position: absolute; top: 16px; right: 16px; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
 
                 <!-- Income Edit Modal (Hidden by default) -->
                 <div class="income-edit-overlay" id="incomeEditOverlay" style="display: none;">
@@ -755,7 +765,7 @@
                         </div>
                         <div class="category-percentage" id="foundationPercentage">55%</div>
                     </div>
-                    
+
                     <div class="category-content">
                         <div class="category-amounts">
                             <div class="amount-used">$1,680 securing your foundation</div>
@@ -763,7 +773,7 @@
                         </div>
                         <div class="category-subtitle">Building unshakeable confidence 💪</div>
                     </div>
-                    
+
                     <div class="progress-container">
                         <div class="progress-fill foundation" id="foundationProgressFill" style="width: 95%"></div>
                     </div>
@@ -778,7 +788,7 @@
                         </div>
                         <div class="category-percentage" id="futurePercentage">5%</div>
                     </div>
-                    
+
                     <div class="category-content">
                         <div class="category-amounts">
                             <div class="amount-used">$160 building your dreams</div>
@@ -786,7 +796,7 @@
                         </div>
                         <div class="category-subtitle">Your future-you is going to love this 🚀</div>
                     </div>
-                    
+
                     <div class="progress-container">
                         <div class="progress-fill future" id="futureProgressFill" style="width: 100%"></div>
                     </div>
@@ -801,7 +811,7 @@
                         </div>
                         <div class="category-percentage" id="freedomPercentage">40%</div>
                     </div>
-                    
+
                     <div class="category-content">
                         <div class="category-amounts">
                             <div class="amount-used">$860 already flowed</div>
@@ -809,7 +819,7 @@
                         </div>
                         <div class="category-subtitle">Pure guilt-free spending power ✨</div>
                     </div>
-                    
+
                     <div class="progress-container">
                         <div class="progress-fill freedom" id="freedomProgressFill" style="width: 67%"></div>
                     </div>
@@ -876,9 +886,9 @@
                     </div>
                     <div style="position: relative;">
                         <input type="range" class="custom-slider future" id="futureSlider" min="0" max="30" value="5"
-                            step="1" oninput="handleSliderInput('future', this)" onmousedown="startSliderDrag('future', this)"
-                            onmouseup="endSliderDrag('future', this)" ontouchstart="startSliderDrag('future', this)"
-                            ontouchend="endSliderDrag('future', this)">
+                            step="1" oninput="handleSliderInput('future', this)"
+                            onmousedown="startSliderDrag('future', this)" onmouseup="endSliderDrag('future', this)"
+                            ontouchstart="startSliderDrag('future', this)" ontouchend="endSliderDrag('future', this)">
                         <div class="slider-tooltip" id="futureTooltip">5% • $160</div>
                     </div>
                     <div class="slider-description">Builds automatically toward goals</div>
@@ -891,8 +901,7 @@
                     </div>
                     <div style="position: relative;">
                         <input type="range" class="custom-slider freedom" id="freedomSlider" min="0" max="100"
-                            value="40" step="1" disabled
-                            title="Freedom percentage is automatically calculated">
+                            value="40" step="1" disabled title="Freedom percentage is automatically calculated">
                         <div class="slider-tooltip" id="freedomTooltip">40% • $1,280</div>
                     </div>
                     <div class="slider-description">Spend guilt-free today</div>
@@ -1008,9 +1017,11 @@
                     <h2 class="growth-title" style="position: relative;">
                         <div style="text-align: center;">Build Wealth</div>
                         <div style="text-align: center;">Warrior</div>
-                        
+
                         <!-- Help icon aligned with "Build Wealth" line -->
-                        <button class="help-icon" onclick="showEducationModal('growth-story-philosophy')" aria-label="Learn about Growth Story" style="position: absolute; top: 0; right: 0; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
+                        <button class="help-icon" onclick="showEducationModal('growth-story-philosophy')"
+                            aria-label="Learn about Growth Story"
+                            style="position: absolute; top: 0; right: 0; background: rgba(124, 58, 237, 0.1); color: #7C3AED; border: 1px solid #7C3AED;">?</button>
                     </h2>
                     <p class="growth-subtitle">Real progress across three areas of your money life</p>
 
@@ -1670,7 +1681,7 @@
             </div>
 
             <script src="flow_app_v4.2.js"></script>
-            
+
             <!-- SLIDER FIX: Re-bind event handlers with JavaScript -->
             <script>
                 // Wait for DOM to load, then fix slider event handlers
@@ -1678,7 +1689,7 @@
                     const foundationSlider = document.getElementById('foundationSlider');
                     const futureSlider = document.getElementById('futureSlider');
                     const freedomSlider = document.getElementById('freedomSlider');
-                    
+
                     // Force sliders to be fully interactive
                     [foundationSlider, futureSlider, freedomSlider].forEach(slider => {
                         if (slider) {
@@ -1686,65 +1697,65 @@
                             slider.style.zIndex = '1000';
                             slider.style.position = 'relative';
                             slider.style.touchAction = 'none'; // Prevent scrolling during touch
-                            
+
                             // Make Freedom slider appear read-only
                             if (slider.id === 'freedomSlider') {
                                 slider.style.opacity = '0.7';
                                 slider.style.cursor = 'not-allowed';
                                 slider.title = 'Freedom percentage is automatically calculated from Foundation and Future';
                             }
-                            
+
                             // Add manual drag handling
                             let isDragging = false;
                             let startX = 0;
                             let startValue = 0;
-                            
-                            slider.addEventListener('touchstart', function(e) {
+
+                            slider.addEventListener('touchstart', function (e) {
                                 // Prevent dragging Freedom slider directly
                                 if (this.id === 'freedomSlider') {
                                     console.log('🚫 Freedom slider is read-only - use Foundation or Future sliders to adjust');
                                     e.preventDefault();
                                     return;
                                 }
-                                
+
                                 isDragging = true;
                                 startX = e.touches[0].clientX;
                                 startValue = parseInt(this.value);
                                 e.preventDefault();
                             });
-                            
-                            slider.addEventListener('touchmove', function(e) {
+
+                            slider.addEventListener('touchmove', function (e) {
                                 if (!isDragging) return;
-                                
+
                                 // Prevent dragging Freedom slider directly
                                 if (this.id === 'freedomSlider') {
                                     console.log('🚫 Freedom slider cannot be dragged directly');
                                     e.preventDefault();
                                     return;
                                 }
-                                
+
                                 const rect = this.getBoundingClientRect();
                                 const currentX = e.touches[0].clientX;
                                 const deltaX = currentX - startX;
                                 const sliderWidth = rect.width;
                                 const range = this.max - this.min;
-                                
+
                                 // Calculate new value based on drag distance
                                 const deltaValue = (deltaX / sliderWidth) * range;
                                 let newValue = startValue + deltaValue;
-                                
+
                                 // Clamp to min/max
                                 newValue = Math.max(this.min, Math.min(this.max, Math.round(newValue)));
-                                
+
                                 // Apply slider business rules and auto-adjust others
                                 const foundationSlider = document.getElementById('foundationSlider');
                                 const futureSlider = document.getElementById('futureSlider');
                                 const freedomSlider = document.getElementById('freedomSlider');
-                                
+
                                 let foundation = parseInt(foundationSlider.value);
                                 let future = parseInt(futureSlider.value);
                                 let freedom = parseInt(freedomSlider.value);
-                                
+
                                 // Update the slider being dragged
                                 if (this.id === 'foundationSlider') {
                                     foundation = newValue;
@@ -1771,7 +1782,7 @@
                                         future = 100 - foundation - freedom;
                                     }
                                 }
-                                
+
                                 // Update all slider values
                                 foundationSlider.value = foundation;
                                 foundationSlider.setAttribute('value', foundation);
@@ -1779,14 +1790,14 @@
                                 futureSlider.setAttribute('value', future);
                                 freedomSlider.value = freedom;
                                 freedomSlider.setAttribute('value', freedom);
-                                
+
                                 // CRITICAL: Update allocationState to match slider values
                                 if (typeof allocationState !== 'undefined') {
                                     allocationState.foundation = foundation;
                                     allocationState.future = future;
                                     allocationState.freedom = freedom;
                                 }
-                                
+
                                 // UPDATE IMPACT PREVIEW ONLY (not category cards - they update on "Update My Flow")
                                 if (typeof updatePreview === 'function') {
                                     updatePreview();
@@ -1800,18 +1811,18 @@
                                         previewDailyFlow.textContent = dailyFreedom;
                                     }
                                 }
-                                
+
                                 // Trigger input event on the slider being dragged
                                 const inputEvent = new Event('input', { bubbles: true });
                                 this.dispatchEvent(inputEvent);
-                                
+
                                 e.preventDefault();
                             });
-                            
-                            slider.addEventListener('touchend', function(e) {
+
+                            slider.addEventListener('touchend', function (e) {
                                 if (isDragging) {
                                     isDragging = false;
-                                    
+
                                     // Trigger change event
                                     const changeEvent = new Event('change', { bubbles: true });
                                     this.dispatchEvent(changeEvent);
@@ -1820,87 +1831,87 @@
                             });
                         }
                     });
-                    
+
                     // Foundation slider
                     if (foundationSlider && typeof handleSliderInput !== 'undefined') {
                         foundationSlider.oninput = null;
                         foundationSlider.onchange = null;
-                        
-                        foundationSlider.addEventListener('input', function(e) {
+
+                        foundationSlider.addEventListener('input', function (e) {
                             // Force value sync before processing
                             this.setAttribute('value', this.value);
                             handleSliderInput('foundation', this);
                         });
-                        foundationSlider.addEventListener('change', function(e) {
+                        foundationSlider.addEventListener('change', function (e) {
                             this.setAttribute('value', this.value);
                             handleSliderInput('foundation', this);
                         });
-                        foundationSlider.addEventListener('mouseup', function(e) {
+                        foundationSlider.addEventListener('mouseup', function (e) {
                             this.setAttribute('value', this.value);
                             handleSliderInput('foundation', this);
                         });
-                        foundationSlider.addEventListener('touchend', function(e) {
+                        foundationSlider.addEventListener('touchend', function (e) {
                             this.setAttribute('value', this.value);
                             console.log('Foundation slider TOUCHEND event fired!', this.value);
                             handleSliderInput('foundation', this);
                         });
                     }
-                    
+
                     // Future slider
                     if (futureSlider && typeof handleSliderInput !== 'undefined') {
                         futureSlider.oninput = null;
                         futureSlider.onchange = null;
-                        
-                        futureSlider.addEventListener('input', function(e) {
+
+                        futureSlider.addEventListener('input', function (e) {
                             this.setAttribute('value', this.value);
                             console.log('Future INPUT event - value changed to:', this.value);
                             handleSliderInput('future', this);
                         });
-                        futureSlider.addEventListener('change', function(e) {
+                        futureSlider.addEventListener('change', function (e) {
                             this.setAttribute('value', this.value);
                             console.log('Future CHANGE event - value changed to:', this.value);
                             handleSliderInput('future', this);
                         });
-                        futureSlider.addEventListener('mouseup', function(e) {
+                        futureSlider.addEventListener('mouseup', function (e) {
                             this.setAttribute('value', this.value);
                             console.log('Future MOUSEUP event - value changed to:', this.value);
                             handleSliderInput('future', this);
                         });
-                        futureSlider.addEventListener('touchend', function(e) {
+                        futureSlider.addEventListener('touchend', function (e) {
                             this.setAttribute('value', this.value);
                             console.log('Future slider TOUCHEND event fired!', this.value);
                             handleSliderInput('future', this);
                         });
-                        
+
                         // Track slider movement events
-                        futureSlider.addEventListener('touchmove', function(e) {
+                        futureSlider.addEventListener('touchmove', function (e) {
                             // Touch move tracking for UI responsiveness
                         });
-                        futureSlider.addEventListener('mousemove', function(e) {
+                        futureSlider.addEventListener('mousemove', function (e) {
                             if (e.buttons === 1) { // Left mouse button pressed
                                 // Mouse move tracking for UI responsiveness
                             }
                         });
                     }
-                    
+
                     // Freedom slider
                     if (freedomSlider && typeof handleSliderInput !== 'undefined') {
                         freedomSlider.oninput = null;
                         freedomSlider.onchange = null;
-                        
-                        freedomSlider.addEventListener('input', function(e) {
+
+                        freedomSlider.addEventListener('input', function (e) {
                             this.setAttribute('value', this.value);
                             handleSliderInput('freedom', this);
                         });
-                        freedomSlider.addEventListener('change', function(e) {
+                        freedomSlider.addEventListener('change', function (e) {
                             this.setAttribute('value', this.value);
                             handleSliderInput('freedom', this);
                         });
-                        freedomSlider.addEventListener('mouseup', function(e) {
+                        freedomSlider.addEventListener('mouseup', function (e) {
                             this.setAttribute('value', this.value);
                             handleSliderInput('freedom', this);
                         });
-                        freedomSlider.addEventListener('touchend', function(e) {
+                        freedomSlider.addEventListener('touchend', function (e) {
                             this.setAttribute('value', this.value);
                             console.log('Freedom slider TOUCHEND event fired!', this.value);
                             handleSliderInput('freedom', this);

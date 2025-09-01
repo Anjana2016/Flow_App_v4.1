@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Spending Validation Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 20px;
+            background: #f5f5f7;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .test-button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 600;
+        }
+        .test-button:hover {
+            background: #005BB5;
+        }
+        .danger-button {
+            background: #FF3B30;
+        }
+        .danger-button:hover {
+            background: #D70015;
+        }
+        .success-button {
+            background: #34C759;
+        }
+        .success-button:hover {
+            background: #248A3D;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .status.pass { background: #34C759; color: white; }
+        .status.fail { background: #FF3B30; color: white; }
+        .status.info { background: #007AFF; color: white; }
+        
+        #output {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        
+        .metric {
+            display: inline-block;
+            margin: 10px 15px 10px 0;
+            padding: 8px 12px;
+            background: #e3f2fd;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Daily Spending Tracking Validation</h1>
+        <p>Use this page to validate that the dual display system implementation is working correctly.</p>
+        
+        <div class="test-section">
+            <h3>📊 Current State</h3>
+            <div id="currentState">
+                <div class="metric">todayFlowed: <span id="todayFlowedValue">Loading...</span></div>
+                <div class="metric">Traditional dailyFlow: <span id="dailyFlowValue">Loading...</span></div>
+                <div class="metric">Freedom Transactions: <span id="freedomCount">Loading...</span></div>
+                <div class="metric">Total Transactions: <span id="totalCount">Loading...</span></div>
+            </div>
+            <button class="test-button" onclick="updateCurrentState()">🔄 Refresh State</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 Quick Validation Tests</h3>
+            <button class="test-button" onclick="runQuickValidation()">✅ Run Quick Validation</button>
+            <button class="test-button" onclick="testNewTransaction()">➕ Test New Transaction</button>
+            <button class="test-button" onclick="checkAccuracy()">🎯 Check Accuracy</button>
+            <button class="success-button" onclick="recalculateFromTransactions()">♻️ Recalculate todayFlowed</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔬 Advanced Testing</h3>
+            <button class="test-button" onclick="runFullValidation()">🚀 Full Validation Suite</button>
+            <button class="test-button" onclick="debugState()">🔧 Debug State</button>
+            <button class="danger-button" onclick="clearOutput()">🗑️ Clear Output</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>💡 Manual Testing</h3>
+            <p>Open the browser console (F12) and try these commands:</p>
+            <code>
+                • validateDailySpendingImplementation()<br>
+                • testTransactionProcessing()<br>
+                • calculateExpectedTodayFlowed()<br>
+                • recalculateTodayFlowed()
+            </code>
+        </div>
+        
+        <div id="output">Loading validation functions...</div>
+    </div>
+
+    <!-- Load your Flow app JavaScript file -->
+    <script src="flow_app_v4.2.js"></script>
+    
+    <script>
+        // Initialize when page loads
+        let outputDiv;
+        
+        window.addEventListener('load', function() {
+            outputDiv = document.getElementById('output');
+            updateCurrentState();
+            log('🚀 Validation environment ready!');
+        });
+        
+        function log(message) {
+            if (outputDiv) {
+                outputDiv.textContent += message + '\n';
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
+            console.log(message);
+        }
+        
+        function clearOutput() {
+            if (outputDiv) {
+                outputDiv.textContent = '';
+            }
+        }
+        
+        function updateCurrentState() {
+            try {
+                // Check if Flow app is loaded
+                if (typeof appState === 'undefined') {
+                    log('❌ Flow app not loaded yet. Please wait...');
+                    return;
+                }
+                
+                document.getElementById('todayFlowedValue').textContent = appState.todayFlowed || 0;
+                document.getElementById('dailyFlowValue').textContent = 
+                    typeof calculateDailyFlow === 'function' ? calculateDailyFlow(appState.categories) : 'N/A';
+                document.getElementById('freedomCount').textContent = 
+                    appState.transactions ? appState.transactions.filter(t => t.category === 'freedom').length : 0;
+                document.getElementById('totalCount').textContent = 
+                    appState.transactions ? appState.transactions.length : 0;
+                
+                log('📊 State updated');
+            } catch (error) {
+                log('❌ Error updating state: ' + error.message);
+            }
+        }
+        
+        function runQuickValidation() {
+            try {
+                log('\n🧪 Running quick validation...');
+                if (typeof validateDailySpendingImplementation === 'function') {
+                    const results = validateDailySpendingImplementation();
+                    log(`✅ Quick validation completed: ${results.passed}/${results.passed + results.failed} passed`);
+                } else {
+                    log('❌ Validation function not available');
+                }
+                updateCurrentState();
+            } catch (error) {
+                log('❌ Error in quick validation: ' + error.message);
+            }
+        }
+        
+        function testNewTransaction() {
+            try {
+                log('\n🧪 Testing new transaction...');
+                if (typeof testTransactionProcessing === 'function') {
+                    const result = testTransactionProcessing();
+                    log(`✅ Transaction test completed: ${result.success ? 'PASSED' : 'FAILED'}`);
+                } else {
+                    log('❌ Test function not available');
+                }
+                updateCurrentState();
+            } catch (error) {
+                log('❌ Error in transaction test: ' + error.message);
+            }
+        }
+        
+        function checkAccuracy() {
+            try {
+                log('\n🎯 Checking accuracy...');
+                if (typeof calculateExpectedTodayFlowed === 'function') {
+                    const result = calculateExpectedTodayFlowed();
+                    log(`✅ Accuracy check completed: ${result.accurate ? 'ACCURATE' : 'INACCURATE'}`);
+                } else {
+                    log('❌ Accuracy function not available');
+                }
+                updateCurrentState();
+            } catch (error) {
+                log('❌ Error in accuracy check: ' + error.message);
+            }
+        }
+        
+        function recalculateFromTransactions() {
+            try {
+                log('\n♻️ Recalculating todayFlowed...');
+                if (typeof recalculateTodayFlowed === 'function') {
+                    const result = recalculateTodayFlowed();
+                    log(`✅ Recalculation completed`);
+                } else {
+                    log('❌ Recalculate function not available');
+                }
+                updateCurrentState();
+            } catch (error) {
+                log('❌ Error in recalculation: ' + error.message);
+            }
+        }
+        
+        function runFullValidation() {
+            try {
+                log('\n🚀 Running full validation suite...');
+                if (typeof runDailySpendingValidation === 'function') {
+                    const results = runDailySpendingValidation();
+                    log(`✅ Full validation completed: ${results.passed}/${results.total} passed`);
+                } else {
+                    log('❌ Full validation function not available');
+                }
+                updateCurrentState();
+            } catch (error) {
+                log('❌ Error in full validation: ' + error.message);
+            }
+        }
+        
+        function debugState() {
+            try {
+                log('\n🔧 Debugging state...');
+                if (typeof debugDailySpendingState === 'function') {
+                    debugDailySpendingState();
+                    log('✅ Debug completed');
+                } else {
+                    log('❌ Debug function not available');
+                }
+            } catch (error) {
+                log('❌ Error in debug: ' + error.message);
+            }
+        }
+        
+        // Capture console output for display
+        const originalLog = console.log;
+        console.log = function(...args) {
+            const message = args.join(' ');
+            if (outputDiv) {
+                outputDiv.textContent += message + '\n';
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            }
+            originalLog.apply(console, args);
+        };
+    </script>
+</body>
+</html>

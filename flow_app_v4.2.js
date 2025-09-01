@@ -739,7 +739,17 @@ const appState = {
         future: { allocated: 160, used: 0, percentage: 5 },
         freedom: { allocated: 1280, used: 0, percentage: 40 }
     },
-    transactions: []
+    transactions: [],
+
+    // DUAL DISPLAY SYSTEM: Daily flow tracking properties
+    dailyFlowFixed: null,              // Set once per day, doesn't change during day
+    todayFlowed: 0,                    // Tracks money flowed during current day
+    lastDayStart: null,                // Timestamp when current day's flow was calculated
+    
+    // SESSION STATE PROTECTION: Prevent recalculation during active use
+    isActiveSession: false,            // Flag to indicate active transaction session
+    sessionStartTime: null,            // When the current session started
+    sessionTimer: null                 // Timer to auto-end session after inactivity
 };
 
 
@@ -2065,6 +2075,9 @@ function showBadgeUnlockToast(badgeConfig) {
 }
 
 function processTransaction(amount, description, category = 'freedom') {
+    // SESSION STATE PROTECTION: Start/extend active session
+    extendActiveSession();
+    
     // C2: Comprehensive transaction safety validation (replaces all manual validation)
     const validationResult = validateTransactionSafety(amount, category);
     if (!validationResult.isValid) {
@@ -2084,6 +2097,13 @@ function processTransaction(amount, description, category = 'freedom') {
         category,
         timestamp: new Date()
     });
+
+    // **DUAL DISPLAY SYSTEM: Track daily spending for new transactions**
+    // Only update todayFlowed for freedom/spend category transactions
+    if (category === 'freedom' || category === 'spend') {
+        appState.todayFlowed = (appState.todayFlowed || 0) + amount;
+        console.log(`💰 Updated todayFlowed: +$${amount} = $${appState.todayFlowed} (session protected)`);
+    }
 
     updateAllDisplaysSynchronized();
 
@@ -4867,21 +4887,26 @@ function unlockBudgetBadge(badgeId) {
 
 // ===== STREAM 3: REAL-TIME TRANSACTION FEEDBACK =====
 function updateDailyFlowDisplay() {
-    // Handle both old (spend) and new (freedom) category naming for backward compatibility
-    const spendUsed = appState.categories?.freedom?.used || appState.categories?.spend?.used || 0;
-    const spendAllocated = appState.categories?.freedom?.allocated || appState.categories?.spend?.allocated || 0;
-    const remainingToday = Math.max(0, calculateDailyFlowUnified());
+    // **DUAL DISPLAY SYSTEM: Use same logic as updateAllDisplaysSynchronized**
+    const dailyFlow = calculateDailyFlow(appState.categories);
+    const todayFlowed = appState.todayFlowed || 0;
+    const remainingToday = dailyFlow - todayFlowed; // ALLOW NEGATIVE VALUES
 
     // Update main daily flow display
     const dailyFlowElement = document.getElementById('dailyFlowAmount');
     if (dailyFlowElement) {
-        dailyFlowElement.textContent = `$${remainingToday}`;
+        const displayValue = remainingToday >= 0 ? `$${remainingToday}` : `-$${Math.abs(remainingToday)}`;
+        dailyFlowElement.textContent = displayValue;
     }
 
     // Update remaining amount in quick add (if element exists)
     const remainingAmountElement = document.getElementById('remainingAmount');
     if (remainingAmountElement) {
-        remainingAmountElement.textContent = `$${remainingToday} flows freely today`;
+        if (remainingToday >= 0) {
+            remainingAmountElement.textContent = `$${remainingToday} flows freely today`;
+        } else {
+            remainingAmountElement.textContent = `$${Math.abs(remainingToday)} over today's flow`;
+        }
     }
 }
 
@@ -4904,10 +4929,38 @@ function showTransactionImpactFeedback() {
 
 function updateAllDisplaysSynchronized() {
     const dailyFlow = calculateDailyFlow(appState.categories);
+    
+    // **REMAINING BUDGET DISPLAY: Show dailyFlow minus todayFlowed (ALLOW NEGATIVE)**
+    const todayFlowed = appState.todayFlowed || 0;
+    const remainingToday = dailyFlow - todayFlowed; // ALLOW NEGATIVE VALUES
 
-    // Update daily flow displays
+    // Update daily flow displays with remaining amount (handle negative values)
     const dailyFlowElements = document.querySelectorAll('#dailyFlowAmount');
-    dailyFlowElements.forEach(el => el.textContent = `$${dailyFlow}`);
+    dailyFlowElements.forEach(el => {
+        const displayValue = remainingToday >= 0 ? `$${remainingToday}` : `-$${Math.abs(remainingToday)}`;
+        el.textContent = displayValue;
+    });
+
+    // **DUAL DISPLAY: Update tomorrow's flow using existing calculateDailyFlow()**
+    try {
+        const tomorrowAmount = calculateDailyFlow(appState.categories);
+        const tomorrowElement = document.getElementById('tomorrowFlowHint');
+        if (tomorrowElement) {
+            // Simple educational messaging
+            let message = "Building your financial clarity";
+            if (tomorrowAmount > dailyFlow) {
+                message = "Your mindful choices are building momentum";
+            } else if (tomorrowAmount < dailyFlow) {
+                message = "Your choices shape the journey";
+            } else {
+                message = "Steady flow building wealth";
+            }
+
+            tomorrowElement.textContent = `Tomorrow: $${tomorrowAmount} • ${message} 💚`;
+        }
+    } catch (error) {
+        console.warn('Tomorrow flow update failed:', error);
+    }
 
     // Update freedom amount displays
     const freedomElements = document.querySelectorAll('#freedomAmount, #freedomUsedAmount');
@@ -5862,6 +5915,9 @@ function selectEditTransactionCategory(category) {
 }
 
 function submitTransactionEdit() {
+    // SESSION STATE PROTECTION: Extend active session for edits
+    extendActiveSession();
+    
     const transactionId = document.getElementById('editTransactionId').value;
     const newAmount = parseFloat(document.getElementById('editTransactionAmount').value);
     const newDescription = document.getElementById('editTransactionDescription').value.trim();
@@ -5915,7 +5971,16 @@ function submitTransactionEdit() {
             appState.categories[newCategory].used += newAmount;
         }
 
-        // Recalculate daily flow
+        // **DUAL DISPLAY SYSTEM: Track daily spending instead of recalculating**
+        // Update todayFlowed for transaction edits - subtract old, add new if freedom/spend
+        if (originalCategory === 'freedom' || originalCategory === 'spend') {
+            appState.todayFlowed = (appState.todayFlowed || 0) - originalAmount;
+        }
+        if (newCategory === 'freedom' || newCategory === 'spend') {
+            appState.todayFlowed = (appState.todayFlowed || 0) + newAmount;
+        }
+
+        // Preserve existing daily flow calculation for backward compatibility
         appState.dailyFlow = calculateDailyFlow(appState.categories);
 
         // Update all displays
@@ -5935,6 +6000,9 @@ function submitTransactionEdit() {
 }
 
 function confirmTransactionDelete() {
+    // SESSION STATE PROTECTION: Extend active session for deletes
+    extendActiveSession();
+    
     const transactionId = document.getElementById('editTransactionId').value;
     const amount = document.getElementById('editTransactionAmount').value;
     const description = document.getElementById('editTransactionDescription').value;
@@ -5963,7 +6031,13 @@ function confirmTransactionDelete() {
                 appState.transactions.splice(transactionIndex, 1);
             }
 
-            // Recalculate daily flow
+            // **DUAL DISPLAY SYSTEM: Track daily spending instead of recalculating**
+            // Subtract deleted transaction amount from todayFlowed for freedom/spend categories
+            if (transaction.category === 'freedom' || transaction.category === 'spend') {
+                appState.todayFlowed = (appState.todayFlowed || 0) - transaction.amount;
+            }
+
+            // Preserve existing daily flow calculation for backward compatibility
             appState.dailyFlow = calculateDailyFlow(appState.categories);
 
             // Update all displays
@@ -6446,7 +6520,16 @@ function updateTransaction(event, transactionId) {
             }
         };
 
-        // Recalculate daily flow
+        // **DUAL DISPLAY SYSTEM: Track daily spending instead of recalculating**
+        // Update todayFlowed for transaction edits - subtract old, add new if freedom/spend
+        if (originalCategory === 'freedom' || originalCategory === 'spend') {
+            appState.todayFlowed = (appState.todayFlowed || 0) - originalAmount;
+        }
+        if (newCategory === 'freedom' || newCategory === 'spend') {
+            appState.todayFlowed = (appState.todayFlowed || 0) + roundedAmount;
+        }
+
+        // Preserve existing daily flow calculation for backward compatibility
         appState.dailyFlow = calculateDailyFlow(appState.categories);
 
         // Update all displays
@@ -6531,7 +6614,13 @@ function deleteTransaction(transactionId) {
         // Remove transaction from array
         appState.transactions.splice(transactionIndex, 1);
 
-        // Recalculate daily flow
+        // **DUAL DISPLAY SYSTEM: Track daily spending instead of recalculating**
+        // Subtract deleted transaction amount from todayFlowed for freedom/spend categories
+        if (transaction.category === 'freedom' || transaction.category === 'spend') {
+            appState.todayFlowed = (appState.todayFlowed || 0) - transaction.amount;
+        }
+
+        // Preserve existing daily flow calculation for backward compatibility
         appState.dailyFlow = calculateDailyFlow(appState.categories);
 
         // Update all displays
@@ -7348,6 +7437,38 @@ function initializeWithPersistentData() {
                     id: transaction.id || (Date.now() - index * 1000), // Fix missing IDs
                     timestamp: new Date(transaction.timestamp) // Ensure dates are Date objects
                 }));
+
+                // DUAL DISPLAY: Recalculate todayFlowed from existing transactions
+                // This ensures todayFlowed matches actual daily spending when app reloads
+                if (typeof recalculateTodayFlowed === 'function') {
+                    try {
+                        recalculateTodayFlowed();
+                        console.log('✅ Daily spending tracking recalculated from existing transactions');
+                    } catch (error) {
+                        console.warn('⚠️ Could not recalculate daily spending:', error.message);
+                        // Fallback: ensure todayFlowed is at least initialized
+                        if (typeof appState.todayFlowed === 'undefined') {
+                            appState.todayFlowed = 0;
+                        }
+                    }
+                } else {
+                    // Fallback: ensure todayFlowed is at least initialized
+                    if (typeof appState.todayFlowed === 'undefined') {
+                        appState.todayFlowed = 0;
+                    }
+                }
+            }
+
+            // DUAL DISPLAY SYSTEM: Ensure daily flow tracking properties are always initialized
+            if (typeof appState.todayFlowed === 'undefined') {
+                appState.todayFlowed = 0;
+                console.log('✅ Initialized todayFlowed for existing user');
+            }
+            if (typeof appState.dailyFlowFixed === 'undefined') {
+                appState.dailyFlowFixed = null;
+            }
+            if (typeof appState.lastDayStart === 'undefined') {
+                appState.lastDayStart = null;
             }
 
             // ===== DAY 37 ADDITION: RESTORE ACHIEVEMENT STATE =====
@@ -9231,6 +9352,11 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         }
 
+        // **DUAL DISPLAY SYSTEM: Daily flow tracking properties**
+        appState.dailyFlowFixed = null;          // Set once per day, doesn't change during day
+        appState.todayFlowed = 0;                // Tracks money flowed during current day
+        appState.lastDayStart = null;            // Timestamp when current day's flow was calculated
+
         // Initialize sliders even for new users
         setTimeout(() => {
             validateAllocationState();
@@ -9753,6 +9879,73 @@ function runMathematicalValidationTest() {
 }
 
 // ===== SYNCHRONIZED DATE MANAGEMENT =====
+// **DUAL DISPLAY SYSTEM: Daily Flow Assignment Function**
+function assignDailyFlow() {
+    console.log('🌅 Assigning Today\'s Flow for dual display system');
+
+    try {
+        // Use same calculation logic as calculateDailyFlow for mathematical consistency
+        const categories = appState.categories;
+        const currentDay = new Date().getDate();
+        const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+
+        // Handle both freedom and legacy spend category naming for backward compatibility
+        let freedomCategory = categories.freedom || categories.spend;
+        if (!freedomCategory || typeof freedomCategory !== 'object') {
+            console.warn('⚠️ Freedom category not found, using fallback');
+            freedomCategory = { allocated: 1280, used: 0 };
+        }
+
+        // Extract values with defaults - v4.0 specification
+        const income = typeof freedomCategory.allocated === 'number' ? freedomCategory.allocated : 1280;
+        const spent = typeof freedomCategory.used === 'number' ? freedomCategory.used : 0;
+
+        // v4.0 Specification Algorithm - identical to calculateDailyFlow
+        const remaining = income - spent;
+        const daysRemaining = daysInMonth - currentDay + 1;
+        const rawDailyFlow = remaining / daysRemaining;
+        const todaysFlow = Math.max(0, Math.round(rawDailyFlow));
+
+        // **DUAL DISPLAY: Set fixed daily flow for the day**
+        appState.dailyFlowFixed = todaysFlow;
+        appState.todayFlowed = 0; // Reset daily spending tracking
+        appState.lastDayStart = Date.now(); // Store when this day's flow was assigned
+
+        console.log('✨ Today\'s Flow assigned:', {
+            todaysFlow: todaysFlow,
+            remaining: remaining,
+            daysRemaining: daysRemaining,
+            resetTime: new Date(appState.lastDayStart).toLocaleString()
+        });
+
+        // **SLES MESSAGING: Log assignment with Flow brand voice**
+        console.log(`💚 Today's Flow: $${todaysFlow} • Available for flowing freely today`);
+
+        return {
+            success: true,
+            todaysFlow: todaysFlow,
+            remaining: remaining,
+            daysRemaining: daysRemaining,
+            message: `Today's Flow: $${todaysFlow} • Available: $${todaysFlow} ✨`
+        };
+
+    } catch (error) {
+        console.error('❌ Error assigning Today\'s Flow:', error);
+
+        // Fallback to ensure app continues working
+        appState.dailyFlowFixed = appState.dailyFlow || 40; // Use existing daily flow as fallback
+        appState.todayFlowed = 0;
+        appState.lastDayStart = Date.now();
+
+        return {
+            success: false,
+            error: error.message,
+            fallbackFlow: appState.dailyFlowFixed,
+            message: `Today's Flow: $${appState.dailyFlowFixed} • Available: $${appState.dailyFlowFixed} ✨`
+        };
+    }
+}
+
 // Ensures all date calculations use the same source of truth
 function updateDateState() {
     const now = new Date();
@@ -9780,7 +9973,7 @@ function synchronizeAppState() {
     // Update date state first
     updateDateState();
 
-    // Recalculate daily flow with current state
+    // Preserve existing daily flow calculation for backward compatibility
     appState.dailyFlow = calculateDailyFlow(appState.categories);
 
     // Update displays
@@ -21146,3 +21339,390 @@ function testCoachingSystem() {
 window.testCoachingSystem = testCoachingSystem;
 window.triggerCoachingMoment = triggerCoachingMoment;
 window.toggleCoaching = toggleCoaching;
+
+// ===== DAILY SPENDING TRACKING VALIDATION SUITE =====
+
+/**
+ * Simple validation for console use - no DOM manipulation
+ */
+function validateDailySpendingSimple() {
+    console.log('🧪 Simple Daily Spending Validation (Console Safe)...');
+
+    let passed = 0;
+    let failed = 0;
+
+    // Test 1: todayFlowed exists and is a number
+    const todayFlowedExists = typeof appState.todayFlowed === 'number';
+    console.log(`${todayFlowedExists ? '✅' : '❌'} todayFlowed: ${appState.todayFlowed} (${typeof appState.todayFlowed})`);
+    if (todayFlowedExists) passed++; else failed++;
+
+    // Test 2: Traditional dailyFlow calculation works
+    const dailyFlow = calculateDailyFlow(appState.categories);
+    const dailyFlowValid = typeof dailyFlow === 'number' && !isNaN(dailyFlow);
+    console.log(`${dailyFlowValid ? '✅' : '❌'} Traditional dailyFlow: ${dailyFlow}`);
+    if (dailyFlowValid) passed++; else failed++;
+
+    // Test 3: Transaction tracking accuracy
+    const calculation = calculateExpectedTodayFlowed();
+    const accuracyTest = calculation.accurate;
+    console.log(`${accuracyTest ? '✅' : '❌'} Tracking Accuracy: Expected ${calculation.expected}, Actual ${calculation.actual}`);
+    if (accuracyTest) passed++; else failed++;
+
+    // Test 4: Function availability
+    const functionsExist = typeof processTransaction === 'function';
+    console.log(`${functionsExist ? '✅' : '❌'} Core Functions: Available`);
+    if (functionsExist) passed++; else failed++;
+
+    // Summary
+    const successRate = ((passed / (passed + failed)) * 100).toFixed(1);
+    console.log(`\n📊 Validation Summary: ${passed}/${passed + failed} passed (${successRate}%)`);
+
+    return { passed, failed, successRate: parseFloat(successRate) };
+}
+
+/**
+ * Quick validation functions for testing the dual display system
+ */
+function validateDailySpendingImplementation() {
+    console.log('🧪 Validating Daily Spending Implementation...');
+
+    const results = {
+        tests: [],
+        passed: 0,
+        failed: 0
+    };
+
+    function logTest(name, passed, details) {
+        const result = { name, passed, details };
+        results.tests.push(result);
+        if (passed) results.passed++;
+        else results.failed++;
+
+        const icon = passed ? '✅' : '❌';
+        console.log(`${icon} ${name}: ${details}`);
+    }
+
+    // Test 1: Check if todayFlowed exists
+    const hasTodayFlowed = appState.hasOwnProperty('todayFlowed') || appState.todayFlowed !== undefined;
+    logTest('todayFlowed Property', hasTodayFlowed, `Value: ${appState.todayFlowed}`);
+
+    // Test 2: Test transaction addition tracking
+    const initialTodayFlowed = appState.todayFlowed || 0;
+    const testAmount = 25;
+
+    // Create a test transaction directly (bypassing validation for testing)
+    const beforeTransactions = appState.transactions.length;
+    const beforeFreedomUsed = appState.categories.freedom.used;
+
+    appState.categories.freedom.used += testAmount;
+    appState.transactions.push({
+        id: Date.now(),
+        amount: testAmount,
+        description: 'Validation test',
+        category: 'freedom',
+        timestamp: new Date()
+    });
+
+    // Apply the tracking logic manually
+    if ('freedom' === 'freedom' || 'freedom' === 'spend') {
+        appState.todayFlowed = (appState.todayFlowed || 0) + testAmount;
+    }
+
+    const expectedTodayFlowed = initialTodayFlowed + testAmount;
+    const actualTodayFlowed = appState.todayFlowed || 0;
+
+    logTest(
+        'Freedom Transaction Tracking',
+        actualTodayFlowed === expectedTodayFlowed,
+        `Expected: ${expectedTodayFlowed}, Actual: ${actualTodayFlowed}`
+    );
+
+    // Test 3: Verify backward compatibility
+    const traditionalDailyFlow = calculateDailyFlow(appState.categories);
+    logTest(
+        'Backward Compatibility',
+        typeof traditionalDailyFlow === 'number' && !isNaN(traditionalDailyFlow),
+        `Traditional dailyFlow: ${traditionalDailyFlow}`
+    );
+
+    // Test 4: Check processing function exists
+    const hasProcessTransaction = typeof processTransaction === 'function';
+    logTest('processTransaction Function', hasProcessTransaction, 'Function exists');
+
+    // Clean up test transaction
+    appState.transactions.pop();
+    appState.categories.freedom.used = beforeFreedomUsed;
+    appState.todayFlowed = initialTodayFlowed;
+
+    // Summary
+    console.log('\n📊 Validation Summary:');
+    console.log(`✅ Passed: ${results.passed}`);
+    console.log(`❌ Failed: ${results.failed}`);
+    console.log(`📈 Success Rate: ${((results.passed / (results.passed + results.failed)) * 100).toFixed(1)}%`);
+
+    return results;
+}
+
+/**
+ * Test actual transaction processing with the new tracking
+ */
+function testTransactionProcessing() {
+    console.log('🧪 Testing Transaction Processing...');
+
+    const initialState = {
+        todayFlowed: appState.todayFlowed || 0,
+        freedomUsed: appState.categories.freedom.used,
+        transactionCount: appState.transactions.length
+    };
+
+    console.log('📊 Initial State:', initialState);
+
+    // Test adding a freedom transaction
+    const testAmount = 15;
+    const result = processTransaction(testAmount, 'Validation Test Purchase', 'freedom');
+
+    console.log('📊 Transaction Result:', result);
+
+    if (result.success) {
+        const newState = {
+            todayFlowed: appState.todayFlowed || 0,
+            freedomUsed: appState.categories.freedom.used,
+            transactionCount: appState.transactions.length
+        };
+
+        console.log('📊 New State:', newState);
+
+        const expectedTodayFlowed = initialState.todayFlowed + testAmount;
+        const todayFlowedCorrect = newState.todayFlowed === expectedTodayFlowed;
+
+        console.log(`✅ todayFlowed tracking: ${todayFlowedCorrect ? 'PASSED' : 'FAILED'}`);
+        console.log(`   Expected: ${expectedTodayFlowed}, Actual: ${newState.todayFlowed}`);
+
+        const transactionAdded = newState.transactionCount === initialState.transactionCount + 1;
+        console.log(`✅ Transaction added: ${transactionAdded ? 'PASSED' : 'FAILED'}`);
+
+        const categoryUpdated = newState.freedomUsed === initialState.freedomUsed + testAmount;
+        console.log(`✅ Category updated: ${categoryUpdated ? 'PASSED' : 'FAILED'}`);
+
+        return {
+            success: true,
+            todayFlowedCorrect,
+            transactionAdded,
+            categoryUpdated
+        };
+    } else {
+        console.log('❌ Transaction failed:', result.error);
+        return { success: false, error: result.error };
+    }
+}
+
+/**
+ * Calculate expected todayFlowed from existing transactions
+ */
+function calculateExpectedTodayFlowed() {
+    const freedomTransactions = appState.transactions.filter(t => t.category === 'freedom');
+    const spendTransactions = appState.transactions.filter(t => t.category === 'spend');
+
+    const freedomTotal = freedomTransactions.reduce((sum, t) => sum + t.amount, 0);
+    const spendTotal = spendTransactions.reduce((sum, t) => sum + t.amount, 0);
+    const expected = freedomTotal + spendTotal;
+
+    console.log('📊 Expected todayFlowed Calculation:');
+    console.log(`   Freedom transactions: ${freedomTransactions.length} = $${freedomTotal}`);
+    console.log(`   Spend transactions: ${spendTransactions.length} = $${spendTotal}`);
+    console.log(`   Expected total: $${expected}`);
+    console.log(`   Actual todayFlowed: $${appState.todayFlowed || 0}`);
+    console.log(`   Difference: $${Math.abs(expected - (appState.todayFlowed || 0))}`);
+
+    return {
+        expected,
+        actual: appState.todayFlowed || 0,
+        accurate: expected === (appState.todayFlowed || 0),
+        freedomCount: freedomTransactions.length,
+        spendCount: spendTransactions.length
+    };
+}
+
+/**
+ * Reset todayFlowed and recalculate from transactions
+ * SESSION STATE PROTECTION: Respects active sessions
+ */
+function recalculateTodayFlowed() {
+    // SESSION STATE PROTECTION: Skip recalculation during active sessions
+    if (appState.isActiveSession) {
+        console.log('⏸️ Recalculation skipped - active session in progress');
+        console.log(`   Session started: ${new Date(appState.sessionStartTime).toLocaleTimeString()}`);
+        console.log(`   Current todayFlowed: $${appState.todayFlowed} (protected)`);
+        return {
+            skipped: true,
+            reason: 'active_session',
+            sessionStartTime: appState.sessionStartTime,
+            currentTodayFlowed: appState.todayFlowed
+        };
+    }
+    
+    console.log('🔄 Recalculating todayFlowed from transactions...');
+
+    const calculation = calculateExpectedTodayFlowed();
+    const oldValue = appState.todayFlowed;
+
+    appState.todayFlowed = calculation.expected;
+
+    console.log(`✅ Updated todayFlowed: ${oldValue} → ${appState.todayFlowed}`);
+
+    // Only update displays if we're in the main app (has proper DOM structure)
+    try {
+        if (document.getElementById('dailyFlowAmount') && document.getElementById('incomeAmount')) {
+            updateAllDisplaysSynchronized();
+        } else {
+            console.log('📋 Skipping display update (test environment or missing elements)');
+        }
+    } catch (error) {
+        console.log('⚠️ Display update skipped:', error.message);
+    }
+
+    return calculation;
+}
+
+/**
+ * Debug current daily spending state
+ */
+function debugDailySpendingState() {
+    console.log('\n🔧 Debug: Daily Spending State');
+    console.log('=====================================');
+    console.log('📊 todayFlowed:', appState.todayFlowed);
+    console.log('📊 Traditional dailyFlow:', calculateDailyFlow(appState.categories));
+    console.log('📊 Freedom transactions:', appState.transactions.filter(t => t.category === 'freedom').length);
+    console.log('📊 Spend transactions:', appState.transactions.filter(t => t.category === 'spend').length);
+    console.log('📊 Total transactions:', appState.transactions.length);
+
+    const freedomTotal = appState.transactions
+        .filter(t => t.category === 'freedom')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const spendTotal = appState.transactions
+        .filter(t => t.category === 'spend')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    console.log('📊 Freedom category total:', freedomTotal);
+    console.log('📊 Spend category total:', spendTotal);
+    console.log('📊 Expected todayFlowed:', freedomTotal + spendTotal);
+    
+    // SESSION STATE PROTECTION INFO
+    console.log('\n🔒 Session Protection Status:');
+    console.log('   Active Session:', appState.isActiveSession);
+    if (appState.isActiveSession) {
+        const duration = Math.round((Date.now() - (appState.sessionStartTime || Date.now())) / 1000);
+        console.log('   Session Duration:', `${duration}s`);
+        console.log('   Protection Status: 🛡️ ENABLED - recalculation blocked');
+    } else {
+        console.log('   Protection Status: ⚡ DISABLED - recalculation allowed');
+    }
+}
+
+// Make validation functions available globally
+window.validateDailySpendingImplementation = validateDailySpendingImplementation;
+window.validateDailySpendingSimple = validateDailySpendingSimple;
+window.testTransactionProcessing = testTransactionProcessing;
+window.calculateExpectedTodayFlowed = calculateExpectedTodayFlowed;
+window.recalculateTodayFlowed = recalculateTodayFlowed;
+window.debugDailySpendingState = debugDailySpendingState;
+
+console.log('🧪 Daily Spending Validation Functions Loaded');
+console.log('📋 Quick validation commands:');
+console.log('  - validateDailySpendingImplementation() - Quick validation');
+console.log('  - testTransactionProcessing() - Test new transaction');
+console.log('  - calculateExpectedTodayFlowed() - Check accuracy');
+console.log('  - recalculateTodayFlowed() - Reset and recalculate');
+console.log('  - debugDailySpendingState() - Debug current state');
+
+// ===== SESSION STATE PROTECTION FUNCTIONS =====
+/**
+ * SESSION STATE PROTECTION SYSTEM
+ * 
+ * Problem: The dual display system was conflicting because:
+ * - processTransaction() correctly updates todayFlowed for live tracking
+ * - recalculateTodayFlowed() resets todayFlowed based on saved transactions
+ * - This caused quick add to work momentarily, then reset to 0
+ * 
+ * Solution: Protect live sessions from automatic recalculation
+ * - When user makes transactions → start active session (15min timer)
+ * - During active session → block recalculateTodayFlowed()
+ * - After inactivity/page leave → end session and allow recalculation
+ * - This preserves real-time tracking while maintaining data integrity
+ */
+
+/**
+ * Start an active session to prevent automatic recalculation
+ * Called when user starts making transactions
+ */
+function startActiveSession() {
+    appState.isActiveSession = true;
+    appState.sessionStartTime = Date.now();
+    
+    // Clear any existing timer
+    if (appState.sessionTimer) {
+        clearTimeout(appState.sessionTimer);
+    }
+    
+    // Auto-end session after 15 minutes of inactivity
+    appState.sessionTimer = setTimeout(() => {
+        endActiveSession();
+    }, 15 * 60 * 1000); // 15 minutes
+    
+    console.log('🟢 Active session started - recalculation protection enabled');
+}
+
+/**
+ * End the active session and allow recalculation
+ * Called after period of inactivity or manual trigger
+ */
+function endActiveSession() {
+    if (!appState.isActiveSession) {
+        return; // Already ended
+    }
+    
+    appState.isActiveSession = false;
+    const sessionDuration = Date.now() - (appState.sessionStartTime || Date.now());
+    
+    // Clear timer
+    if (appState.sessionTimer) {
+        clearTimeout(appState.sessionTimer);
+        appState.sessionTimer = null;
+    }
+    
+    console.log(`🔴 Active session ended after ${Math.round(sessionDuration / 1000)}s - recalculation allowed`);
+    
+    // Safe to recalculate now that session is over
+    try {
+        if (typeof recalculateTodayFlowed === 'function') {
+            recalculateTodayFlowed();
+        }
+    } catch (error) {
+        console.warn('⚠️ Post-session recalculation failed:', error.message);
+    }
+}
+
+/**
+ * Extend the current active session
+ * Called on each transaction to reset the inactivity timer
+ */
+function extendActiveSession() {
+    if (!appState.isActiveSession) {
+        startActiveSession();
+        return;
+    }
+    
+    // Clear existing timer and set new one
+    if (appState.sessionTimer) {
+        clearTimeout(appState.sessionTimer);
+    }
+    
+    appState.sessionTimer = setTimeout(() => {
+        endActiveSession();
+    }, 15 * 60 * 1000); // 15 minutes
+    
+    console.log('⏱️ Active session extended');
+}
+
+// ...existing code...

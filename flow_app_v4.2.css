@@ -2923,6 +2923,25 @@ body {
     font-style: italic;
 }
 
+/* ===== DUAL DISPLAY: Tomorrow's Flow Footer ===== */
+.tomorrow-flow-hint {
+    font-size: 11px;
+    color: rgba(248, 250, 252, 0.4);
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    text-align: center;
+}
+
+.tomorrow-flow-hint:hover {
+    opacity: 1;
+    color: rgba(248, 250, 252, 0.6);
+}
+
 /* ===== ANIMATED BACKGROUND (PERFORMANCE OPTIMIZED) ===== */
 .bg-animation {
     position: fixed;
