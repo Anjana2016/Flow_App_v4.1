@@ -7245,6 +7245,16 @@ function loadFromLocalStorage() {
 
         const parsed = JSON.parse(savedData);
 
+        // CRITICAL: Check if this is fresh onboarding data
+        if (parsed.onboardingComplete && !parsed.achievements?.welcomeShown) {
+            return parsed;
+        }
+
+        // Check for legacy incomplete data that should be replaced
+        if (!parsed.userProfile?.setupCompleted && !parsed.onboardingComplete) {
+            return null;
+        }
+
         if (savedData) {
             //const data = JSON.parse(savedData);
 
@@ -7341,206 +7351,327 @@ function validateLoadedData(data) {
 }
 
 function initializeWithPersistentData() {
-    console.log('🔄 Attempting to restore data from localStorage...');
-
     const savedData = loadFromLocalStorage();
 
-    if (savedData && savedData.userProfile) {
-        try {
-            // Restore user profile
-            if (savedData.userProfile.monthlyIncome) {
-                appState.monthlyIncome = savedData.userProfile.monthlyIncome;
-            }
+    if (savedData) {
+        // CRITICAL: Check if this is fresh onboarding data
+        if (savedData.onboardingComplete && !savedData.achievements?.welcomeShown) {
+            return processOnboardingData(savedData);
+        }
+        
+        // Regular returning user data
+        if (savedData.userProfile) {
+            return processReturningUserData(savedData);
+        }
+    }
+    
+    return false;
+}
 
-            if (savedData.userProfile.savingsProfile) {
-                appState.userProfile = savedData.userProfile.savingsProfile;
-                appState.saveProfile = savedData.userProfile.savingsProfile;
-            }
+function processOnboardingData(savedData) {
+    try {
+        // Restore income directly from top level or userProfile
+        if (savedData.monthlyIncome) {
+            appState.monthlyIncome = savedData.monthlyIncome;
+        } else if (savedData.userProfile?.monthlyIncome) {
+            appState.monthlyIncome = savedData.userProfile.monthlyIncome;
+        }
 
-            if (typeof savedData.userProfile.setupCompleted === 'boolean') {
-                appState.onboardingComplete = savedData.userProfile.setupCompleted;
-            }
+        // Set onboarding as complete
+        appState.onboardingComplete = true;
 
-            // Restore budget state
-            if (savedData.budgetState && savedData.budgetState.categories) {
-                // Handle both old and new category structures for backward compatibility
-                const cats = savedData.budgetState.categories;
-
-                // Check for new structure first
-                if (cats.foundation && cats.future && cats.freedom) {
-                    appState.categories = {
-                        foundation: {
-                            allocated: cats.foundation.allocated || 0,
-                            used: cats.foundation.used || 0,
-                            percentage: cats.foundation.percentage || 55
-                        },
-                        future: {
-                            allocated: cats.future.allocated || 0,
-                            used: cats.future.used || 0,
-                            percentage: cats.future.percentage || 5
-                        },
-                        freedom: {
-                            allocated: cats.freedom.allocated || 0,
-                            used: cats.freedom.used || 0,
-                            percentage: cats.freedom.percentage || 40
-                        }
-                    };
-
-                    // Update allocation state to match
-                    allocationState = {
-                        foundation: appState.categories.foundation.percentage,
-                        future: appState.categories.future.percentage,
-                        freedom: appState.categories.freedom.percentage,
-                        originalAllocations: {
-                            foundation: appState.categories.foundation.percentage,
-                            future: appState.categories.future.percentage,
-                            freedom: appState.categories.freedom.percentage
-                        }
-                    };
-                } else if (cats.secure && cats.save && cats.spend) {
-                    // Legacy support: convert old names to new names
-                    appState.categories = {
-                        foundation: {
-                            allocated: cats.secure.allocated || 0,
-                            used: cats.secure.used || 0,
-                            percentage: cats.secure.percentage || 55
-                        },
-                        future: {
-                            allocated: cats.save.allocated || 0,
-                            used: cats.save.used || 0,
-                            percentage: cats.save.percentage || 5
-                        },
-                        freedom: {
-                            allocated: cats.spend.allocated || 0,
-                            used: cats.spend.used || 0,
-                            percentage: cats.spend.percentage || 40
-                        }
-                    };
-
-                    // Update allocation state to match (legacy conversion)
-                    allocationState = {
-                        foundation: appState.categories.foundation.percentage,
-                        future: appState.categories.future.percentage,
-                        freedom: appState.categories.freedom.percentage,
-                        originalAllocations: {
-                            foundation: appState.categories.foundation.percentage,
-                            future: appState.categories.future.percentage,
-                            freedom: appState.categories.freedom.percentage
-                        }
-                    };
+        // Handle categories - try top-level first
+        if (savedData.categories) {
+            const cats = savedData.categories;
+            appState.categories = {
+                foundation: {
+                    allocated: cats.foundation.allocated || 0,
+                    used: cats.foundation.used || 0,
+                    percentage: cats.foundation.percentage || 55
+                },
+                future: {
+                    allocated: cats.future.allocated || 0,
+                    used: cats.future.used || 0,
+                    percentage: cats.future.percentage || 5
+                },
+                freedom: {
+                    allocated: cats.freedom.allocated || 0,
+                    used: cats.freedom.used || 0,
+                    percentage: cats.freedom.percentage || 40
                 }
-            }
+            };
 
-            // Restore daily flow
-            if (savedData.budgetState && savedData.budgetState.dailyFlow) {
-                appState.dailyFlow = savedData.budgetState.dailyFlow;
-                appState.dailyFlowAmount = savedData.budgetState.dailyFlow;
-            }
-            // Restore transactions
-            if (savedData.transactions && Array.isArray(savedData.transactions)) {
-                appState.transactions = savedData.transactions.map((transaction, index) => ({
-                    ...transaction,
-                    id: transaction.id || (Date.now() - index * 1000), // Fix missing IDs
-                    timestamp: new Date(transaction.timestamp) // Ensure dates are Date objects
-                }));
-
-                // DUAL DISPLAY: Recalculate todayFlowed from existing transactions
-                // This ensures todayFlowed matches actual daily spending when app reloads
-                if (typeof recalculateTodayFlowed === 'function') {
-                    try {
-                        recalculateTodayFlowed();
-                        console.log('✅ Daily spending tracking recalculated from existing transactions');
-                    } catch (error) {
-                        console.warn('⚠️ Could not recalculate daily spending:', error.message);
-                        // Fallback: ensure todayFlowed is at least initialized
-                        if (typeof appState.todayFlowed === 'undefined') {
-                            appState.todayFlowed = 0;
-                        }
+            // Set allocation state from onboarding
+            if (savedData.allocationState) {
+                allocationState = savedData.allocationState;
+            } else {
+                allocationState = {
+                    foundation: cats.foundation.percentage || 55,
+                    future: cats.future.percentage || 5,
+                    freedom: cats.freedom.percentage || 40,
+                    originalAllocations: {
+                        foundation: cats.foundation.percentage || 55,
+                        future: cats.future.percentage || 5,
+                        freedom: cats.freedom.percentage || 40
                     }
-                } else {
+                };
+            }
+        }
+
+        // Set daily flow
+        if (savedData.dailyFlow) {
+            appState.dailyFlow = savedData.dailyFlow;
+            appState.dailyFlowAmount = savedData.dailyFlow;
+        }
+
+        // Initialize empty transactions for new user
+        appState.transactions = [];
+        appState.todayFlowed = 0;
+
+        // Mark welcome as shown and save
+        savedData.achievements = savedData.achievements || {};
+        savedData.achievements.welcomeShown = true;
+        localStorage.setItem('flowBudgeting_v3', JSON.stringify(savedData));
+
+        return true;
+
+    } catch (error) {
+        console.error('❌ Error processing onboarding data:', error);
+        return false;
+    }
+}
+
+function processReturningUserData(savedData) {
+    try {
+        // Restore user profile
+        if (savedData.userProfile.monthlyIncome) {
+            appState.monthlyIncome = savedData.userProfile.monthlyIncome;
+        }
+
+        if (savedData.userProfile.savingsProfile) {
+            appState.userProfile = savedData.userProfile.savingsProfile;
+            appState.saveProfile = savedData.userProfile.savingsProfile;
+        }
+
+        if (typeof savedData.userProfile.setupCompleted === 'boolean') {
+            appState.onboardingComplete = savedData.userProfile.setupCompleted;
+        }
+
+        // Restore budget state
+        if (savedData.budgetState && savedData.budgetState.categories) {
+            // Handle both old and new category structures for backward compatibility
+            const cats = savedData.budgetState.categories;
+
+            // Check for new structure first
+            if (cats.foundation && cats.future && cats.freedom) {
+                appState.categories = {
+                    foundation: {
+                        allocated: cats.foundation.allocated || 0,
+                        used: cats.foundation.used || 0,
+                        percentage: cats.foundation.percentage || 55
+                    },
+                    future: {
+                        allocated: cats.future.allocated || 0,
+                        used: cats.future.used || 0,
+                        percentage: cats.future.percentage || 5
+                    },
+                    freedom: {
+                        allocated: cats.freedom.allocated || 0,
+                        used: cats.freedom.used || 0,
+                        percentage: cats.freedom.percentage || 40
+                    }
+                };
+
+                // Update allocation state to match
+                allocationState = {
+                    foundation: appState.categories.foundation.percentage,
+                    future: appState.categories.future.percentage,
+                    freedom: appState.categories.freedom.percentage,
+                    originalAllocations: {
+                        foundation: appState.categories.foundation.percentage,
+                        future: appState.categories.future.percentage,
+                        freedom: appState.categories.freedom.percentage
+                    }
+                };
+            } else if (cats.secure && cats.save && cats.spend) {
+                // Legacy support: convert old names to new names
+                appState.categories = {
+                    foundation: {
+                        allocated: cats.secure.allocated || 0,
+                        used: cats.secure.used || 0,
+                        percentage: cats.secure.percentage || 55
+                    },
+                    future: {
+                        allocated: cats.save.allocated || 0,
+                        used: cats.save.used || 0,
+                        percentage: cats.save.percentage || 5
+                    },
+                    freedom: {
+                        allocated: cats.spend.allocated || 0,
+                        used: cats.spend.used || 0,
+                        percentage: cats.spend.percentage || 40
+                    }
+                };
+
+                // Update allocation state to match (legacy conversion)
+                allocationState = {
+                    foundation: appState.categories.foundation.percentage,
+                    future: appState.categories.future.percentage,
+                    freedom: appState.categories.freedom.percentage,
+                    originalAllocations: {
+                        foundation: appState.categories.foundation.percentage,
+                        future: appState.categories.future.percentage,
+                        freedom: appState.categories.freedom.percentage
+                    }
+                };
+            }
+        } else if (savedData.categories) {
+            // Handle top-level categories structure (from onboarding)
+            const cats = savedData.categories;
+            if (cats.foundation && cats.future && cats.freedom) {
+                appState.categories = {
+                    foundation: {
+                        allocated: cats.foundation.allocated || 0,
+                        used: cats.foundation.used || 0,
+                        percentage: cats.foundation.percentage || 55
+                    },
+                    future: {
+                        allocated: cats.future.allocated || 0,
+                        used: cats.future.used || 0,
+                        percentage: cats.future.percentage || 5
+                    },
+                    freedom: {
+                        allocated: cats.freedom.allocated || 0,
+                        used: cats.freedom.used || 0,
+                        percentage: cats.freedom.percentage || 40
+                    }
+                };
+
+                // Update allocation state to match
+                allocationState = {
+                    foundation: appState.categories.foundation.percentage,
+                    future: appState.categories.future.percentage,
+                    freedom: appState.categories.freedom.percentage,
+                    originalAllocations: {
+                        foundation: appState.categories.foundation.percentage,
+                        future: appState.categories.future.percentage,
+                        freedom: appState.categories.freedom.percentage
+                    }
+                };
+            }
+        }
+
+        // Handle top-level allocationState if present
+        if (savedData.allocationState) {
+            allocationState = savedData.allocationState;
+        }
+
+        // Restore daily flow
+        if (savedData.budgetState && savedData.budgetState.dailyFlow) {
+            appState.dailyFlow = savedData.budgetState.dailyFlow;
+            appState.dailyFlowAmount = savedData.budgetState.dailyFlow;
+        }
+        // Restore transactions
+        if (savedData.transactions && Array.isArray(savedData.transactions)) {
+            appState.transactions = savedData.transactions.map((transaction, index) => ({
+                ...transaction,
+                id: transaction.id || (Date.now() - index * 1000), // Fix missing IDs
+                timestamp: new Date(transaction.timestamp) // Ensure dates are Date objects
+            }));
+
+            // DUAL DISPLAY: Recalculate todayFlowed from existing transactions
+            // This ensures todayFlowed matches actual daily spending when app reloads
+            if (typeof recalculateTodayFlowed === 'function') {
+                try {
+                    recalculateTodayFlowed();
+                    console.log('✅ Daily spending tracking recalculated from existing transactions');
+                } catch (error) {
+                    console.warn('⚠️ Could not recalculate daily spending:', error.message);
                     // Fallback: ensure todayFlowed is at least initialized
                     if (typeof appState.todayFlowed === 'undefined') {
                         appState.todayFlowed = 0;
                     }
                 }
-            }
-
-            // DUAL DISPLAY SYSTEM: Ensure daily flow tracking properties are always initialized
-            if (typeof appState.todayFlowed === 'undefined') {
-                appState.todayFlowed = 0;
-                console.log('✅ Initialized todayFlowed for existing user');
-            }
-            if (typeof appState.dailyFlowFixed === 'undefined') {
-                appState.dailyFlowFixed = null;
-            }
-            if (typeof appState.lastDayStart === 'undefined') {
-                appState.lastDayStart = null;
-            }
-
-            // ===== DAY 37 ADDITION: RESTORE ACHIEVEMENT STATE =====
-            if (savedData.achievements) {
-                appState.achievements = {
-                    wealthXP: {
-                        totalXP: savedData.achievements.wealthXP?.totalXP || 0,
-                        level: savedData.achievements.wealthXP?.level || 1,
-                        levelXP: savedData.achievements.wealthXP?.levelXP || 0,
-                        levelTarget: savedData.achievements.wealthXP?.levelTarget || 100,
-                        badges: savedData.achievements.wealthXP?.badges || [],
-                        streaks: {
-                            dailyFlow: savedData.achievements.wealthXP?.streaks?.dailyFlow || { current: 0, max: 0, gracePeriod: 1 },
-                            budgetAccuracy: savedData.achievements.wealthXP?.streaks?.budgetAccuracy || { current: 0, max: 0, gracePeriod: 2 },
-                            savings: savedData.achievements.wealthXP?.streaks?.savings || { current: 0, max: 0, gracePeriod: 1 }
-                        }
-                    },
-                    educational: {
-                        completedModules: savedData.achievements.educational?.completedModules || [],
-                        currentModule: savedData.achievements.educational?.currentModule || null,
-                        learningStreak: savedData.achievements.educational?.learningStreak || 0,
-                        totalTimeSpent: savedData.achievements.educational?.totalTimeSpent || 0
-                    },
-                    history: {
-                        notifications: savedData.achievements.history?.notifications || [],
-                        achievementHistory: savedData.achievements.history?.achievementHistory || [],
-                        lastCalculated: savedData.achievements.history?.lastCalculated || Date.now()
-                    }
-                };
-                console.log('✅ Achievement state restored from localStorage');
             } else {
-                console.log('ℹ️ No achievement data found, using default achievement state');
+                // Fallback: ensure todayFlowed is at least initialized
+                if (typeof appState.todayFlowed === 'undefined') {
+                    appState.todayFlowed = 0;
+                }
             }
-
-            // ===== DAY 27 ADDITION: RESTORE PERIOD HISTORY =====
-            if (savedData.periodHistory && Array.isArray(savedData.periodHistory)) {
-                appState.periodHistory = savedData.periodHistory;
-                console.log('✅ Period history restored:', savedData.periodHistory.length, 'entries');
-            }
-
-            console.log('✅ Data successfully restored from localStorage:', {
-                income: appState.monthlyIncome,
-                profile: appState.userProfile || appState.saveProfile,
-                onboardingComplete: appState.onboardingComplete,
-                transactionCount: appState.transactions?.length || 0,
-                dailyFlow: appState.dailyFlow || appState.dailyFlowAmount,
-                achievementsLoaded: !!appState.achievements,
-                periodHistoryEntries: appState.periodHistory?.length || 0
-            });
-
-            return true;
-
-        } catch (restoreError) {
-            console.error('❌ Error during data restoration:', restoreError);
-
-            // Partial restore failed, keep what we have and continue
-            // FlowAppLogger: System recovery logging
-            FlowAppLogger.warn('Data restoration failed, using default values', {
-                error: restoreError.message,
-                fallbackAction: 'default_values',
-                systemState: 'partial_recovery'
-            });
-            return false;
         }
-    } else {
-        console.log('ℹ️ No valid saved data found, using default values');
+
+        // DUAL DISPLAY SYSTEM: Ensure daily flow tracking properties are always initialized
+        if (typeof appState.todayFlowed === 'undefined') {
+            appState.todayFlowed = 0;
+            console.log('✅ Initialized todayFlowed for existing user');
+        }
+        if (typeof appState.dailyFlowFixed === 'undefined') {
+            appState.dailyFlowFixed = null;
+        }
+        if (typeof appState.lastDayStart === 'undefined') {
+            appState.lastDayStart = null;
+        }
+
+        // ===== DAY 37 ADDITION: RESTORE ACHIEVEMENT STATE =====
+        if (savedData.achievements) {
+            appState.achievements = {
+                wealthXP: {
+                    totalXP: savedData.achievements.wealthXP?.totalXP || 0,
+                    level: savedData.achievements.wealthXP?.level || 1,
+                    levelXP: savedData.achievements.wealthXP?.levelXP || 0,
+                    levelTarget: savedData.achievements.wealthXP?.levelTarget || 100,
+                    badges: savedData.achievements.wealthXP?.badges || [],
+                    streaks: {
+                        dailyFlow: savedData.achievements.wealthXP?.streaks?.dailyFlow || { current: 0, max: 0, gracePeriod: 1 },
+                        budgetAccuracy: savedData.achievements.wealthXP?.streaks?.budgetAccuracy || { current: 0, max: 0, gracePeriod: 2 },
+                        savings: savedData.achievements.wealthXP?.streaks?.savings || { current: 0, max: 0, gracePeriod: 1 }
+                    }
+                },
+                educational: {
+                    completedModules: savedData.achievements.educational?.completedModules || [],
+                    currentModule: savedData.achievements.educational?.currentModule || null,
+                    learningStreak: savedData.achievements.educational?.learningStreak || 0,
+                    totalTimeSpent: savedData.achievements.educational?.totalTimeSpent || 0
+                },
+                history: {
+                    notifications: savedData.achievements.history?.notifications || [],
+                    achievementHistory: savedData.achievements.history?.achievementHistory || [],
+                    lastCalculated: savedData.achievements.history?.lastCalculated || Date.now()
+                }
+            };
+            console.log('✅ Achievement state restored from localStorage');
+        } else {
+            console.log('ℹ️ No achievement data found, using default achievement state');
+        }
+
+        // ===== DAY 27 ADDITION: RESTORE PERIOD HISTORY =====
+        if (savedData.periodHistory && Array.isArray(savedData.periodHistory)) {
+            appState.periodHistory = savedData.periodHistory;
+            console.log('✅ Period history restored:', savedData.periodHistory.length, 'entries');
+        }
+
+        console.log('✅ Data successfully restored from localStorage:', {
+            income: appState.monthlyIncome,
+            profile: appState.userProfile || appState.saveProfile,
+            onboardingComplete: appState.onboardingComplete,
+            transactionCount: appState.transactions?.length || 0,
+            dailyFlow: appState.dailyFlow || appState.dailyFlowAmount,
+            achievementsLoaded: !!appState.achievements,
+            periodHistoryEntries: appState.periodHistory?.length || 0
+        });
+
+        return true;
+
+    } catch (restoreError) {
+        console.error('❌ Error during data restoration:', restoreError);
+
+        // Partial restore failed, keep what we have and continue
+        // FlowAppLogger: System recovery logging
+        FlowAppLogger.warn('Data restoration failed, using default values', {
+            error: restoreError.message,
+            fallbackAction: 'default_values',
+            systemState: 'partial_recovery'
+        });
         return false;
     }
 }
@@ -11779,12 +11910,39 @@ function cancelIncomeEdit() {
 // ===== ALLOCATION CHANGE INDICATORS =====
 
 function updateAllocationChangeIndicators() {
+    console.log('🔍 DEBUG: updateAllocationChangeIndicators called');
+    console.log('🔍 DEBUG: allocationState:', allocationState);
+    
+    // SAFETY CHECK: Ensure allocationState exists and has required properties
+    if (!allocationState || !allocationState.foundation || !allocationState.originalAllocations) {
+        console.warn('⚠️ WARNING: allocationState not properly initialized in updateAllocationChangeIndicators');
+        console.log('🔍 DEBUG: Initializing default allocationState...');
+        // Initialize with default values
+        allocationState = {
+            foundation: 55,
+            future: 5, 
+            freedom: 40,
+            originalAllocations: {
+                foundation: 55,
+                future: 5,
+                freedom: 40
+            }
+        };
+        console.log('🔍 DEBUG: Default allocationState created:', allocationState);
+    }
+    
     const categories = ['foundation', 'future', 'freedom'];
 
     categories.forEach(category => {
         const currentPercent = allocationState[category];
         const originalPercent = allocationState.originalAllocations[category];
         const changeElement = document.getElementById(`${category}Change`);
+
+        console.log(`🔍 DEBUG: Processing ${category}:`, {
+            currentPercent,
+            originalPercent,
+            changeElement: !!changeElement
+        });
 
         if (!changeElement) return;
 
