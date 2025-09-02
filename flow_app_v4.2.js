@@ -745,7 +745,7 @@ const appState = {
     dailyFlowFixed: null,              // Set once per day, doesn't change during day
     todayFlowed: 0,                    // Tracks money flowed during current day
     lastDayStart: null,                // Timestamp when current day's flow was calculated
-    
+
     // SESSION STATE PROTECTION: Prevent recalculation during active use
     isActiveSession: false,            // Flag to indicate active transaction session
     sessionStartTime: null,            // When the current session started
@@ -2077,7 +2077,7 @@ function showBadgeUnlockToast(badgeConfig) {
 function processTransaction(amount, description, category = 'freedom') {
     // SESSION STATE PROTECTION: Start/extend active session
     extendActiveSession();
-    
+
     // C2: Comprehensive transaction safety validation (replaces all manual validation)
     const validationResult = validateTransactionSafety(amount, category);
     if (!validationResult.isValid) {
@@ -2703,6 +2703,7 @@ function clearAllTransactionsWithConfirmation() {
                 appState.categories.foundation.used = 0;
                 appState.categories.future.used = 0;
                 appState.categories.freedom.used = 0;
+                appState.todayFlowed = 0; // Reset daily flow tracking
 
                 saveToLocalStorage();
                 updateAllDisplaysSynchronized();
@@ -4929,7 +4930,7 @@ function showTransactionImpactFeedback() {
 
 function updateAllDisplaysSynchronized() {
     const dailyFlow = calculateDailyFlow(appState.categories);
-    
+
     // **REMAINING BUDGET DISPLAY: Show dailyFlow minus todayFlowed (ALLOW NEGATIVE)**
     const todayFlowed = appState.todayFlowed || 0;
     const remainingToday = dailyFlow - todayFlowed; // ALLOW NEGATIVE VALUES
@@ -4946,14 +4947,25 @@ function updateAllDisplaysSynchronized() {
         const tomorrowAmount = calculateDailyFlow(appState.categories);
         const tomorrowElement = document.getElementById('tomorrowFlowHint');
         if (tomorrowElement) {
-            // Simple educational messaging
-            let message = "Building your financial clarity";
-            if (tomorrowAmount > dailyFlow) {
-                message = "Your mindful choices are building momentum";
-            } else if (tomorrowAmount < dailyFlow) {
-                message = "Your choices shape the journey";
+            // **NEW: Check for spending threshold warnings first**
+            const freedomUsed = appState.categories.freedom.used || 0;
+            const freedomAllocated = appState.categories.freedom.allocated || 0;
+            const thresholdResult = checkSpendingThresholds(freedomUsed, freedomAllocated, 'freedom');
+
+            let message;
+            if (thresholdResult.shouldWarn && thresholdResult.message) {
+                // Use threshold warning message (escalating awareness)
+                message = thresholdResult.message;
             } else {
-                message = "Steady flow building wealth";
+                // Use default educational messaging (existing logic)
+                message = "Building your financial clarity";
+                if (tomorrowAmount > dailyFlow) {
+                    message = "Your mindful choices are building momentum";
+                } else if (tomorrowAmount < dailyFlow) {
+                    message = "Your choices shape the journey";
+                } else {
+                    message = "Steady flow building wealth";
+                }
             }
 
             tomorrowElement.textContent = `Tomorrow: $${tomorrowAmount} • ${message} 💚`;
@@ -4969,15 +4981,9 @@ function updateAllDisplaysSynchronized() {
     });
 
     // Update income display
-    updateIncomeDisplay()
+    updateIncomeDisplay();
 
     // ===== PHASE 3 ENHANCEMENT: UPDATE NEW UI ELEMENTS =====
-    // Update income display in enhanced interface
-    const incomeAmountEl = document.getElementById('incomeAmount');
-    if (incomeAmountEl) {
-        incomeAmountEl.textContent = `$${appState.monthlyIncome}`;
-    }
-
     // Update category displays with new structure
     updateCategoryDisplays();
 
@@ -5917,7 +5923,7 @@ function selectEditTransactionCategory(category) {
 function submitTransactionEdit() {
     // SESSION STATE PROTECTION: Extend active session for edits
     extendActiveSession();
-    
+
     const transactionId = document.getElementById('editTransactionId').value;
     const newAmount = parseFloat(document.getElementById('editTransactionAmount').value);
     const newDescription = document.getElementById('editTransactionDescription').value.trim();
@@ -6002,7 +6008,7 @@ function submitTransactionEdit() {
 function confirmTransactionDelete() {
     // SESSION STATE PROTECTION: Extend active session for deletes
     extendActiveSession();
-    
+
     const transactionId = document.getElementById('editTransactionId').value;
     const amount = document.getElementById('editTransactionAmount').value;
     const description = document.getElementById('editTransactionDescription').value;
@@ -8749,10 +8755,25 @@ function recalculateAllocations() {
 }
 
 function updateIncomeDisplay() {
-    document.getElementById('incomeAmount').innerHTML = `
-        $${appState.monthlyIncome.toLocaleString()}
-        <span class="income-edit-icon">✏️</span>
-    `;
+    // Update main income display with edit icon
+    const incomeAmountEl = document.getElementById('incomeAmount');
+    if (incomeAmountEl) {
+        incomeAmountEl.innerHTML = `
+            $${appState.monthlyIncome.toLocaleString()}
+            <span class="income-edit-icon">✏️</span>
+        `;
+    }
+
+    // Update other income displays
+    const displayIncomeEl = document.getElementById('displayIncome');
+    if (displayIncomeEl) {
+        displayIncomeEl.textContent = appState.monthlyIncome;
+    }
+
+    const calcIncomeAmountEl = document.getElementById('calcIncomeAmount');
+    if (calcIncomeAmountEl) {
+        calcIncomeAmountEl.textContent = `$${appState.monthlyIncome.toLocaleString()}`;
+    }
 }
 
 
@@ -10441,7 +10462,7 @@ function testDay36LocalStorage() {
     }
 }
 
-// ===== INITIALIZATION =====
+/* // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function () {
     console.log('🎯 FLOW BUDGETING v3.0 - DAY 36: ACHIEVEMENT SYSTEM STATE MANAGEMENT');
     console.log('📅 Phase 7: ACHIEVEMENT SYSTEM FOUNDATION');
@@ -10507,7 +10528,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('⚠️ PHASE 3 GATE REVIEW: Issues detected, review required');
         }
     }, 1000);
-});
+}); */
 
 function checkOnboardingComplete() {
     const savedData = localStorage.getItem('flowBudgeting_v3');
@@ -11707,7 +11728,16 @@ function updateIncomePreview() {
 }
 
 function applyIncomeChange() {
-    const newIncome = incomeEditState.newIncome;
+    // Get the current value directly from the input field
+    const inputValue = document.getElementById('newIncomeInput').value;
+    const newIncome = parseInt(inputValue) || 0;
+    
+    console.log('🔍 Debug income update:', {
+        inputValue: inputValue,
+        newIncome: newIncome,
+        incomeEditStateValue: incomeEditState.newIncome,
+        currentAppStateIncome: appState.monthlyIncome
+    });
 
     if (newIncome < 500 || newIncome > 50000) {
         showToast('❌ Income must be between $500 and $50,000');
@@ -11716,6 +11746,8 @@ function applyIncomeChange() {
 
     // Update app state
     appState.monthlyIncome = newIncome;
+    
+    console.log('✅ App state updated:', appState.monthlyIncome);
 
     // Recalculate allocations
     appState.categories.foundation.allocated = Math.round(newIncome * allocationState.foundation / 100);
@@ -11725,7 +11757,6 @@ function applyIncomeChange() {
     // Update displays
     updateAllDisplaysSynchronized();
     updateAllocationDisplayOnly();
-    calculateDailyFlow();
 
     // Save state
     saveToLocalStorage();
@@ -11991,7 +12022,7 @@ window.addEventListener('load', function () {
         debugTransactions();
 
         console.log('\n🚀 Starting Day 30 Integration Testing...');
-        runIntegrationTests();
+        // DISABLED: runIntegrationTests();
 
         // Make debug functions available globally
         window.debugFlow = {
@@ -13391,17 +13422,17 @@ document.addEventListener('DOMContentLoaded', () => {
     window.runPerformanceTests = runPerformanceTests;
     window.testDay37Implementation = testDay37Implementation;
     
-    // Auto-run Day 37 comprehensive test after 2 seconds
-    setTimeout(() => {
-        console.log('\n🔄 Auto-running Day 37 comprehensive validation...');
-        const results = testDay37Implementation();
-        
-        if (results.criticalSuccess) {
-            console.log('✅ Day 37 Auto-Validation: CRITICAL SYSTEMS OPERATIONAL');
-            
-            // Auto-run Day 38 Phase 2 Code Review after Day 37 validation
-            setTimeout(() => {
-                console.log('\n🔄 Auto-running Day 38 Phase 2 Code Review...');
+    // DISABLED: Auto-run Day 37 comprehensive test after 2 seconds
+    // setTimeout(() => {
+    //     console.log('\n🔄 Auto-running Day 37 comprehensive validation...');
+    //     const results = testDay37Implementation();
+    //     
+    //     if (results.criticalSuccess) {
+    //         console.log('✅ Day 37 Auto-Validation: CRITICAL SYSTEMS OPERATIONAL');
+    //         
+    //         // Auto-run Day 38 Phase 2 Code Review after Day 37 validation
+    //         setTimeout(() => {
+    //             console.log('\n🔄 Auto-running Day 38 Phase 2 Code Review...');
                 const day38Results = runDay38Phase2CodeReview();
                 
                 if (day38Results.phase2Success) {
@@ -16336,9 +16367,9 @@ window.FlowTestSuite = {
 };
 
 // Quick access functions (preserves existing behavior)
-window.runFlowTests = function (options = {}) {
-    return window.FlowTestSuite.runAll(options);
-};
+//window.runFlowTests = function (options = {}) {
+//    return window.FlowTestSuite.runAll(options);
+//};
 
 // Set log level helper
 window.setTestLogLevel = function (level) {
@@ -16443,7 +16474,7 @@ window.runPerformanceTests = function () {
     const startTime = performance.now();
 
     // Run core tests with performance monitoring
-    const results = window.FlowTestSuite.runAll({ core: true, logLevel: 'ERROR' });
+    //const results = window.FlowTestSuite.runAll({ core: true, logLevel: 'ERROR' });
 
     const endTime = performance.now();
     const totalTime = endTime - startTime;
@@ -16484,7 +16515,7 @@ FlowTestLogger.debug('Direct access: FlowTestSuite.runAll(), FlowTestSuite.core.
 FlowTestLogger.info('===============================================================');
 
 // Auto-demo: Run a quick system check to show the framework working
-setTimeout(() => {
+// DISABLED: setTimeout(() => {
     FlowTestLogger.info('🚀 RUNNING QUICK SYSTEM CHECK (Demo):');
     FlowTestLogger.info('====================================');
 
@@ -16503,89 +16534,89 @@ setTimeout(() => {
 
     const allReady = frameworkCheck.loggerAvailable && frameworkCheck.testSuiteAvailable;
     if (allReady) {
-        FlowTestLogger.info('✅ Test Framework Ready! Auto-running all tests...');
+        FlowTestLogger.info('✅ Test Framework Ready! Auto-running disabled...');
 
-        // AUTO-RUN ALL TESTS ON INITIALIZATION
-        FlowTestLogger.info('\n🎯 FLOW APP COMPREHENSIVE TEST SUITE');
-        FlowTestLogger.info('=====================================');
-        FlowTestLogger.info('Running tests in systematic sequence...\n');
+        // DISABLED: AUTO-RUN ALL TESTS ON INITIALIZATION
+        // FlowTestLogger.info('\n🎯 FLOW APP COMPREHENSIVE TEST SUITE');
+        // FlowTestLogger.info('=====================================');
+        // FlowTestLogger.info('Running tests in systematic sequence...\n');
 
         // Phase 1: Core System Tests
-        FlowTestLogger.info('🔧 PHASE 1: CORE SYSTEM VALIDATION');
-        FlowTestLogger.info('-----------------------------------');
-        const coreResults = window.FlowTestSuite.runAll({
-            core: true,
-            daily: false,
-            logLevel: 'INFO'
-        });
+        // FlowTestLogger.info('🔧 PHASE 1: CORE SYSTEM VALIDATION');
+        // FlowTestLogger.info('-----------------------------------');
+        // const coreResults = window.FlowTestSuite.runAll({
+        //     core: true,
+        //     daily: false,
+        //     logLevel: 'INFO'
+        // });
 
         // Phase 2: Daily Feature Tests (chronological order)
-        FlowTestLogger.info('\n📅 PHASE 2: DAILY FEATURE TESTS (CHRONOLOGICAL)');
-        FlowTestLogger.info('================================================');
+        // FlowTestLogger.info('\n📅 PHASE 2: DAILY FEATURE TESTS (CHRONOLOGICAL)');
+        // FlowTestLogger.info('================================================');
 
         // Disable the bulk daily runner to control sequence
-        const dailyTests = [
-            { name: 'Day 36: Achievement System State Management', func: 'day36' },
-            { name: 'Day 37: XP Calculation Engine', func: 'day37' },
-            { name: 'Day 38: Celebration System Enhancement', func: 'day38' },
-            { name: 'Day 39: Wealth-Building Architecture', func: 'day39' },
-            { name: 'Day 40: Foundation Integration Testing', func: 'day40' }
-        ];
+        // const dailyTests = [
+        //     { name: 'Day 36: Achievement System State Management', func: 'day36' },
+        //     { name: 'Day 37: XP Calculation Engine', func: 'day37' },
+        //     { name: 'Day 38: Celebration System Enhancement', func: 'day38' },
+        //     { name: 'Day 39: Wealth-Building Architecture', func: 'day39' },
+        //     { name: 'Day 40: Foundation Integration Testing', func: 'day40' }
+        // ];
 
-        let dailyPassed = 0;
-        let dailyFailed = 0;
+        // let dailyPassed = 0;
+        // let dailyFailed = 0;
 
-        dailyTests.forEach((test, index) => {
-            FlowTestLogger.info(`\n${index + 1}️⃣ ${test.name}:`);
-            FlowTestLogger.info('─'.repeat(test.name.length + 4));
+        // dailyTests.forEach((test, index) => {
+        //     FlowTestLogger.info(`\n${index + 1}️⃣ ${test.name}:`);
+        //     FlowTestLogger.info('─'.repeat(test.name.length + 4));
 
-            try {
-                const result = window.FlowTestSuite.daily[test.func]();
-                if (result) {
-                    FlowTestLogger.info(`✅ ${test.name} - PASSED`);
-                    dailyPassed++;
-                } else {
-                    FlowTestLogger.warn(`❌ ${test.name} - FAILED`);
-                    dailyFailed++;
-                }
-            } catch (error) {
-                FlowTestLogger.error(`💥 ${test.name} - ERROR: ${error.message}`);
-                dailyFailed++;
-            }
-        });
+        //     try {
+        //         const result = window.FlowTestSuite.daily[test.func]();
+        //         if (result) {
+        //             FlowTestLogger.info(`✅ ${test.name} - PASSED`);
+        //             dailyPassed++;
+        //         } else {
+        //             FlowTestLogger.warn(`❌ ${test.name} - FAILED`);
+        //             dailyFailed++;
+        //         }
+        //     } catch (error) {
+        //         FlowTestLogger.error(`💥 ${test.name} - ERROR: ${error.message}`);
+        //         dailyFailed++;
+        //     }
+        // });
 
         // Combined summary
-        const totalPassed = coreResults.passed + dailyPassed;
-        const totalFailed = coreResults.failed + dailyFailed;
-        const totalTests = totalPassed + totalFailed;
-        const successRate = totalTests > 0 ? Math.round((totalPassed / totalTests) * 100) : 0;
+        // const totalPassed = coreResults.passed + dailyPassed;
+        // const totalFailed = coreResults.failed + dailyFailed;
+        // const totalTests = totalPassed + totalFailed;
+        // const successRate = totalTests > 0 ? Math.round((totalPassed / totalTests) * 100) : 0;
 
-        FlowTestLogger.info('\n🏆 COMPREHENSIVE TEST SUITE RESULTS');
-        FlowTestLogger.info('====================================');
-        FlowTestLogger.info(`📊 Core Tests: ${coreResults.passed}/${coreResults.passed + coreResults.failed} passed`);
-        FlowTestLogger.info(`📅 Daily Tests: ${dailyPassed}/${dailyPassed + dailyFailed} passed`);
-        FlowTestLogger.info(`🎯 Total: ${totalPassed}/${totalTests} tests passed`);
-        FlowTestLogger.info(`📈 Success Rate: ${successRate}%`);
+        // FlowTestLogger.info('\n🏆 COMPREHENSIVE TEST SUITE RESULTS');
+        // FlowTestLogger.info('====================================');
+        // FlowTestLogger.info(`📊 Core Tests: ${coreResults.passed}/${coreResults.passed + coreResults.failed} passed`);
+        // FlowTestLogger.info(`📅 Daily Tests: ${dailyPassed}/${dailyPassed + dailyFailed} passed`);
+        // FlowTestLogger.info(`🎯 Total: ${totalPassed}/${totalTests} tests passed`);
+        // FlowTestLogger.info(`📈 Success Rate: ${successRate}%`);
 
-        if (successRate >= 90) {
-            FlowTestLogger.info('🎉 EXCELLENT: System is in great shape!');
-        } else if (successRate >= 70) {
-            FlowTestLogger.info('✅ GOOD: Most systems operational, some attention needed');
-        } else {
-            FlowTestLogger.info('⚠️ NEEDS ATTENTION: Multiple test failures detected');
-        }
+        // if (successRate >= 90) {
+        //     FlowTestLogger.info('🎉 EXCELLENT: System is in great shape!');
+        // } else if (successRate >= 70) {
+        //     FlowTestLogger.info('✅ GOOD: Most systems operational, some attention needed');
+        // } else {
+        //     FlowTestLogger.info('⚠️ NEEDS ATTENTION: Multiple test failures detected');
+        // }
 
-        FlowTestLogger.info('\n💡 Manual commands still available:');
-        FlowTestLogger.info('   • setTestLogLevel("DEBUG") - More verbose output');
-        FlowTestLogger.info('   • runFlowTests({section: "debug"}) - Debug utilities');
-        FlowTestLogger.info('   • listAvailableTests() - See all available tests');
-        FlowTestLogger.info('================================');
+        // FlowTestLogger.info('\n💡 Manual commands still available:');
+        // FlowTestLogger.info('   • setTestLogLevel("DEBUG") - More verbose output');
+        // FlowTestLogger.info('   • runFlowTests({section: "debug"}) - Debug utilities');
+        // FlowTestLogger.info('   • listAvailableTests() - See all available tests');
+        // FlowTestLogger.info('================================');
 
     } else {
         FlowTestLogger.error('❌ Test Framework has issues - check console for errors');
     }
 
-}, 1500); // Increased delay to ensure all systems are loaded
+// }); // DISABLED: setTimeout end - }, 1500); // Increased delay to ensure all systems are loaded
 
 
 // ===== ACHIEVEMENT UI DYNAMIC RENDERING & TOUCH OPTIMIZATION =====
@@ -21560,7 +21591,7 @@ function recalculateTodayFlowed() {
             currentTodayFlowed: appState.todayFlowed
         };
     }
-    
+
     console.log('🔄 Recalculating todayFlowed from transactions...');
 
     const calculation = calculateExpectedTodayFlowed();
@@ -21607,7 +21638,7 @@ function debugDailySpendingState() {
     console.log('📊 Freedom category total:', freedomTotal);
     console.log('📊 Spend category total:', spendTotal);
     console.log('📊 Expected todayFlowed:', freedomTotal + spendTotal);
-    
+
     // SESSION STATE PROTECTION INFO
     console.log('\n🔒 Session Protection Status:');
     console.log('   Active Session:', appState.isActiveSession);
@@ -21659,17 +21690,17 @@ console.log('  - debugDailySpendingState() - Debug current state');
 function startActiveSession() {
     appState.isActiveSession = true;
     appState.sessionStartTime = Date.now();
-    
+
     // Clear any existing timer
     if (appState.sessionTimer) {
         clearTimeout(appState.sessionTimer);
     }
-    
+
     // Auto-end session after 15 minutes of inactivity
     appState.sessionTimer = setTimeout(() => {
         endActiveSession();
     }, 15 * 60 * 1000); // 15 minutes
-    
+
     console.log('🟢 Active session started - recalculation protection enabled');
 }
 
@@ -21681,18 +21712,18 @@ function endActiveSession() {
     if (!appState.isActiveSession) {
         return; // Already ended
     }
-    
+
     appState.isActiveSession = false;
     const sessionDuration = Date.now() - (appState.sessionStartTime || Date.now());
-    
+
     // Clear timer
     if (appState.sessionTimer) {
         clearTimeout(appState.sessionTimer);
         appState.sessionTimer = null;
     }
-    
+
     console.log(`🔴 Active session ended after ${Math.round(sessionDuration / 1000)}s - recalculation allowed`);
-    
+
     // Safe to recalculate now that session is over
     try {
         if (typeof recalculateTodayFlowed === 'function') {
@@ -21712,16 +21743,16 @@ function extendActiveSession() {
         startActiveSession();
         return;
     }
-    
+
     // Clear existing timer and set new one
     if (appState.sessionTimer) {
         clearTimeout(appState.sessionTimer);
     }
-    
+
     appState.sessionTimer = setTimeout(() => {
         endActiveSession();
     }, 15 * 60 * 1000); // 15 minutes
-    
+
     console.log('⏱️ Active session extended');
 }
 

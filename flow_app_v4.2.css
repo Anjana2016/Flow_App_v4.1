@@ -10559,9 +10559,10 @@ body {
     /* ===== ENHANCED INCOME INTERFACE ===== */
     .income-display-container {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 16px;
+        gap: 4px;
         margin-bottom: 8px;
     }
 
