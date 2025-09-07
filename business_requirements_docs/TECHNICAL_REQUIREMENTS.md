@@ -1,11 +1,17 @@
 # 🏗️ Flow App - Technical Requirements & System Architecture
-*Comprehensive Technical Specifications from Flow v4.2 Implementation*
+*Enhanced for Flow v4.3 - Flexible Period System Architecture*
 
 ---
 
 ## System Architecture Overview
 
-Flow v4.2 implements a **mobile-first, privacy-first financial empowerment platform** built on vanilla web technologies with sophisticated behavioral psychology integration. The architecture prioritizes **user control**, **mathematical precision**, and **psychological effectiveness** over feature complexity.
+Flow v4.3 implements a **mobile-first, privacy-first financial empowerment platform** built on vanilla web technologies with sophisticated behavioral psychology integration and **revolutionary flexible period support**. The architecture prioritizes **user control**, **mathematical precision**, **psychological effectiveness**, and **period-aware calculations** over feature complexity.
+
+### 🆕 v4.3 Architectural Innovations
+- **Period-Aware Calculation Engine**: Dynamic daily flow based on weekly/bi-weekly/monthly cycles
+- **Smart Migration System**: Seamless v4.2 to v4.3 transition with data preservation
+- **Namespace Isolation**: v4.3 data stored separately for safety and rollback capability
+- **Rolling Period Logic**: Automatic cycle transitions with custom start date support
 
 ---
 
@@ -76,42 +82,74 @@ Flow v4.2 implements a **mobile-first, privacy-first financial empowerment platf
 - **Build Tab (Progress)**: Growth story tracking and achievement system
 - **Cross-tab Synchronization**: Real-time state updates across all interfaces
 
-### **2. Flow Method Calculation Engine**
+### **2. Flow Method Calculation Engine (🆕 v4.3 Enhanced)**
 **Implementation Evidence**:
 ```javascript
-// Core calculation from flow_app_v4.2.js
+// v4.3 Enhanced period-aware calculation from flow_app_v4.3.js
 function calculateDailyFlow(categories, currentDay, daysInMonth) {
-    const remaining = income - spent;
-    const daysRemaining = validDaysInMonth - validCurrentDay + 1;
-    const rawDailyFlow = remaining / daysRemaining;
+    // v4.3 ENHANCEMENT: Check if period configuration is available
+    if (appState?.periodConfig?.length && appState.periodConfig.length > 0) {
+        // Use period-based calculation
+        const periodLength = appState.periodConfig.length;
+        const daysRemaining = calculatePeriodDaysRemaining(periodLength);
+        rawDailyFlow = remaining / daysRemaining;
+        calculationMethod = 'period-based';
+    } else {
+        // Fall back to monthly calculation for v4.2 compatibility
+        const daysRemaining = validDaysInMonth - validCurrentDay + 1;
+        rawDailyFlow = remaining / daysRemaining;
+        calculationMethod = 'monthly-based';
+    }
     
-    // v4.0 Specification: $1 precision with Math.round()
-    const result = Math.max(0, Math.round(rawDailyFlow));
-    return result;
+    // v4.3 Specification: $1 precision with Math.round(), prevent negatives
+    return Math.max(0, Math.round(rawDailyFlow));
 }
 ```
 
-**Mathematical Requirements**:
-- **Precision**: $1 rounding prevents penny discrepancies that erode user trust
-- **Real-time Calculation**: Sub-100ms response time for all financial calculations
-- **Consistency**: Identical results across onboarding and main app calculations
-- **Safety**: Mathematical constraints prevent financially harmful allocations
+**🆕 v4.3 Mathematical Requirements**:
+- **Period Intelligence**: Automatic detection of weekly/bi-weekly/monthly cycles
+- **Custom Start Date Logic**: Precise day calculations with user-selected period alignment
+- **Rolling Period Support**: Seamless transitions between periods without manual resets
+- **Backward Compatibility**: Legacy wrapper functions maintain v4.2 calculation accuracy
+- **Timezone Safety**: Local timezone handling prevents UTC calculation drift errors
+- **Precision**: $1 rounding prevents penny discrepancies across all period types
+- **Real-time Calculation**: Sub-100ms response time for period-aware calculations
+- **Consistency**: Identical results across onboarding, main app, and legacy calculations
 
-### **3. localStorage Data Architecture**
+### **3. localStorage Data Architecture (🆕 v4.3 Enhanced)**
 **Implementation Evidence**:
 ```javascript
-// Complete data structure from onboarding integration
-const flowAppData = {
-    monthlyIncome: income,
+// v4.3 Enhanced data structure with period support
+const appState = {
+    version: '4.3',
+    dataNamespace: 'flowAppData_v4_3',    // 🆕 Separate namespace for v4.3
+    monthlyIncome: 3200,
+    userProfile: 'serious',
+    onboardingComplete: true,
+    
+    // 🆕 V4.3: FLEXIBLE PERIOD SYSTEM
+    periodConfig: {
+        type: 'monthly',              // weekly, biweekly, monthly
+        length: 30,                   // 7, 14, or 30 days
+        startDate: '2025-09-15',      // User selected start date
+        incomeAmount: 3200,           // Period-based income amount
+        lastReset: null,              // When period was last reset
+        nextReset: '2025-10-15',      // When next reset is scheduled
+    },
+    
     categories: { foundation: {...}, future: {...}, freedom: {...} },
-    userProfile: { setupCompleted: true, ... },
     achievements: { streaks: {...}, educational: {...} },
     transactions: [],
     allocationState: { originalAllocations: {...} }
 };
 ```
 
-**Data Management Requirements**:
+**🆕 v4.3 Data Management Requirements**:
+- **Namespace Isolation**: v4.3 data in `flowAppData_v4_3`, v4.2 data preserved in `flowBudgeting_v3`
+- **Migration Safety**: Automatic v4.2 detection and data migration with rollback capability
+- **Period Configuration**: Persistent storage of user period preferences and custom start dates  
+- **Rolling Period State**: Automatic tracking of period transitions and reset calculations
+- **Cross-Version Compatibility**: Ability to safely switch between v4.2 and v4.3
 - **Privacy Architecture**: Complete financial data stored locally (no cloud dependency)
 - **Data Validation**: Comprehensive input sanitization and type checking
 - **Corruption Recovery**: Automatic fallback and data restoration capabilities

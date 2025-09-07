@@ -1,11 +1,11 @@
 # 📋 Flow App - Functional Requirements & User Stories
-*Comprehensive Feature Specifications from Flow v4.2 Implementation*
+*Enhanced for Flow v4.3 - Flexible Period System*
 
 ---
 
 ## Functional Requirements Overview
 
-Flow v4.2 implements **guilt-free financial empowerment** through a sophisticated three-tab architecture that maps to natural user decision-making processes. Every functional requirement is designed around behavioral psychology principles rather than traditional accounting approaches.
+Flow v4.3 implements **guilt-free financial empowerment** through a sophisticated three-tab architecture that maps to natural user decision-making processes, now enhanced with **flexible period support** for modern work patterns. Every functional requirement is designed around behavioral psychology principles rather than traditional accounting approaches, with v4.3 adding period-aware calculations that adapt to weekly, bi-weekly, and monthly income cycles.
 
 ---
 
@@ -180,6 +180,96 @@ achievements: {
 - [ ] Application tracking (learning → real behavior change)
 - [ ] Contextual coaching moments based on user actions
 - [ ] Financial psychology concept mastery indicators
+
+### 🆕 **Epic 5: Flexible Period System (v4.3)**
+
+#### **User Story 5.1: Period Selection & Configuration**
+**As a** gig worker with weekly income  
+**I want** to set my budget cycle to match my weekly payday schedule  
+**So that** my daily flow calculations align with my actual cash flow  
+
+**Implementation Evidence**:
+```javascript
+// v4.3 periodConfig from flow_app_v4.3.js
+periodConfig: {
+    type: 'weekly',           // weekly, biweekly, monthly
+    length: 7,                // 7, 14, or 30 days
+    startDate: '2025-09-02',  // User-selected start date
+    incomeAmount: 800,        // Period-based income amount
+    lastReset: null,          // When period was last reset
+    nextReset: null,          // When next reset is scheduled
+}
+```
+
+**Acceptance Criteria**:
+- [ ] Three period options: Weekly (7 days), Bi-weekly (14 days), Monthly (30 days)
+- [ ] Custom start date picker with calendar interface
+- [ ] Real-time preview of period dates and income allocation
+- [ ] Validation of period configuration before saving
+- [ ] Clear explanation of how period choice affects daily flow calculations
+- [ ] Ability to change period type with impact preview
+
+#### **User Story 5.2: Period-Aware Daily Flow Calculation**
+**As a** user with flexible income cycles  
+**I want** my daily flow amount calculated based on my actual remaining period days  
+**So that** I have accurate spending guidance that matches my real financial timeline  
+
+**Implementation Evidence**:
+```javascript
+// v4.3 Enhanced calculateDailyFlow from flow_app_v4.3.js
+if (appState?.periodConfig?.length && appState.periodConfig.length > 0) {
+    // Use period-based calculation
+    const periodLength = appState.periodConfig.length;
+    const daysRemaining = calculatePeriodDaysRemaining(periodLength);
+    rawDailyFlow = remaining / daysRemaining;
+    calculationMethod = 'period-based';
+} else {
+    // Fall back to monthly calculation for v4.2 compatibility
+    rawDailyFlow = remaining / monthlyDaysRemaining;
+}
+```
+
+**Acceptance Criteria**:
+- [ ] Daily flow calculation automatically detects period configuration
+- [ ] Period-based calculation uses actual remaining days in current cycle
+- [ ] Automatic period rollover without manual reset required
+- [ ] Custom start date alignment with period cycle calculations
+- [ ] Fallback to monthly calculations for backward compatibility
+- [ ] Real-time recalculation when period settings change
+
+#### **User Story 5.3: Seamless Data Migration**
+**As a** existing v4.2 Flow user  
+**I want** to upgrade to v4.3 flexible periods without losing my financial data  
+**So that** I can access new features while preserving my transaction history and progress  
+
+**Implementation Evidence**:
+```javascript
+// v4.3 Data namespace separation
+version: '4.3',
+dataNamespace: 'flowAppData_v4_3',
+// Legacy v4.2 data remains in original namespace for safety
+```
+
+**Acceptance Criteria**:
+- [ ] Automatic detection of existing v4.2 user data
+- [ ] Complete migration of transactions, settings, and achievement progress
+- [ ] v4.3 data stored in separate namespace to prevent conflicts
+- [ ] Option to revert to v4.2 without data loss
+- [ ] Migration validation with error handling and rollback capability
+- [ ] User notification of successful migration with welcome guidance
+
+#### **User Story 5.4: Rolling Period Management**
+**As a** user with configured periods  
+**I want** my budget to automatically reset and roll over to the next period  
+**So that** I don't need to manually manage period transitions  
+
+**Acceptance Criteria**:
+- [ ] Automatic detection of period end based on start date and length
+- [ ] Seamless transition to new period with updated calculations
+- [ ] Carryover handling for unused budget amounts
+- [ ] Period history tracking for progress analysis
+- [ ] Visual indication of current period progress and next reset date
+- [ ] Notification system for upcoming period transitions
 
 ---
 

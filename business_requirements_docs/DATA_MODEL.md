@@ -1,5 +1,5 @@
 # DATA MODEL SPECIFICATION
-*Flow App v4.2 - Data Architecture Documentation*
+*Flow App v4.3 - Enhanced with Flexible Period System*
 
 ---
 
@@ -7,43 +7,72 @@
 
 ### Storage Strategy
 - **Primary Storage**: Browser localStorage with JSON serialization
-- **Data Key**: `flowBudgeting_v3` - versioned for migration compatibility
+- **🆕 v4.3 Data Key**: `flowAppData_v4_3` - separate namespace for flexible period system
+- **Legacy Compatibility**: v4.2 data preserved in `flowBudgeting_v3` for safe migration
 - **Persistence Model**: Local-first architecture with zero server dependency
 - **Backup Strategy**: Automatic save every 30 seconds + on user actions
 - **Data Ownership**: Complete user control with offline-first design
 
-### Core Design Principles
+### 🆕 v4.3 Enhanced Design Principles
 - **Privacy by Design**: No personal data transmission or external storage
-- **Mathematical Integrity**: Precise financial calculations with consistent state
+- **Mathematical Integrity**: Precise financial calculations with period-aware state
 - **Graceful Degradation**: Robust handling of corrupted or missing data
 - **Cross-Tab Synchronization**: Real-time state updates across interface elements
-- **Migration Support**: Version-aware data structure for future updates
+- **🆕 Period-Aware Migration**: Automatic v4.2 to v4.3 data transition with namespace separation
+- **🆕 Multi-Period Support**: Data structure supports weekly, bi-weekly, and monthly cycles
 
 ---
 
 ## 2. PRIMARY APPLICATION STATE
 
-### Root Data Structure
+### 🆕 v4.3 Enhanced Root Data Structure
 ```json
 {
+  "version": "4.3",
+  "dataNamespace": "flowAppData_v4_3",
   "monthlyIncome": 3200,
   "onboardingComplete": true,
-  "currentPeriod": "2024-12",
+  "userProfile": "serious",
+  
+  "🆕 periodConfig": {
+    "type": "monthly",              "// weekly, biweekly, monthly"
+    "length": 30,                   "// 7, 14, or 30 days"
+    "startDate": "2025-09-15",      "// User selected start date (YYYY-MM-DD)"
+    "incomeAmount": 3200,           "// Period-based income amount"
+    "lastReset": null,              "// When period was last reset"
+    "nextReset": "2025-10-15"       "// When next reset is scheduled"
+  },
+  
+  "currentPeriod": "2025-09",
   "periodHistory": [],
-  "categories": { /* Flow Method allocation data */ },
-  "transactions": [ /* Transaction history array */ ],
-  "userProfile": { /* User configuration */ },
-  "achievements": { /* Achievement system data */ },
-  "budgetState": { /* Budget calculation state */ },
+  "categories": { "/* Flow Method allocation data */" },
+  "transactions": [ "/* Transaction history array */" ],
+  "achievements": { "/* Achievement system data */" },
+  "budgetState": { "/* Budget calculation state */" },
   "dailyFlow": 42.67,
   "dailyFlowAmount": 42.67,
   "todayFlowed": 0,
   "daysInMonth": 31,
   "currentDay": 15,
-  "allocations": { /* Percentage allocations */ },
-  "allocationState": { /* Advanced allocation management */ }
+  "allocations": { "/* Percentage allocations */" },
+  "allocationState": { "/* Advanced allocation management */" }
 }
 ```
+
+### 🆕 v4.3 Period Configuration Details
+The `periodConfig` object is the core innovation of v4.3, enabling flexible budget cycles:
+
+#### Period Types
+- **`type: "weekly"`** - 7-day cycles, perfect for gig work and part-time employment
+- **`type: "biweekly"`** - 14-day cycles, most common for full-time employment  
+- **`type: "monthly"`** - 30-day cycles, traditional salary with custom start dates
+
+#### Key Properties
+- **`length`**: Number of days in each period (7, 14, or 30)
+- **`startDate`**: User-selected start date in YYYY-MM-DD format, enabling payday alignment
+- **`incomeAmount`**: Total income for the period (replaces monthlyIncome for calculations)
+- **`lastReset`**: Timestamp of last period transition for rollover logic
+- **`nextReset`**: Calculated next period start date for user preview
 
 ---
 
